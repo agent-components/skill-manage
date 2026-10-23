@@ -1,0 +1,140 @@
+// 用户：复用已有 public.users
+// 业务表：统一放在 skills schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+  schemas  = ["public", "skills"]
+}
+
+enum UserRole {
+  ADMIN
+  USER
+
+  @@schema("public")
+}
+
+enum UserStatus {
+  ACTIVE
+  RESIGNED
+
+  @@schema("public")
+}
+
+/// 共享用户表，勿对该表做破坏性迁移
+model User {
+  id             String     @id
+  account        String     @unique
+  password       String
+  displayName    String
+  phone          String?
+  role           UserRole   @default(USER)
+  status         UserStatus @default(ACTIVE)
+  token          String?    @unique
+  tokenExpiredAt DateTime?
+  createdAt      DateTime   @default(now())
+  updatedAt      DateTime
+  aboutMe        String?
+  email          String?
+
+  @@map("users")
+  @@schema("public")
+}
+
+model Project {
+  id          String   @id @default(cuid())
+  ownerId     String
+  name        String
+  slug        String
+  description String?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  skills ProjectSkill[]
+
+  @@unique([ownerId, slug])
+  @@index([ownerId])
+  @@map("projects")
+  @@schema("skills")
+}
+
+model Skill {
+  id              String   @id @default(cuid())
+  ownerId         String
+  slug            String
+  displayName     String
+  summary         String?
+  /// 列表展示用标签（上传时写入，不依赖 version.metadata）
+  tags            String[] @default([])
+  latestVersionId String?  @unique
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  projects     ProjectSkill[]
+  versions     SkillVersion[]
+  latestVersion SkillVersion? @relation("SkillLatestVersion", fields: [latestVersionId], references: [id], onDelete: SetNull)
+
+  @@unique([ownerId, slug])
+  @@index([ownerId])
+  @@map("skills")
+  @@schema("skills")
+}
+
+model ProjectSkill {
+  id        String   @id @default(cuid())
+  projectId String
+  skillId   String
+  createdAt DateTime @default(now())
+
+  project Project @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  skill   Skill   @relation(fields: [skillId], references: [id], onDelete: Cascade)
+
+  @@unique([projectId, skillId])
+  @@index([skillId])
+  @@map("project_skills")
+  @@schema("skills")
+}
+
+model SkillVersion {
+  id          String   @id @default(cuid())
+  skillId     String
+  version     String
+  storageKey  String
+  fileCount   Int      @default(0)
+  totalSize   BigInt   @default(0)
+  changelog   String?
+  /// SKILL.md 完整 frontmatter（全部 meta 字段）
+  metadata    Json?
+  createdAt   DateTime @default(now())
+
+  skill           Skill       @relation(fields: [skillId], references: [id], onDelete: Cascade)
+  latestForSkills Skill[]     @relation("SkillLatestVersion")
+  files           SkillFile[]
+
+  @@unique([skillId, version])
+  @@index([skillId])
+  @@map("skill_versions")
+  @@schema("skills")
+}
+
+model SkillFile {
+  id         String   @id @default(cuid())
+  versionId  String
+  filePath   String
+  storageKey String
+  sha256     String
+  fileSize   BigInt
+  contentType String?
+  createdAt  DateTime @default(now())
+
+  version SkillVersion @relation(fields: [versionId], references: [id], onDelete: Cascade)
+
+  @@unique([versionId, filePath])
+  @@index([versionId])
+  @@map("skill_files")
+  @@schema("skills")
+}
