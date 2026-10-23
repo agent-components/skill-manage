@@ -1,22 +1,104 @@
-# Next.js Web Application Example
+# 技能管理
 
-This is a modern React framework application example built with Next.js 14.2.5, a powerful full-stack framework that enables server-side rendering, static site generation, and API routes with React.
+技能管理用来存放、查阅和分发技能包。你可以在网页上维护技能，也可以把某个项目交给支持 MCP 的助手，让它直接查看、下载或发布这个项目里的技能。
 
-## Project Description
+登录后只能看到自己的项目、技能和令牌。
 
-This project creates a server-rendered React application using Next.js. The application demonstrates Next.js's core features, including its file-based routing system, server components, image optimization, and CSS modules. The development server listens on port 3000 and provides hot-reloading for a smooth development experience. Next.js's hybrid rendering capabilities allow for optimized performance through both server-side rendering and static site generation, making it ideal for SEO-friendly web applications.
+## 从这里开始
 
-## Environment
+1. 用已有账号登录。登录后进入「技能管理」。
+2. 在「项目管理」里新建一个项目，用来给技能分组。
+3. 上传技能包，并把它挂到这个项目。
+4. 在「令牌管理」里为这个项目新建令牌，复制 MCP 配置到助手。
 
-This project runs on a Debian 12 system with Node.js and Next.js 14.2.5, which is pre-configured in the Devbox environment. You don't need to worry about setting up Node.js, npm, or Next.js dependencies yourself. The development environment includes all necessary tools for building and running Next.js applications. If you need to make adjustments to match your specific requirements, you can modify the configuration files accordingly.
+右上角可以切换外观，也可以退出登录。
 
-## Project Execution
+## 技能管理
 
-**Development mode:** For normal development environment, simply enter Devbox and run `bash entrypoint.sh` in the terminal. This will start the Next.js development server with hot-reload enabled.
+技能是一份压缩包，里面至少要有 `SKILL.md`。列表里可以看到名称、标识（Slug）、描述、标签、最新版本，以及它挂在哪些项目上。
 
-**Production mode:** After release, the project will be automatically packaged into a Docker image and deployed according to the `entrypoint.sh` script with production parameters (run `bash entrypoint.sh production`). This will build an optimized production build and start the Next.js production server.
+可以按名称或项目筛选。
 
+- **上传技能包**：选择 ZIP，填写或确认版本号，并选择要挂上的项目。版本号可以从文件名带出（例如 `code-review-1.0.0.zip`），也可以写在 `SKILL.md` 里，或在上传时填写。
+- **详情**：打开后有三个页签。
+  - 概述：优先显示 `README.md`，没有则显示 `SKILL.md`。
+  - 文件：浏览包内文件。文本可以直接预览；二进制或过大的文件请下载压缩包查看。
+  - 版本历史：查看以往版本，并下载对应压缩包。
+- **上传新版本**：在详情页继续上传。版本号不能与已有版本重复。
+- **编辑**：可改名称、描述、标签，以及挂到哪些项目。
+- **删除**：会删掉这个技能的全部版本和文件，无法恢复。
 
-DevBox: Code. Build. Deploy. We've Got the Rest.
+从项目里移除技能，只是解除关联，技能本身还在。
 
-With DevBox, you can focus entirely on writing great code while we handle the infrastructure, scaling, and deployment. Seamless development from start to production.
+## 项目管理
+
+项目是一组技能的集合。助手通过令牌连接后，只能看到该令牌所绑定项目里的技能。
+
+- **新建**：填写名称即可。标识可留空，系统会按名称生成。描述可选。
+- **详情**：查看已挂载的技能，也可以继续关联已有技能，或把某个技能从本项目移除。
+- **编辑 / 删除**：可改名称、标识和描述。删除项目只会去掉项目及其关联，不会删除技能。
+
+## 令牌管理
+
+令牌用来让助手访问某一个项目。每个令牌必须绑定一个项目，名称在你的账号下不能重复。
+
+列表里的令牌是打码的。点「复制」才会拿到完整内容；点「复制 MCP」会得到一份可直接粘贴的连接配置，形式如下：
+
+```json
+{
+  "mcpServers": {
+    "项目标识-skill": {
+      "url": "https://你的站点/api/mcp",
+      "headers": {
+        "Authorization": "Bearer 你的令牌"
+      }
+    }
+  }
+}
+```
+
+把这段配置加到支持 MCP 的客户端（例如 Cursor）后，助手就连上了这个项目。
+
+撤销后令牌立即失效，且不能恢复。列表里可以看到最近一次使用时间。
+
+## 技能包怎么准备
+
+把技能打成 ZIP。根目录需要有 `SKILL.md`；如果压缩包外面多包了一层文件夹，上传时会自动剥掉这一层。
+
+`SKILL.md` 开头用这段信息说明技能是什么：
+
+```markdown
+---
+name: code-review
+displayName: 代码审查
+summary: 按团队规范审查改动
+version: 1.0.0
+tags:
+  - review
+---
+
+这里写技能正文，告诉助手何时使用、按什么步骤工作。
+```
+
+- `name` 必填，用来生成技能标识。标识由小写字母、数字和连字符组成。
+- `displayName` 是列表里看到的名称；不写则使用 `name`。
+- `summary` 是简短描述，`tags` 是标签，都可以不写。
+- `version` 建议写成 `1.0.0` 这种形式。网页上传时也可以在表单里补版本号。
+
+通过助手发布时，压缩包文件名必须是「标识-版本号.zip」，例如 `code-review-1.0.0.zip`，并且要和包内的标识、版本一致。同一版本不能重复上传，要发更新就升高版本号。
+
+单个文件不要超过 5 MB，整个包不要超过 50 MB，文件数量不要超过 500 个。
+
+## 助手能做什么
+
+助手连上之后，操作范围就是该令牌绑定的那一个项目。
+
+| 能力 | 助手会做什么 |
+| --- | --- |
+| 列出技能 | 列出当前项目里的技能，也可以按名称或描述搜索 |
+| 阅读 | 默认阅读 `SKILL.md`，也可以指定包内其他文本文件和版本 |
+| 下载 | 取得最新版本压缩包的临时链接。链接约 15 分钟内有效，打开即可下载，不必再带令牌 |
+| 发布 | 上传新技能，或为项目里已有技能发布新版本 |
+| 卸下 | 把技能从当前项目移除。技能仍保留在技能库中 |
+
+助手发布时，如果这个标识的技能已经存在、但还没挂到当前项目，上传会被拒绝。请先在网页上把它关联到该项目，或换一个标识。
