@@ -1,7 +1,10 @@
 import type { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
 import { z } from "zod";
 import { prisma } from "@/lib/db";
-import { getObjectBuffer } from "@/lib/storage";
+import {
+  createSkillDownloadLink,
+  downloadLinkTtlMs,
+} from "@/lib/download-link";
 import { getMcpContext } from "@/mcp/context";
 
 function toolError(message: string) {
@@ -17,14 +20,14 @@ export function registerDownloadTool(server: McpServer) {
     {
       title: "Download skill",
       description:
-        "下载技能最新版本的压缩包（application/zip）。调用方自行解压到本地；不在服务端解压。",
+        "生成技能最新版本压缩包的下载短链（过期自动失效）。调用方 HTTP GET 该链接即可下载 zip，无需再带 ApiKey。",
       inputSchema: {
         slug: z.string().describe("技能 slug"),
       },
       annotations: { readOnlyHint: true, openWorldHint: false },
     },
     async ({ slug }) => {
-      const { user, projectId } = getMcpContext();
+      const { user, projectId, baseUrl } = getMcpContext();
       const skillSlug = slug.trim();
       if (!skillSlug) return toolError("缺少 slug");
 
@@ -36,7 +39,7 @@ export function registerDownloadTool(server: McpServer) {
         },
         include: {
           latestVersion: {
-            select: { id: true, version: true, storageKey: true },
+            select: { id: true, version: true },
           },
         },
       });
@@ -49,9 +52,14 @@ export function registerDownloadTool(server: McpServer) {
         return toolError(`技能尚无版本: ${skillSlug}`);
       }
 
-      const buf = await getObjectBuffer(ver.storageKey);
+      const link = await createSkillDownloadLink({
+        versionId: ver.id,
+        createdBy: user.id,
+      });
+
       const filename = `${skill.slug}-${ver.version}.zip`;
-      const blob = buf.toString("base64");
+      const url = `${baseUrl}/api/d/${link.token}`;
+      const ttlSeconds = Math.round(downloadLinkTtlMs() / 1000);
 
       return {
         content: [
@@ -63,20 +71,15 @@ export function registerDownloadTool(server: McpServer) {
                 version: ver.version,
                 filename,
                 mimeType: "application/zip",
-                size: buf.length,
-                note: "压缩包见下方 resource.blob（base64）；请自行解压",
+                url,
+                method: "GET",
+                expiresAt: link.expiresAt.toISOString(),
+                ttlSeconds,
+                note: "短链无需鉴权；过期后自动失效。请自行下载并解压。",
               },
               null,
               2,
             ),
-          },
-          {
-            type: "resource" as const,
-            resource: {
-              uri: `skill-archive://${skill.slug}/${ver.version}/${filename}`,
-              mimeType: "application/zip",
-              blob,
-            },
           },
         ],
       };

@@ -27,10 +27,15 @@ async function handleMcp(req: Request) {
     );
   }
 
+  const baseUrl = (
+    process.env.APP_BASE_URL?.trim() || new URL(req.url).origin
+  ).replace(/\/$/, "");
+
   const ctx = {
     user: auth.user,
     via: auth.via,
     projectId: auth.projectId,
+    baseUrl,
   };
 
   return runWithMcpContext(ctx, async () => {

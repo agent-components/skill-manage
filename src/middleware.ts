@@ -23,6 +23,11 @@ export function middleware(req: NextRequest) {
     return NextResponse.next();
   }
 
+  // 下载短链：凭 token 访问，无需登录
+  if (pathname.startsWith("/api/d/")) {
+    return NextResponse.next();
+  }
+
   // 其余 API 要求登录会话或令牌（Authorization: Bearer，或 X-Api-Key）
   const token = extractCredential(req);
   if (!token) {
