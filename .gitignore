@@ -3,6 +3,4 @@ node_modules
 .env
 .next
 /src/generated/prisma
-xfskillhub
-entrypoint.sh
 *.tsbuildinfo
