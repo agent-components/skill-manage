@@ -39,7 +39,10 @@ export default function SkillsPage() {
   const [uploading, setUploading] = useState(false);
   const [file, setFile] = useState<File | null>(null);
   const [projects, setProjects] = useState<ProjectOption[]>([]);
+  const [editing, setEditing] = useState<SkillRow | null>(null);
+  const [saving, setSaving] = useState(false);
   const [form] = Form.useForm();
+  const [editForm] = Form.useForm();
   const refreshRef = useRef<(() => void) | null>(null);
 
   useEffect(() => {
@@ -94,6 +97,33 @@ export default function SkillsPage() {
         refreshRef.current?.();
       },
     });
+  };
+
+  const onSave = async () => {
+    if (!editing) return;
+    const values = await editForm.validateFields();
+    setSaving(true);
+    try {
+      const res = await authFetch(`/api/skills/${editing.id}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          displayName: values.displayName,
+          summary: values.summary ?? "",
+          tags: values.tags ?? [],
+          projectIds: values.projectIds ?? [],
+        }),
+      });
+      const data = await res.json().catch(() => ({}));
+      if (!res.ok) throw new Error(data.message || "保存失败");
+      message.success("已保存");
+      setEditing(null);
+      refreshRef.current?.();
+    } catch (e) {
+      message.error(e instanceof Error ? e.message : "保存失败");
+    } finally {
+      setSaving(false);
+    }
   };
 
   const onUpload = async () => {
@@ -216,10 +246,11 @@ export default function SkillsPage() {
             },
             {
               title: "操作",
-              width: 140,
+              width: 180,
               render: (_: unknown, row: SkillRow) => (
                 <Space>
                   <a onClick={() => router.push(`/skills/${row.id}`)}>详情</a>
+                  <a onClick={() => setEditing(row)}>编辑</a>
                   <a onClick={() => onDelete(row)} style={{ color: "#ff4d4f" }}>
                     删除
                   </a>
@@ -267,6 +298,58 @@ export default function SkillsPage() {
             extra="可从文件名识别（如 agent-browser-0.1.0.zip）；也可在 SKILL.md 或此处填写"
           >
             <Input placeholder="如 0.1.0" />
+          </Form.Item>
+          <Form.Item name="projectIds" label="归属项目">
+            <Select
+              mode="multiple"
+              allowClear
+              placeholder="可选，可多选"
+              options={projects.map((p) => ({ value: p.id, label: p.name }))}
+            />
+          </Form.Item>
+        </Form>
+      </Modal>
+
+      <Modal
+        title="编辑技能"
+        open={!!editing}
+        onCancel={() => {
+          if (!saving) setEditing(null);
+        }}
+        onOk={onSave}
+        confirmLoading={saving}
+        okText="保存"
+        destroyOnHidden
+      >
+        <Form
+          form={editForm}
+          layout="vertical"
+          style={{ marginTop: 16 }}
+          key={editing?.id}
+          initialValues={{
+            displayName: editing?.displayName,
+            summary: editing?.summary ?? "",
+            tags: editing?.tags ?? [],
+            projectIds: editing?.projects.map((p) => p.id) ?? [],
+          }}
+        >
+          <Form.Item
+            name="displayName"
+            label="名称"
+            rules={[{ required: true, message: "请输入名称" }]}
+          >
+            <Input placeholder="技能名称" />
+          </Form.Item>
+          <Form.Item name="summary" label="描述">
+            <Input.TextArea rows={3} placeholder="可选" />
+          </Form.Item>
+          <Form.Item name="tags" label="标签">
+            <Select
+              mode="tags"
+              allowClear
+              placeholder="输入后回车添加"
+              tokenSeparators={[",", "，"]}
+            />
           </Form.Item>
           <Form.Item name="projectIds" label="归属项目">
             <Select
