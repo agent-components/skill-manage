@@ -2,7 +2,7 @@
 
 import { useCallback, useMemo, useState } from "react";
 import { usePathname, useRouter } from "next/navigation";
-import { AppstoreOutlined, FolderOutlined } from "@ant-design/icons";
+import { AppstoreOutlined, FolderOutlined, KeyOutlined } from "@ant-design/icons";
 import {
   AppProvider,
   Layout,
@@ -34,6 +34,12 @@ const MENU: LayoutMenuNode[] = [
     label: "技能",
     icon: <AppstoreOutlined />,
     href: "/skills",
+  },
+  {
+    key: "tokens",
+    label: "令牌",
+    icon: <KeyOutlined />,
+    href: "/tokens",
   },
 ];
 

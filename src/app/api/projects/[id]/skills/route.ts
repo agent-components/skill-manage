@@ -1,6 +1,6 @@
 import { NextRequest } from "next/server";
 import { prisma } from "@/lib/db";
-import { jsonError, jsonOk, requireAuth } from "@/lib/api";
+import { jsonError, jsonOk, rejectOutsideProject, requireAuth } from "@/lib/api";
 
 type Ctx = { params: Promise<{ id: string }> };
 
@@ -8,6 +8,8 @@ export async function PATCH(req: NextRequest, ctx: Ctx) {
   const auth = await requireAuth(req);
   if (auth.error) return auth.error;
   const { id: projectId } = await ctx.params;
+  const denied = rejectOutsideProject(auth, projectId);
+  if (denied) return denied;
 
   const project = await prisma.project.findFirst({
     where: { id: projectId, ownerId: auth.user.id },

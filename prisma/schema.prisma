@@ -54,7 +54,8 @@ model Project {
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
 
-  skills ProjectSkill[]
+  skills  ProjectSkill[]
+  apiKeys ApiKey[]
 
   @@unique([ownerId, slug])
   @@index([ownerId])
@@ -136,5 +137,28 @@ model SkillFile {
   @@unique([versionId, filePath])
   @@index([versionId])
   @@map("skill_files")
+  @@schema("skills")
+}
+
+/// 调用接口的令牌。必须绑定一个项目；列表仅返回脱敏展示，完整值通过复制接口获取。
+model ApiKey {
+  id         String    @id @default(cuid())
+  userId     String
+  projectId  String
+  name       String
+  /// 完整令牌，仅复制接口返回
+  token      String    @unique
+  keyHash    String    @unique
+  /// 列表脱敏展示用前缀
+  prefix     String
+  lastUsedAt DateTime?
+  createdAt  DateTime  @default(now())
+
+  project Project @relation(fields: [projectId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, name])
+  @@index([userId])
+  @@index([projectId])
+  @@map("api_keys")
   @@schema("skills")
 }

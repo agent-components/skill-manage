@@ -1,6 +1,6 @@
 import { NextRequest } from "next/server";
 import { prisma } from "@/lib/db";
-import { jsonError, jsonOk, requireAuth } from "@/lib/api";
+import { jsonError, jsonOk, rejectOutsideProject, requireAuth } from "@/lib/api";
 import { slugify } from "@/lib/slug";
 
 type Ctx = { params: Promise<{ id: string }> };
@@ -13,6 +13,8 @@ export async function GET(req: NextRequest, ctx: Ctx) {
   const auth = await requireAuth(req);
   if (auth.error) return auth.error;
   const { id } = await ctx.params;
+  const denied = rejectOutsideProject(auth, id);
+  if (denied) return denied;
 
   const project = await prisma.project.findFirst({
     where: { id, ownerId: auth.user.id },
@@ -55,6 +57,8 @@ export async function PATCH(req: NextRequest, ctx: Ctx) {
   const auth = await requireAuth(req);
   if (auth.error) return auth.error;
   const { id } = await ctx.params;
+  const denied = rejectOutsideProject(auth, id);
+  if (denied) return denied;
 
   const project = await getOwnedProject(auth.user.id, id);
   if (!project) return jsonError("项目不存在", 404);
@@ -103,6 +107,8 @@ export async function DELETE(req: NextRequest, ctx: Ctx) {
   const auth = await requireAuth(req);
   if (auth.error) return auth.error;
   const { id } = await ctx.params;
+  const denied = rejectOutsideProject(auth, id);
+  if (denied) return denied;
 
   const project = await getOwnedProject(auth.user.id, id);
   if (!project) return jsonError("项目不存在", 404);

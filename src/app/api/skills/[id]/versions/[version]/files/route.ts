@@ -1,6 +1,11 @@
 import { NextRequest } from "next/server";
 import { prisma } from "@/lib/db";
-import { jsonError, jsonOk, requireAuth } from "@/lib/api";
+import {
+  jsonError,
+  jsonOk,
+  rejectSkillOutsideProject,
+  requireAuth,
+} from "@/lib/api";
 
 type Ctx = { params: Promise<{ id: string; version: string }> };
 
@@ -8,6 +13,8 @@ export async function GET(req: NextRequest, ctx: Ctx) {
   const auth = await requireAuth(req);
   if (auth.error) return auth.error;
   const { id, version } = await ctx.params;
+  const denied = await rejectSkillOutsideProject(auth, id);
+  if (denied) return denied;
 
   const skill = await prisma.skill.findFirst({
     where: { id, ownerId: auth.user.id },

@@ -1,6 +1,6 @@
 import { NextRequest } from "next/server";
 import { prisma } from "@/lib/db";
-import { jsonOk, requireAuth } from "@/lib/api";
+import { jsonError, jsonOk, requireAuth } from "@/lib/api";
 
 export async function GET(req: NextRequest) {
   const auth = await requireAuth(req);
@@ -15,6 +15,11 @@ export async function GET(req: NextRequest) {
     Math.max(1, Number(searchParams.get("pageSize") || 20)),
   );
 
+  if (auth.projectId && projectId && auth.projectId !== projectId) {
+    return jsonError("令牌无权访问该项目", 403);
+  }
+  const scopedProjectId = auth.projectId || projectId || undefined;
+
   const where = {
     ownerId: auth.user.id,
     ...(name
@@ -25,8 +30,8 @@ export async function GET(req: NextRequest) {
           ],
         }
       : {}),
-    ...(projectId
-      ? { projects: { some: { projectId } } }
+    ...(scopedProjectId
+      ? { projects: { some: { projectId: scopedProjectId } } }
       : {}),
   };
 

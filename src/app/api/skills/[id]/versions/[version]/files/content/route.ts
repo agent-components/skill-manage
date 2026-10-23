@@ -1,6 +1,11 @@
 import { NextRequest } from "next/server";
 import { prisma } from "@/lib/db";
-import { jsonError, jsonOk, requireAuth } from "@/lib/api";
+import {
+  jsonError,
+  jsonOk,
+  rejectSkillOutsideProject,
+  requireAuth,
+} from "@/lib/api";
 import {
   PREVIEW_MAX_BYTES,
   isProbablyText,
@@ -13,6 +18,8 @@ export async function GET(req: NextRequest, ctx: Ctx) {
   const auth = await requireAuth(req);
   if (auth.error) return auth.error;
   const { id, version } = await ctx.params;
+  const denied = await rejectSkillOutsideProject(auth, id);
+  if (denied) return denied;
   const path = req.nextUrl.searchParams.get("path")?.trim();
   if (!path) return jsonError("缺少 path 参数");
 

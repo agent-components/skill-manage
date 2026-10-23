@@ -17,6 +17,7 @@ export async function GET(req: NextRequest) {
 
   const where = {
     ownerId: auth.user.id,
+    ...(auth.projectId ? { id: auth.projectId } : {}),
     ...(name ? { name: { contains: name, mode: "insensitive" as const } } : {}),
   };
 
@@ -48,6 +49,9 @@ export async function GET(req: NextRequest) {
 export async function POST(req: NextRequest) {
   const auth = await requireAuth(req);
   if (auth.error) return auth.error;
+  if (auth.projectId) {
+    return jsonError("令牌无权创建项目", 403);
+  }
 
   let body: { name?: string; slug?: string; description?: string };
   try {

@@ -1,9 +1,13 @@
 import { NextRequest, NextResponse } from "next/server";
 
-function extractBearerToken(authorization: string | null): string | null {
-  if (!authorization) return null;
-  const match = /^Bearer\s+(.+)$/i.exec(authorization.trim());
-  return match?.[1]?.trim() || null;
+function extractCredential(req: NextRequest): string | null {
+  const authorization = req.headers.get("authorization");
+  if (authorization) {
+    const match = /^Bearer\s+(.+)$/i.exec(authorization.trim());
+    const bearer = match?.[1]?.trim();
+    if (bearer) return bearer;
+  }
+  return req.headers.get("x-api-key")?.trim() || null;
 }
 
 export function middleware(req: NextRequest) {
@@ -19,8 +23,8 @@ export function middleware(req: NextRequest) {
     return NextResponse.next();
   }
 
-  // 其余 API 要求 Bearer Token
-  const token = extractBearerToken(req.headers.get("authorization"));
+  // 其余 API 要求登录会话或令牌（Authorization: Bearer，或 X-Api-Key）
+  const token = extractCredential(req);
   if (!token) {
     return NextResponse.json({ message: "未登录" }, { status: 401 });
   }

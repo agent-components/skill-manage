@@ -1,6 +1,11 @@
 import { NextRequest } from "next/server";
 import { prisma } from "@/lib/db";
-import { jsonError, jsonOk, requireAuth } from "@/lib/api";
+import {
+  jsonError,
+  jsonOk,
+  rejectSkillOutsideProject,
+  requireAuth,
+} from "@/lib/api";
 import { parseSkillZip } from "@/lib/skill-package";
 import {
   deleteObjects,
@@ -35,10 +40,18 @@ export async function POST(req: NextRequest) {
     undefined;
 
   const projectIdsRaw = form.getAll("projectIds");
-  const projectIds = projectIdsRaw
+  let projectIds = projectIdsRaw
     .flatMap((v) => (typeof v === "string" ? v.split(",") : []))
     .map((s) => s.trim())
     .filter(Boolean);
+
+  if (auth.projectId) {
+    if (projectIds.length === 0) {
+      projectIds = [auth.projectId];
+    } else if (projectIds.length !== 1 || projectIds[0] !== auth.projectId) {
+      return jsonError("令牌只能上传到绑定项目", 403);
+    }
+  }
 
   const skillIdOverride =
     typeof form.get("skillId") === "string"
@@ -87,6 +100,9 @@ export async function POST(req: NextRequest) {
   }
 
   if (skill) {
+    const denied = await rejectSkillOutsideProject(auth, skill.id);
+    if (denied) return denied;
+
     const existVer = await prisma.skillVersion.findUnique({
       where: {
         skillId_version: { skillId: skill.id, version: parsed.version },

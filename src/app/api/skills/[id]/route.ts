@@ -1,6 +1,11 @@
 import { NextRequest } from "next/server";
 import { prisma } from "@/lib/db";
-import { jsonError, jsonOk, requireAuth } from "@/lib/api";
+import {
+  jsonError,
+  jsonOk,
+  rejectSkillOutsideProject,
+  requireAuth,
+} from "@/lib/api";
 import { normalizeTags } from "@/lib/skill-metadata";
 import { deleteObjects } from "@/lib/storage";
 
@@ -10,6 +15,8 @@ export async function GET(req: NextRequest, ctx: Ctx) {
   const auth = await requireAuth(req);
   if (auth.error) return auth.error;
   const { id } = await ctx.params;
+  const denied = await rejectSkillOutsideProject(auth, id);
+  if (denied) return denied;
 
   const skill = await prisma.skill.findFirst({
     where: { id, ownerId: auth.user.id },
@@ -52,6 +59,8 @@ export async function PATCH(req: NextRequest, ctx: Ctx) {
   const auth = await requireAuth(req);
   if (auth.error) return auth.error;
   const { id } = await ctx.params;
+  const denied = await rejectSkillOutsideProject(auth, id);
+  if (denied) return denied;
 
   const skill = await prisma.skill.findFirst({
     where: { id, ownerId: auth.user.id },
@@ -71,6 +80,13 @@ export async function PATCH(req: NextRequest, ctx: Ctx) {
   }
 
   if (Array.isArray(body.projectIds)) {
+    if (auth.projectId) {
+      const onlyBound =
+        body.projectIds.length === 1 && body.projectIds[0] === auth.projectId;
+      if (!onlyBound) {
+        return jsonError("令牌只能将技能关联到绑定项目", 403);
+      }
+    }
     const owned = await prisma.project.count({
       where: { ownerId: auth.user.id, id: { in: body.projectIds } },
     });
@@ -128,6 +144,8 @@ export async function DELETE(req: NextRequest, ctx: Ctx) {
   const auth = await requireAuth(req);
   if (auth.error) return auth.error;
   const { id } = await ctx.params;
+  const denied = await rejectSkillOutsideProject(auth, id);
+  if (denied) return denied;
 
   const skill = await prisma.skill.findFirst({
     where: { id, ownerId: auth.user.id },
