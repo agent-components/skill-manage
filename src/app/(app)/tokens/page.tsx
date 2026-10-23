@@ -153,7 +153,7 @@ export default function TokensPage() {
   return (
     <>
       <ListPage<TokenRow, TokenFilter>
-        title="令牌"
+        title="令牌管理"
         filter={{
           items: [
             {

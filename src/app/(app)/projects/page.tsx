@@ -67,7 +67,7 @@ export default function ProjectsPage() {
   return (
     <>
       <ListPage<ProjectRow, ProjectFilter>
-        title="项目"
+        title="项目管理"
         filter={{
           items: [
             {

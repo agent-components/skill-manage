@@ -132,7 +132,7 @@ export default function SkillsPage() {
   return (
     <>
       <ListPage<SkillRow, SkillFilter>
-        title="技能"
+        title="技能管理"
         filter={{
           items: [
             {

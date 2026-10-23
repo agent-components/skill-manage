@@ -25,19 +25,19 @@ setupZhCNLocale();
 const MENU: LayoutMenuNode[] = [
   {
     key: "projects",
-    label: "项目",
+    label: "项目管理",
     icon: <FolderOutlined />,
     href: "/projects",
   },
   {
     key: "skills",
-    label: "技能",
+    label: "技能管理",
     icon: <AppstoreOutlined />,
     href: "/skills",
   },
   {
     key: "tokens",
-    label: "令牌",
+    label: "令牌管理",
     icon: <KeyOutlined />,
     href: "/tokens",
   },
