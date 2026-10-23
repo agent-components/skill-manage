@@ -45,6 +45,7 @@ export default function TokensPage() {
   const [open, setOpen] = useState(false);
   const [saving, setSaving] = useState(false);
   const [copyingId, setCopyingId] = useState<string | null>(null);
+  const [copyingMcpId, setCopyingMcpId] = useState<string | null>(null);
   const [projects, setProjects] = useState<ProjectOption[]>([]);
   const [form] = Form.useForm();
   const refreshRef = useRef<(() => void) | null>(null);
@@ -120,6 +121,35 @@ export default function TokensPage() {
       message.error(e instanceof Error ? e.message : "复制失败");
     } finally {
       setCopyingId(null);
+    }
+  };
+
+  const onCopyMcp = async (row: TokenRow) => {
+    setCopyingMcpId(row.id);
+    try {
+      const res = await authFetch(`/api/tokens/${row.id}`);
+      const data = await res.json().catch(() => ({}));
+      if (!res.ok) throw new Error(data.message || "复制失败");
+      if (!data.token) throw new Error("未获取到令牌");
+      const serverKey = row.project?.slug
+        ? `${row.project.slug}-skill`
+        : "skill";
+      const config = {
+        mcpServers: {
+          [serverKey]: {
+            url: `${window.location.origin}/api/mcp`,
+            headers: {
+              Authorization: `Bearer ${data.token}`,
+            },
+          },
+        },
+      };
+      await copyText(JSON.stringify(config, null, 2));
+      message.success("已复制 MCP 配置");
+    } catch (e) {
+      message.error(e instanceof Error ? e.message : "复制失败");
+    } finally {
+      setCopyingMcpId(null);
     }
   };
 
@@ -235,11 +265,20 @@ export default function TokensPage() {
             },
             {
               title: "操作",
-              width: 100,
+              width: 160,
               render: (_: unknown, row: TokenRow) => (
-                <a onClick={() => onRevoke(row)} style={{ color: "#ff4d4f" }}>
-                  撤销
-                </a>
+                <Space>
+                  <a
+                    onClick={() => {
+                      if (copyingMcpId !== row.id) void onCopyMcp(row);
+                    }}
+                  >
+                    {copyingMcpId === row.id ? "复制中…" : "复制 MCP"}
+                  </a>
+                  <a onClick={() => onRevoke(row)} style={{ color: "#ff4d4f" }}>
+                    撤销
+                  </a>
+                </Space>
               ),
             },
           ],
