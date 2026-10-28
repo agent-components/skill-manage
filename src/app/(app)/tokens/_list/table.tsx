@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { Button, Space, message } from "antd";
+import { Button, Space, Tag, Tooltip, message } from "antd";
 import { PlusOutlined } from "@ant-design/icons";
 import dayjs from "dayjs";
 import type {
@@ -9,6 +9,12 @@ import type {
   TableConfig,
 } from "listpage-components/ListPage";
 import { authFetch } from "@/lib/auth-client";
+import {
+  ALL_MCP_TOOL_IDS,
+  isAllMcpTools,
+  mcpToolDescription,
+  mcpToolLabel,
+} from "@/lib/mcp-tools";
 import { tokenFloatKeys } from "./floats";
 import type { TokenFilter, TokenRow } from "./types";
 
@@ -120,6 +126,7 @@ function TokenActions({
       >
         {copyingMcp ? "复制中…" : "复制 MCP"}
       </a>
+      <a onClick={() => ctx.showFloat(tokenFloatKeys.edit, record)}>编辑</a>
       <a
         onClick={() => ctx.showFloat(tokenFloatKeys.revoke, record)}
         style={{ color: "#ff4d4f" }}
@@ -143,34 +150,69 @@ export const tokenTable: TableConfig<TokenRow, TokenFilter> = {
     </Button>
   ),
   columns: [
-    { title: "名称", dataIndex: "name", width: 180 },
+    { title: "名称", dataIndex: "name", width: 160 },
     {
       title: "项目",
       dataIndex: ["project", "name"],
-      width: 160,
+      width: 140,
       render: (_: unknown, row: TokenRow) => row.project?.name || "-",
     },
     {
       title: "令牌",
       dataIndex: "displayToken",
-      width: 280,
+      width: 240,
       component: (props) => <TokenValueCell key={props.record.id} {...props} />,
+    },
+    {
+      title: "工具",
+      dataIndex: "tools",
+      width: 220,
+      render: (value: string[] | undefined) => {
+        const tools = value ?? [];
+        const ids = isAllMcpTools(tools) ? ALL_MCP_TOOL_IDS : tools;
+        if (isAllMcpTools(tools)) {
+          return (
+            <Tooltip
+              title={
+                <div>
+                  {ALL_MCP_TOOL_IDS.map((id) => (
+                    <div key={id}>
+                      {mcpToolLabel(id)}：{mcpToolDescription(id)}
+                    </div>
+                  ))}
+                </div>
+              }
+            >
+              <Tag>全部</Tag>
+            </Tooltip>
+          );
+        }
+        return (
+          <Space size={[4, 4]} wrap>
+            {ids.map((id) => (
+              <Tooltip key={id} title={mcpToolDescription(id)}>
+                <Tag>{mcpToolLabel(id)}</Tag>
+              </Tooltip>
+            ))}
+          </Space>
+        );
+      },
     },
     {
       title: "最近使用",
       dataIndex: "lastUsedAt",
-      width: 170,
+      width: 160,
       render: (value: string | null) => formatTime(value, "从未使用"),
     },
     {
       title: "创建时间",
       dataIndex: "createdAt",
-      width: 170,
+      width: 160,
       render: (value: string) => formatTime(value, "-"),
     },
     {
       title: "操作",
-      width: 160,
+      width: 200,
       component: (props) => <TokenActions {...props} />,
     },
   ],

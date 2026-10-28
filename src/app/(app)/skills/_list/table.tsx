@@ -1,7 +1,7 @@
 "use client";
 
 import { useRouter } from "next/navigation";
-import { Button, Space, Tag } from "antd";
+import { Button, Space, Tag, Typography } from "antd";
 import { UploadOutlined } from "@ant-design/icons";
 import type {
   ListPageColumnComponentProps,
@@ -15,9 +15,12 @@ function SkillNameCell({
 }: ListPageColumnComponentProps<SkillRow, SkillFilter>) {
   const router = useRouter();
   return (
-    <a onClick={() => router.push(`/skills/${record.id}`)}>
+    <Typography.Link
+      ellipsis={{ tooltip: record.displayName }}
+      onClick={() => router.push(`/skills/${record.id}`)}
+    >
       {record.displayName}
-    </a>
+    </Typography.Link>
   );
 }
 
@@ -57,10 +60,30 @@ export const skillTable: TableConfig<SkillRow, SkillFilter> = {
       title: "名称",
       dataIndex: "displayName",
       width: 200,
+      ellipsis: true,
       component: (props) => <SkillNameCell {...props} />,
     },
-    { title: "Slug", dataIndex: "slug", width: 160 },
-    { title: "描述", dataIndex: "summary", valueType: "text" },
+    {
+      title: "Slug",
+      dataIndex: "slug",
+      width: 160,
+      ellipsis: { showTitle: false },
+      render: (v: string) => (
+        <Typography.Text ellipsis={{ tooltip: v }}>{v}</Typography.Text>
+      ),
+    },
+    {
+      title: "描述",
+      dataIndex: "summary",
+      valueType: "text",
+      ellipsis: { showTitle: false },
+      render: (v: string | null) =>
+        v ? (
+          <Typography.Text ellipsis={{ tooltip: v }}>{v}</Typography.Text>
+        ) : (
+          "-"
+        ),
+    },
     {
       title: "标签",
       dataIndex: "tags",
@@ -68,10 +91,10 @@ export const skillTable: TableConfig<SkillRow, SkillFilter> = {
       render: (tags: string[] | undefined) =>
         tags?.length
           ? tags.map((tag) => (
-              <Tag key={tag} style={{ marginBottom: 2 }}>
-                {tag}
-              </Tag>
-            ))
+            <Tag key={tag} style={{ marginBottom: 2 }}>
+              {tag}
+            </Tag>
+          ))
           : "-",
     },
     {
@@ -87,10 +110,10 @@ export const skillTable: TableConfig<SkillRow, SkillFilter> = {
       render: (ps: SkillRow["projects"]) =>
         ps?.length
           ? ps.map((p) => (
-              <Tag key={p.id} style={{ marginBottom: 2 }}>
-                {p.name}
-              </Tag>
-            ))
+            <Tag key={p.id} style={{ marginBottom: 2 }}>
+              {p.name}
+            </Tag>
+          ))
           : "-",
     },
     {

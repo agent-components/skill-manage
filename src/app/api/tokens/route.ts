@@ -3,6 +3,7 @@ import { NextRequest } from "next/server";
 import { generateApiKey, maskApiKey } from "@/lib/api-key";
 import { jsonError, jsonOk, requireSession } from "@/lib/api";
 import { prisma } from "@/lib/db";
+import { normalizeMcpTools, parseMcpToolsInput } from "@/lib/mcp-tools";
 
 export async function GET(req: NextRequest) {
   const auth = await requireSession(req);
@@ -42,6 +43,7 @@ export async function GET(req: NextRequest) {
       name: item.name,
       displayToken: maskApiKey(item.prefix),
       project: item.project,
+      tools: normalizeMcpTools(item.tools),
       lastUsedAt: item.lastUsedAt,
       createdAt: item.createdAt,
     })),
@@ -53,7 +55,7 @@ export async function POST(req: NextRequest) {
   const auth = await requireSession(req);
   if (auth.error) return auth.error;
 
-  let body: { name?: string; projectId?: string };
+  let body: { name?: string; projectId?: string; tools?: unknown };
   try {
     body = await req.json();
   } catch {
@@ -66,6 +68,9 @@ export async function POST(req: NextRequest) {
 
   const projectId = body.projectId?.trim();
   if (!projectId) return jsonError("请选择绑定项目");
+
+  const toolsParsed = parseMcpToolsInput(body.tools);
+  if (!toolsParsed.ok) return jsonError(toolsParsed.message);
 
   const project = await prisma.project.findFirst({
     where: { id: projectId, ownerId: auth.user.id },
@@ -84,6 +89,7 @@ export async function POST(req: NextRequest) {
         token: generated.token,
         keyHash: generated.keyHash,
         prefix: generated.prefix,
+        tools: toolsParsed.tools,
       },
       include: {
         project: { select: { id: true, name: true, slug: true } },
@@ -96,6 +102,7 @@ export async function POST(req: NextRequest) {
         name: created.name,
         displayToken: maskApiKey(created.prefix),
         project: created.project,
+        tools: normalizeMcpTools(created.tools),
         createdAt: created.createdAt,
       },
       { status: 201 },

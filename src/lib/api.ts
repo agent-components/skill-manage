@@ -1,17 +1,26 @@
 import { NextResponse } from "next/server";
 import { getAuthContext, type AuthUser, type AuthVia } from "@/lib/auth";
 import { prisma } from "@/lib/db";
+import type { McpToolId } from "@/lib/mcp-tools";
 
 export type RequestAuth = {
   user: AuthUser;
   via: AuthVia;
   /** 令牌鉴权时为绑定项目；登录会话为 null */
   projectId: string | null;
+  /** 令牌鉴权时为允许的 MCP 工具；登录会话为 null */
+  tools: McpToolId[] | null;
 };
 
 export async function requireAuth(req: Request): Promise<
   | (RequestAuth & { error?: undefined })
-  | { user?: undefined; via?: undefined; projectId?: undefined; error: NextResponse }
+  | {
+      user?: undefined;
+      via?: undefined;
+      projectId?: undefined;
+      tools?: undefined;
+      error: NextResponse;
+    }
 > {
   const ctx = await getAuthContext(req);
   if (!ctx) {
@@ -23,6 +32,7 @@ export async function requireAuth(req: Request): Promise<
     user: ctx.user,
     via: ctx.via,
     projectId: ctx.projectId,
+    tools: ctx.tools,
   };
 }
 

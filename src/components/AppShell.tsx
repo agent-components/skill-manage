@@ -18,6 +18,7 @@ import {
 } from "@/lib/auth-client";
 import { usePersistedProTheme } from "@/lib/use-persisted-pro-theme";
 import { AuthGuard } from "@/components/AuthGuard";
+import { SkillsLogo } from "@/components/SkillsLogo";
 import "@/styles/listpage-components.css";
 
 setupZhCNLocale();
@@ -56,16 +57,7 @@ const MENU_SECTIONS: LayoutMenuSection[] = [
   },
 ];
 
-const APP_LOGO = (
-  // eslint-disable-next-line @next/next/no-img-element
-  <img
-    src="/skills-logo.svg"
-    alt=""
-    width={28}
-    height={28}
-    style={{ display: "block", borderRadius: 7 }}
-  />
-);
+const APP_LOGO = <SkillsLogo size={28} />;
 
 const TAB_ROUTES = MENU.filter((m) => m.href).map((m) => ({
   key: m.key,

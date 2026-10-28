@@ -5,6 +5,8 @@ import { Form, Input, Modal, message } from "antd";
 import type { FloatComponentProps } from "listpage-components/ListPage";
 import { ProjectSelect } from "@/components/project-options";
 import { authFetch } from "@/lib/auth-client";
+import { ALL_MCP_TOOL_IDS } from "@/lib/mcp-tools";
+import { TokenToolSelect } from "./tool-select";
 import type { TokenRow } from "./types";
 
 export function CreateTokenFloat({
@@ -25,6 +27,7 @@ export function CreateTokenFloat({
         body: JSON.stringify({
           name: values.name,
           projectId: values.projectId,
+          tools: values.tools,
         }),
       });
       const data = await res.json().catch(() => ({}));
@@ -46,8 +49,14 @@ export function CreateTokenFloat({
       onOk={onCreate}
       confirmLoading={saving}
       okText="创建"
+      afterClose={() => form.resetFields()}
     >
-      <Form form={form} layout="vertical" style={{ marginTop: 16 }}>
+      <Form
+        form={form}
+        layout="vertical"
+        style={{ marginTop: 16 }}
+        initialValues={{ tools: [...ALL_MCP_TOOL_IDS] }}
+      >
         <Form.Item
           name="name"
           label="名称"
@@ -61,6 +70,19 @@ export function CreateTokenFloat({
           rules={[{ required: true, message: "请选择绑定项目" }]}
         >
           <ProjectSelect placeholder="请选择项目" showSearch />
+        </Form.Item>
+        <Form.Item
+          name="tools"
+          label="可用工具"
+          rules={[
+            {
+              type: "array",
+              min: 1,
+              message: "请至少选择一个工具",
+            },
+          ]}
+        >
+          <TokenToolSelect />
         </Form.Item>
       </Form>
     </Modal>

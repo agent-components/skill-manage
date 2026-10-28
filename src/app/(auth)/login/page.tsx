@@ -10,6 +10,7 @@ import {
 } from "listpage-components";
 import { getClientToken, loginRequest } from "@/lib/auth-client";
 import { usePersistedProTheme } from "@/lib/use-persisted-pro-theme";
+import { SkillsLogo } from "@/components/SkillsLogo";
 import "@/styles/listpage-components.css";
 
 setupZhCNLocale();
@@ -57,8 +58,7 @@ function LoginFormCard() {
           marginBottom: 4,
         }}
       >
-        {/* eslint-disable-next-line @next/next/no-img-element */}
-        <img src="/skills-logo.svg" alt="" width={48} height={48} />
+        <SkillsLogo size={48} />
         <Typography.Title level={3} style={{ margin: 0, textAlign: "center" }}>
           技能管理
         </Typography.Title>

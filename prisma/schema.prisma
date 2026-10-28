@@ -170,6 +170,8 @@ model ApiKey {
   keyHash    String    @unique
   /// 列表脱敏展示用前缀
   prefix     String
+  /// 允许的 MCP 工具；空数组表示全部
+  tools      String[]  @default([])
   lastUsedAt DateTime?
   createdAt  DateTime  @default(now())
 

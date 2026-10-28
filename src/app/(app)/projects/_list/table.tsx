@@ -1,6 +1,5 @@
 "use client";
 
-import { useRouter } from "next/navigation";
 import { Button, Space } from "antd";
 import { PlusOutlined } from "@ant-design/icons";
 import type {
@@ -12,11 +11,14 @@ import type { ProjectFilter, ProjectRow } from "./types";
 
 function ProjectActions({
   record,
+  ctx,
 }: ListPageColumnComponentProps<ProjectRow, ProjectFilter>) {
-  const router = useRouter();
   return (
     <Space>
-      <a onClick={() => router.push(`/projects/${record.id}`)}>详情</a>
+      <a onClick={() => ctx.showFloat(projectFloatKeys.skills, record)}>
+        关联技能
+      </a>
+      <a onClick={() => ctx.showFloat(projectFloatKeys.edit, record)}>编辑</a>
     </Space>
   );
 }
@@ -40,7 +42,7 @@ export const projectTable: TableConfig<ProjectRow, ProjectFilter> = {
     { title: "技能数", dataIndex: "skillCount", width: 90 },
     {
       title: "操作",
-      width: 100,
+      width: 160,
       component: (props) => <ProjectActions {...props} />,
     },
   ],

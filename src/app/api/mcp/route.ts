@@ -31,15 +31,17 @@ async function handleMcp(req: Request) {
     process.env.APP_BASE_URL?.trim() || new URL(req.url).origin
   ).replace(/\/$/, "");
 
+  const tools = auth.tools ?? [];
   const ctx = {
     user: auth.user,
     via: auth.via,
     projectId: auth.projectId,
+    tools,
     baseUrl,
   };
 
   return runWithMcpContext(ctx, async () => {
-    const server = createSkillMcpServer();
+    const server = createSkillMcpServer(tools);
     const transport = new WebStandardStreamableHTTPServerTransport({
       sessionIdGenerator: undefined,
       enableJsonResponse: true,

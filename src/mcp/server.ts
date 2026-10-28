@@ -1,7 +1,8 @@
 import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
+import type { McpToolId } from "@/lib/mcp-tools";
 import { registerAllTools } from "@/mcp/tools";
 
-export function createSkillMcpServer() {
+export function createSkillMcpServer(allowedTools?: readonly McpToolId[]) {
   const server = new McpServer(
     {
       name: "skill-hub",
@@ -20,6 +21,6 @@ export function createSkillMcpServer() {
     },
   );
 
-  registerAllTools(server);
+  registerAllTools(server, allowedTools);
   return server;
 }

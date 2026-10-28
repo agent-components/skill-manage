@@ -3,6 +3,7 @@ import { headers } from "next/headers";
 import { hashApiKey, isApiKey } from "@/lib/api-key";
 import { AUTH_TOKEN_KEY } from "@/lib/constants";
 import { prisma } from "@/lib/db";
+import { normalizeMcpTools, type McpToolId } from "@/lib/mcp-tools";
 
 export { AUTH_TOKEN_KEY };
 
@@ -84,6 +85,7 @@ export async function getTokenFromRequest(req?: Request) {
 export async function findUserByApiKey(raw: string): Promise<{
   user: AuthUser;
   projectId: string;
+  tools: McpToolId[];
 } | null> {
   if (!isApiKey(raw)) return null;
   const now = new Date();
@@ -113,7 +115,11 @@ export async function findUserByApiKey(raw: string): Promise<{
     }
   }
 
-  return { user: toAuthUser(user), projectId: record.projectId };
+  return {
+    user: toAuthUser(user),
+    projectId: record.projectId,
+    tools: normalizeMcpTools(record.tools),
+  };
 }
 
 export type AuthVia = "session" | "api_key";
@@ -122,6 +128,7 @@ export async function getAuthContext(req?: Request): Promise<{
   user: AuthUser;
   via: AuthVia;
   projectId: string | null;
+  tools: McpToolId[] | null;
 } | null> {
   const token = await getTokenFromRequest(req);
   if (!token) return null;
@@ -129,13 +136,23 @@ export async function getAuthContext(req?: Request): Promise<{
   if (isApiKey(token)) {
     const matched = await findUserByApiKey(token);
     return matched
-      ? { user: matched.user, via: "api_key", projectId: matched.projectId }
+      ? {
+          user: matched.user,
+          via: "api_key",
+          projectId: matched.projectId,
+          tools: matched.tools,
+        }
       : null;
   }
 
   const user = await findUserByToken(token);
   return user
-    ? { user: toAuthUser(user), via: "session", projectId: null }
+    ? {
+        user: toAuthUser(user),
+        via: "session",
+        projectId: null,
+        tools: null,
+      }
     : null;
 }
 
