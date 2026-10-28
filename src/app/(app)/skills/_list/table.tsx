@@ -1,7 +1,7 @@
 "use client";
 
 import { useRouter } from "next/navigation";
-import { Button, Space, Tag, Typography } from "antd";
+import { Button, Space, Tag, Tooltip, Typography } from "antd";
 import { UploadOutlined } from "@ant-design/icons";
 import type {
   ListPageColumnComponentProps,
@@ -15,12 +15,14 @@ function SkillNameCell({
 }: ListPageColumnComponentProps<SkillRow, SkillFilter>) {
   const router = useRouter();
   return (
-    <Typography.Link
-      ellipsis={{ tooltip: record.displayName }}
-      onClick={() => router.push(`/skills/${record.id}`)}
-    >
-      {record.displayName}
-    </Typography.Link>
+    <Tooltip title={record.displayName}>
+      <Typography.Link
+        ellipsis
+        onClick={() => router.push(`/skills/${record.id}`)}
+      >
+        {record.displayName}
+      </Typography.Link>
+    </Tooltip>
   );
 }
 

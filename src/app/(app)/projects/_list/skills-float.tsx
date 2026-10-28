@@ -2,7 +2,7 @@
 
 import { useCallback, useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
-import { Drawer, Table, Typography, message } from "antd";
+import { Drawer, Table, Tooltip, Typography, message } from "antd";
 import type { FloatComponentProps } from "listpage-components/ListPage";
 import { authFetch } from "@/lib/auth-client";
 import type { ProjectRow } from "./types";
@@ -84,12 +84,14 @@ function ProjectSkillsDrawer({
             dataIndex: "displayName",
             ellipsis: true,
             render: (v: string, row: LinkedSkill) => (
-              <Typography.Link
-                ellipsis={{ tooltip: v }}
-                onClick={() => router.push(`/skills/${row.id}`)}
-              >
-                {v}
-              </Typography.Link>
+              <Tooltip title={v}>
+                <Typography.Link
+                  ellipsis
+                  onClick={() => router.push(`/skills/${row.id}`)}
+                >
+                  {v}
+                </Typography.Link>
+              </Tooltip>
             ),
           },
           {
