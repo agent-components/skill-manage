@@ -2,7 +2,8 @@
 
 import { useCallback, useMemo, useState } from "react";
 import { usePathname, useRouter } from "next/navigation";
-import { AppstoreOutlined, FolderOutlined, KeyOutlined } from "@ant-design/icons";
+import { KeyOutlined } from "@ant-design/icons";
+import { ProjectMark, SkillMark } from "@/components/ProjectIcon";
 import {
   AppProvider,
   Layout,
@@ -27,13 +28,13 @@ const MENU: LayoutMenuNode[] = [
   {
     key: "projects",
     label: "项目管理",
-    icon: <FolderOutlined />,
+    icon: <ProjectMark />,
     href: "/projects",
   },
   {
     key: "skills",
     label: "技能管理",
-    icon: <AppstoreOutlined />,
+    icon: <SkillMark />,
     href: "/skills",
   },
   {

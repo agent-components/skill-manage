@@ -6,7 +6,19 @@ import { formatIconSize } from "@/lib/project-icon";
 
 const MAX_ICON_BYTES = 200 * 1024;
 
-function SkillMark() {
+export function ProjectMark() {
+  return (
+    <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+      <path
+        d="M8 1.35 14.25 4.7v6.6L8 14.65 1.75 11.3V4.7L8 1.35Zm0 1.55L3.35 5.35 8 7.85l4.65-2.5L8 2.9ZM3.15 6.55v4.15L7.25 13V8.85L3.15 6.55Zm9.7 0L8.75 8.85V13l4.1-2.3V6.55Z"
+        fill="currentColor"
+        fillOpacity="0.9"
+      />
+    </svg>
+  );
+}
+
+export function SkillMark() {
   return (
     <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
       <path
