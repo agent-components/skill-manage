@@ -155,7 +155,7 @@ export default function ProjectDetailPage() {
   const onDelete = () => {
     Modal.confirm({
       title: "删除项目？",
-      content: "仅删除项目与关联，不会删除技能。",
+      content: "将解除技能关联并撤销该项目下的令牌。技能本身会保留。",
       okType: "danger",
       onOk: async () => {
         const res = await authFetch(`/api/projects/${id}`, { method: "DELETE" });

@@ -19,6 +19,12 @@ function ProjectActions({
         关联技能
       </a>
       <a onClick={() => ctx.showFloat(projectFloatKeys.edit, record)}>编辑</a>
+      <a
+        onClick={() => ctx.showFloat(projectFloatKeys.delete, record)}
+        style={{ color: "#ff4d4f" }}
+      >
+        删除
+      </a>
     </Space>
   );
 }
@@ -42,7 +48,7 @@ export const projectTable: TableConfig<ProjectRow, ProjectFilter> = {
     { title: "技能数", dataIndex: "skillCount", width: 90 },
     {
       title: "操作",
-      width: 160,
+      width: 220,
       component: (props) => <ProjectActions {...props} />,
     },
   ],

@@ -113,6 +113,11 @@ export async function DELETE(req: NextRequest, ctx: Ctx) {
   const project = await getOwnedProject(auth.user.id, id);
   if (!project) return jsonError("项目不存在", 404);
 
-  await prisma.project.delete({ where: { id } });
+  // 只删项目和关联引用（技能挂载、令牌），技能实体与版本文件保留。
+  await prisma.$transaction([
+    prisma.projectSkill.deleteMany({ where: { projectId: id } }),
+    prisma.apiKey.deleteMany({ where: { projectId: id } }),
+    prisma.project.delete({ where: { id } }),
+  ]);
   return jsonOk({ ok: true });
 }
