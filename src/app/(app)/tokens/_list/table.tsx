@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { Button, Space, Tag, Tooltip, message } from "antd";
+import { Button, Space, Tag, Tooltip, Typography, message } from "antd";
 import { PlusOutlined } from "@ant-design/icons";
 import dayjs from "dayjs";
 import type {
@@ -155,7 +155,18 @@ export const tokenTable: TableConfig<TokenRow, TokenFilter> = {
       title: "项目",
       dataIndex: ["project", "name"],
       width: 140,
-      render: (_: unknown, row: TokenRow) => row.project?.name || "-",
+      ellipsis: { showTitle: false },
+      render: (_: unknown, row: TokenRow) => {
+        const name = row.project?.name || "-";
+        return (
+          <Typography.Text
+            ellipsis={{ tooltip: name }}
+            style={{ width: "100%", display: "block" }}
+          >
+            {name}
+          </Typography.Text>
+        );
+      },
     },
     {
       title: "令牌",

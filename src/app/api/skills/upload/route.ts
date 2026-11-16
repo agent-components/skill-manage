@@ -15,6 +15,7 @@ import {
 } from "@/lib/storage";
 import { createId } from "@paralleldrive/cuid2";
 import type { Prisma } from "@prisma/client";
+import { friendlyUploadError } from "@/lib/upload-error";
 
 export const runtime = "nodejs";
 
@@ -220,9 +221,6 @@ export async function POST(req: NextRequest) {
       // ignore cleanup errors
     }
     console.error("upload skill failed", e);
-    return jsonError(
-      e instanceof Error ? e.message : "上传失败",
-      500,
-    );
+    return jsonError(...friendlyUploadError(e));
   }
 }

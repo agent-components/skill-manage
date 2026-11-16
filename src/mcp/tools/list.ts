@@ -46,7 +46,12 @@ export function registerListTool(server: McpServer) {
             : {}),
         },
         orderBy: { updatedAt: "desc" },
-        include: {
+        select: {
+          slug: true,
+          displayName: true,
+          summary: true,
+          tags: true,
+          updatedAt: true,
           latestVersion: { select: { version: true } },
         },
       });

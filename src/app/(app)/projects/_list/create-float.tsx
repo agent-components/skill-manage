@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { Form, Input, Modal, message } from "antd";
 import type { FloatComponentProps } from "listpage-components/ListPage";
+import { ProjectIconInput } from "@/components/ProjectIcon";
 import { authFetch } from "@/lib/auth-client";
 import type { ProjectRow } from "./types";
 
@@ -42,6 +43,9 @@ export function CreateProjectFloat({
       confirmLoading={saving}
     >
       <Form form={form} layout="vertical" style={{ marginTop: 16 }}>
+        <Form.Item name="icon">
+          <ProjectIconInput />
+        </Form.Item>
         <Form.Item
           name="name"
           label="名称"

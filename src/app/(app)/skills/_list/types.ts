@@ -3,6 +3,7 @@ export type SkillRow = {
   slug: string;
   displayName: string;
   summary: string | null;
+  icon: string | null;
   tags: string[];
   latestVersion: string | null;
   versionCount: number;

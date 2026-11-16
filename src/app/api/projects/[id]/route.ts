@@ -1,6 +1,7 @@
 import { NextRequest } from "next/server";
 import { prisma } from "@/lib/db";
 import { jsonError, jsonOk, rejectOutsideProject, requireAuth } from "@/lib/api";
+import { normalizeProjectIcon } from "@/lib/project-icon";
 import { slugify } from "@/lib/slug";
 
 type Ctx = { params: Promise<{ id: string }> };
@@ -39,6 +40,7 @@ export async function GET(req: NextRequest, ctx: Ctx) {
     name: project.name,
     slug: project.slug,
     description: project.description,
+    icon: project.icon,
     createdAt: project.createdAt,
     updatedAt: project.updatedAt,
     skills: project.skills.map((ps) => ({
@@ -46,6 +48,7 @@ export async function GET(req: NextRequest, ctx: Ctx) {
       slug: ps.skill.slug,
       displayName: ps.skill.displayName,
       summary: ps.skill.summary,
+      ...(auth.via === "session" ? { icon: ps.skill.icon } : {}),
       latestVersion: ps.skill.latestVersion?.version ?? null,
       versionCount: ps.skill._count.versions,
       linkedAt: ps.createdAt,
@@ -63,7 +66,12 @@ export async function PATCH(req: NextRequest, ctx: Ctx) {
   const project = await getOwnedProject(auth.user.id, id);
   if (!project) return jsonError("项目不存在", 404);
 
-  let body: { name?: string; slug?: string; description?: string | null };
+  let body: {
+    name?: string;
+    slug?: string;
+    description?: string | null;
+    icon?: string | null;
+  };
   try {
     body = await req.json();
   } catch {
@@ -74,7 +82,16 @@ export async function PATCH(req: NextRequest, ctx: Ctx) {
     name?: string;
     slug?: string;
     description?: string | null;
+    icon?: string | null;
   } = {};
+
+  if (body.icon !== undefined) {
+    try {
+      data.icon = normalizeProjectIcon(body.icon) ?? null;
+    } catch (e) {
+      return jsonError(e instanceof Error ? e.message : "图标无效");
+    }
+  }
 
   if (typeof body.name === "string" && body.name.trim()) {
     data.name = body.name.trim();

@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { Form, Input, Modal, Select, message } from "antd";
 import type { FloatComponentProps } from "listpage-components/ListPage";
+import { ProjectIconInput } from "@/components/ProjectIcon";
 import { ProjectSelect } from "@/components/project-options";
 import { authFetch } from "@/lib/auth-client";
 import type { SkillRow } from "./types";
@@ -47,6 +48,7 @@ function EditSkillForm({
           summary: values.summary ?? "",
           tags: values.tags ?? [],
           projectIds: values.projectIds ?? [],
+          icon: values.icon ?? null,
         }),
       });
       const data = await res.json().catch(() => ({}));
@@ -76,12 +78,16 @@ function EditSkillForm({
         layout="vertical"
         style={{ marginTop: 16 }}
         initialValues={{
+          icon: record.icon,
           displayName: record.displayName,
           summary: record.summary ?? "",
           tags: record.tags ?? [],
           projectIds: record.projects.map((p) => p.id),
         }}
       >
+        <Form.Item name="icon">
+          <ProjectIconInput fallback="skill" />
+        </Form.Item>
         <Form.Item
           name="displayName"
           label="名称"

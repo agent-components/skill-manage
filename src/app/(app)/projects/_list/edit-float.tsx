@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { Form, Input, Modal, message } from "antd";
 import type { FloatComponentProps } from "listpage-components/ListPage";
+import { ProjectIconInput } from "@/components/ProjectIcon";
 import { authFetch } from "@/lib/auth-client";
 import type { ProjectRow } from "./types";
 
@@ -46,6 +47,7 @@ function EditProjectForm({
           name: values.name,
           slug: values.slug,
           description: values.description ?? "",
+          icon: values.icon ?? null,
         }),
       });
       const data = await res.json().catch(() => ({}));
@@ -78,8 +80,12 @@ function EditProjectForm({
           name: record.name,
           slug: record.slug,
           description: record.description ?? "",
+          icon: record.icon,
         }}
       >
+        <Form.Item name="icon">
+          <ProjectIconInput />
+        </Form.Item>
         <Form.Item
           name="name"
           label="名称"

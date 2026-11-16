@@ -51,6 +51,8 @@ model Project {
   name        String
   slug        String
   description String?
+  /// 自定义图标，data URL（data:image/...;base64,...）
+  icon        String?  @db.Text
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
 
@@ -71,6 +73,8 @@ model Skill {
   summary         String?
   /// 列表展示用标签（上传时写入，不依赖 version.metadata）
   tags            String[] @default([])
+  /// 自定义图标，仅前端使用；MCP 不读写该字段
+  icon            String?  @db.Text
   latestVersionId String?  @unique
   createdAt       DateTime @default(now())
   updatedAt       DateTime @updatedAt

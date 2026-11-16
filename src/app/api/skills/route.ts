@@ -57,6 +57,7 @@ export async function GET(req: NextRequest) {
       displayName: s.displayName,
       summary: s.summary,
       tags: s.tags,
+      ...(auth.via === "session" ? { icon: s.icon } : {}),
       latestVersion: s.latestVersion?.version ?? null,
       versionCount: s._count.versions,
       projects: s.projects.map((p) => ({

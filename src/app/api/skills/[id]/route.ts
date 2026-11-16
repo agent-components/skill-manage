@@ -6,6 +6,7 @@ import {
   rejectSkillOutsideProject,
   requireAuth,
 } from "@/lib/api";
+import { normalizeProjectIcon } from "@/lib/project-icon";
 import { normalizeTags } from "@/lib/skill-metadata";
 import { deleteObjects } from "@/lib/storage";
 
@@ -34,6 +35,7 @@ export async function GET(req: NextRequest, ctx: Ctx) {
     displayName: skill.displayName,
     summary: skill.summary,
     tags: skill.tags,
+    ...(auth.via === "session" ? { icon: skill.icon } : {}),
     latestVersion: skill.latestVersion?.version ?? null,
     versions: skill.versions.map((v) => ({
       id: v.id,
@@ -72,11 +74,21 @@ export async function PATCH(req: NextRequest, ctx: Ctx) {
     summary?: string | null;
     tags?: unknown;
     projectIds?: string[];
+    icon?: string | null;
   };
   try {
     body = await req.json();
   } catch {
     return jsonError("请求格式错误");
+  }
+
+  let icon: string | null | undefined;
+  if (auth.via === "session" && body.icon !== undefined) {
+    try {
+      icon = normalizeProjectIcon(body.icon) ?? null;
+    } catch (e) {
+      return jsonError(e instanceof Error ? e.message : "图标无效");
+    }
   }
 
   if (Array.isArray(body.projectIds)) {
@@ -118,6 +130,7 @@ export async function PATCH(req: NextRequest, ctx: Ctx) {
           }
         : {}),
       ...(body.tags !== undefined ? { tags: normalizeTags(body.tags) } : {}),
+      ...(icon !== undefined ? { icon } : {}),
     },
     include: {
       projects: { include: { project: true } },
@@ -131,6 +144,7 @@ export async function PATCH(req: NextRequest, ctx: Ctx) {
     displayName: updated.displayName,
     summary: updated.summary,
     tags: updated.tags,
+    ...(auth.via === "session" ? { icon: updated.icon } : {}),
     latestVersion: updated.latestVersion?.version ?? null,
     projects: updated.projects.map((p) => ({
       id: p.project.id,

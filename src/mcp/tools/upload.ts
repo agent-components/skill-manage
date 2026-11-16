@@ -1,6 +1,7 @@
 import type { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
 import { createId } from "@paralleldrive/cuid2";
 import type { Prisma } from "@prisma/client";
+import { friendlyUploadError } from "@/lib/upload-error";
 import { z } from "zod";
 import { prisma } from "@/lib/db";
 import { parseSkillZip } from "@/lib/skill-package";
@@ -251,7 +252,7 @@ export function registerUploadTool(server: McpServer) {
           // ignore cleanup errors
         }
         console.error("mcp upload skill failed", e);
-        return toolError(e instanceof Error ? e.message : "上传失败");
+        return toolError(friendlyUploadError(e)[0]);
       }
     },
   );

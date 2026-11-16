@@ -32,7 +32,7 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ message: "账号已停用" }, { status: 403 });
   }
 
-  const token = createAccessToken();
+  const token = user.token || createAccessToken();
   const tokenExpiredAt = new Date(Date.now() + TOKEN_TTL_MS);
   await prisma.user.update({
     where: { id: user.id },

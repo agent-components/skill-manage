@@ -1,6 +1,7 @@
 import { NextRequest } from "next/server";
 import { prisma } from "@/lib/db";
 import { jsonError, jsonOk, requireAuth } from "@/lib/api";
+import { normalizeProjectIcon } from "@/lib/project-icon";
 import { slugify } from "@/lib/slug";
 
 export async function GET(req: NextRequest) {
@@ -38,6 +39,7 @@ export async function GET(req: NextRequest) {
       name: p.name,
       slug: p.slug,
       description: p.description,
+      icon: p.icon,
       skillCount: p._count.skills,
       createdAt: p.createdAt,
       updatedAt: p.updatedAt,
@@ -53,11 +55,18 @@ export async function POST(req: NextRequest) {
     return jsonError("令牌无权创建项目", 403);
   }
 
-  let body: { name?: string; slug?: string; description?: string };
+  let body: { name?: string; slug?: string; description?: string; icon?: string | null };
   try {
     body = await req.json();
   } catch {
     return jsonError("请求格式错误");
+  }
+
+  let icon: string | null | undefined;
+  try {
+    icon = normalizeProjectIcon(body.icon);
+  } catch (e) {
+    return jsonError(e instanceof Error ? e.message : "图标无效");
   }
 
   const name = body.name?.trim();
@@ -76,6 +85,7 @@ export async function POST(req: NextRequest) {
       name,
       slug,
       description: body.description?.trim() || null,
+      icon: icon ?? null,
     },
   });
 

@@ -3,6 +3,7 @@ export type ProjectRow = {
   name: string;
   slug: string;
   description: string | null;
+  icon: string | null;
   skillCount: number;
   updatedAt: string;
 };
