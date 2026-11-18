@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { Form, Input, Modal, message } from "antd";
 import type { FloatComponentProps } from "listpage-components/ListPage";
-import { ProjectSelect } from "@/components/project-options";
+import { SkillSetSelect } from "@/components/skill-set-options";
 import { authFetch } from "@/lib/auth-client";
 import { ALL_MCP_TOOL_IDS } from "@/lib/mcp-tools";
 import { TokenToolSelect } from "./tool-select";
@@ -26,7 +26,7 @@ export function CreateTokenFloat({
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           name: values.name,
-          projectId: values.projectId,
+          skillSetId: values.skillSetId,
           tools: values.tools,
         }),
       });
@@ -65,11 +65,11 @@ export function CreateTokenFloat({
           <Input placeholder="例如：CI 发布" maxLength={64} />
         </Form.Item>
         <Form.Item
-          name="projectId"
-          label="绑定项目"
-          rules={[{ required: true, message: "请选择绑定项目" }]}
+          name="skillSetId"
+          label="绑定技能集"
+          rules={[{ required: true, message: "请选择绑定技能集" }]}
         >
-          <ProjectSelect placeholder="请选择项目" showSearch />
+          <SkillSetSelect placeholder="请选择技能集" showSearch />
         </Form.Item>
         <Form.Item
           name="tools"

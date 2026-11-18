@@ -1,20 +1,20 @@
 import { NextRequest } from "next/server";
 import { prisma } from "@/lib/db";
-import { jsonError, jsonOk, rejectOutsideProject, requireAuth } from "@/lib/api";
+import { jsonError, jsonOk, rejectOutsideSkillSet, requireAuth } from "@/lib/api";
 
 type Ctx = { params: Promise<{ id: string }> };
 
 export async function PATCH(req: NextRequest, ctx: Ctx) {
   const auth = await requireAuth(req);
   if (auth.error) return auth.error;
-  const { id: projectId } = await ctx.params;
-  const denied = rejectOutsideProject(auth, projectId);
+  const { id: skillSetId } = await ctx.params;
+  const denied = rejectOutsideSkillSet(auth, skillSetId);
   if (denied) return denied;
 
-  const project = await prisma.project.findFirst({
-    where: { id: projectId, ownerId: auth.user.id },
+  const skillSet = await prisma.project.findFirst({
+    where: { id: skillSetId, ownerId: auth.user.id },
   });
-  if (!project) return jsonError("项目不存在", 404);
+  if (!skillSet) return jsonError("技能集不存在", 404);
 
   let body: { add?: string[]; remove?: string[] };
   try {
@@ -35,19 +35,19 @@ export async function PATCH(req: NextRequest, ctx: Ctx) {
       return jsonError("存在无权关联的技能", 403);
     }
     await prisma.projectSkill.createMany({
-      data: owned.map((s) => ({ projectId, skillId: s.id })),
+      data: owned.map((s) => ({ projectId: skillSetId, skillId: s.id })),
       skipDuplicates: true,
     });
   }
 
   if (remove.length > 0) {
     await prisma.projectSkill.deleteMany({
-      where: { projectId, skillId: { in: remove } },
+      where: { projectId: skillSetId, skillId: { in: remove } },
     });
   }
 
   const skills = await prisma.projectSkill.findMany({
-    where: { projectId },
+    where: { projectId: skillSetId },
     include: { skill: true },
     orderBy: { createdAt: "desc" },
   });

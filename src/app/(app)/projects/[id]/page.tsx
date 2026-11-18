@@ -3,12 +3,12 @@
 import { useCallback, useEffect, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
 import { Modal, Spin, message } from "antd";
-import { ProjectAvatar, SkillIcon } from "@/components/ProjectIcon";
+import { SkillIcon, SkillSetAvatar } from "@/components/icons";
 import { authFetch } from "@/lib/auth-client";
 import "@/styles/skill-ui.css";
-import "@/styles/project-ui.css";
+import "@/styles/pack-ui.css";
 
-type ProjectDetail = {
+type SkillSetDetail = {
   id: string;
   name: string;
   slug: string;
@@ -25,12 +25,12 @@ type ProjectDetail = {
   }[];
 };
 
-export default function ProjectDetailPage() {
+export default function SkillSetDetailPage() {
   const params = useParams();
   const id = params.id as string;
   const router = useRouter();
   const [loading, setLoading] = useState(true);
-  const [project, setProject] = useState<ProjectDetail | null>(null);
+  const [skillSet, setSkillSet] = useState<SkillSetDetail | null>(null);
   const [tab, setTab] = useState<"overview" | "skills">("overview");
 
   const load = useCallback(async () => {
@@ -39,7 +39,7 @@ export default function ProjectDetailPage() {
       const res = await authFetch(`/api/projects/${id}`);
       const data = await res.json();
       if (!res.ok) throw new Error(data.message || "加载失败");
-      setProject(data);
+      setSkillSet(data);
     } catch (e) {
       message.error(e instanceof Error ? e.message : "加载失败");
     } finally {
@@ -54,7 +54,7 @@ export default function ProjectDetailPage() {
   const onUnlink = (skillId: string) => {
     Modal.confirm({
       title: "删除该技能？",
-      content: "只会从当前项目中移除，技能本身会保留。",
+      content: "只会从当前技能集中移除，技能本身会保留。",
       okText: "删除",
       okType: "danger",
       cancelText: "取消",
@@ -83,8 +83,8 @@ export default function ProjectDetailPage() {
     );
   }
 
-  if (!project) {
-    return <p className="pack-empty">项目不存在</p>;
+  if (!skillSet) {
+    return <p className="pack-empty">技能集不存在</p>;
   }
 
   return (
@@ -94,28 +94,28 @@ export default function ProjectDetailPage() {
         className="skill-crumb"
         onClick={() => router.push("/projects")}
       >
-        项目 / {project.name}
+        技能集 / {skillSet.name}
       </button>
 
       <div className="pack-detail">
         <div className="pack-detail-main">
           <div className="pack-identity">
-            <ProjectAvatar name={project.name} icon={project.icon} />
+            <SkillSetAvatar name={skillSet.name} icon={skillSet.icon} />
             <div>
-              <h1 className="skill-hero-title">{project.name}</h1>
+              <h1 className="skill-hero-title">{skillSet.name}</h1>
               <div className="pack-title-line" style={{ marginTop: 8 }}>
-                <span className="pack-role">{project.slug}</span>
+                <span className="pack-role">{skillSet.slug}</span>
               </div>
             </div>
           </div>
 
           <p className="skill-hero-summary">
-            {project.description || "暂无描述"}
+            {skillSet.description || "暂无描述"}
           </p>
 
           <div className="skill-chips">
-            <span className="skill-chip">{project.skills.length} 个技能模块</span>
-            <span className="skill-chip">项目</span>
+            <span className="skill-chip">{skillSet.skills.length} 个技能</span>
+            <span className="skill-chip">技能集</span>
           </div>
 
           <div className="skill-tabbar">
@@ -131,7 +131,7 @@ export default function ProjectDetailPage() {
               className={tab === "skills" ? "is-active" : ""}
               onClick={() => setTab("skills")}
             >
-              技能模块
+              技能
             </button>
           </div>
 
@@ -139,10 +139,10 @@ export default function ProjectDetailPage() {
             {tab === "overview" ? (
               <div>
                 <h2 style={{ margin: "8px 0 12px", fontSize: 22 }}>
-                  {project.name}
+                  {skillSet.name}
                 </h2>
                 <p className="skill-hero-summary" style={{ marginTop: 0 }}>
-                  {project.description || "这个项目还没有概述。"}
+                  {skillSet.description || "这个技能集还没有概述。"}
                 </p>
               </div>
             ) : (
@@ -151,16 +151,16 @@ export default function ProjectDetailPage() {
                   <div>
                     <h2>包含的技能</h2>
                     <div className="pack-skills-note">
-                      点击模块查看技能详情。
+                      点击查看技能详情。
                     </div>
                   </div>
-                  <span>{project.skills.length} 个</span>
+                  <span>{skillSet.skills.length} 个</span>
                 </div>
-                {project.skills.length === 0 ? (
+                {skillSet.skills.length === 0 ? (
                   <div className="pack-empty">还没有关联技能</div>
                 ) : (
                   <div className="pack-module-grid">
-                    {project.skills.map((skill) => (
+                    {skillSet.skills.map((skill) => (
                       <div
                         key={skill.id}
                         className="pack-module"

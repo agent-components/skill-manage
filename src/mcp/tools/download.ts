@@ -27,7 +27,7 @@ export function registerDownloadTool(server: McpServer) {
       annotations: { readOnlyHint: true, openWorldHint: false },
     },
     async ({ slug }) => {
-      const { user, projectId, baseUrl } = getMcpContext();
+      const { user, skillSetId, baseUrl } = getMcpContext();
       const skillSlug = slug.trim();
       if (!skillSlug) return toolError("缺少 slug");
 
@@ -35,7 +35,7 @@ export function registerDownloadTool(server: McpServer) {
         where: {
           ownerId: user.id,
           slug: skillSlug,
-          projects: { some: { projectId } },
+          projects: { some: { projectId: skillSetId } },
         },
         include: {
           latestVersion: {
@@ -44,7 +44,7 @@ export function registerDownloadTool(server: McpServer) {
         },
       });
       if (!skill) {
-        return toolError(`技能不存在或不在当前项目: ${skillSlug}`);
+        return toolError(`技能不存在或不在当前技能集: ${skillSlug}`);
       }
 
       const ver = skill.latestVersion;

@@ -1,34 +1,34 @@
 "use client";
 
 import type { FloatItem } from "listpage-components/ListPage";
-import { CreateProjectFloat } from "./create-float";
-import { DeleteProjectFloat } from "./delete-float";
-import { EditProjectFloat } from "./edit-float";
-import { ProjectSkillsFloat } from "./skills-float";
-import type { ProjectRow } from "./types";
+import { CreateSkillSetFloat } from "./create-float";
+import { DeleteSkillSetFloat } from "./delete-float";
+import { EditSkillSetFloat } from "./edit-float";
+import { SkillSetSkillsFloat } from "./skills-float";
+import type { SkillSetRow } from "./types";
 
-export const projectFloatKeys = {
+export const skillSetFloatKeys = {
   create: "create",
   edit: "edit",
   skills: "skills",
   delete: "delete",
 } as const;
 
-export const projectFloats: FloatItem<ProjectRow>[] = [
+export const skillSetFloats: FloatItem<SkillSetRow>[] = [
   {
-    key: projectFloatKeys.create,
-    render: (props) => <CreateProjectFloat {...props} />,
+    key: skillSetFloatKeys.create,
+    render: (props) => <CreateSkillSetFloat {...props} />,
   },
   {
-    key: projectFloatKeys.edit,
-    render: (props) => <EditProjectFloat {...props} />,
+    key: skillSetFloatKeys.edit,
+    render: (props) => <EditSkillSetFloat {...props} />,
   },
   {
-    key: projectFloatKeys.skills,
-    render: (props) => <ProjectSkillsFloat {...props} />,
+    key: skillSetFloatKeys.skills,
+    render: (props) => <SkillSetSkillsFloat {...props} />,
   },
   {
-    key: projectFloatKeys.delete,
-    render: (props) => <DeleteProjectFloat {...props} />,
+    key: skillSetFloatKeys.delete,
+    render: (props) => <DeleteSkillSetFloat {...props} />,
   },
 ];

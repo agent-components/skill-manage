@@ -10,7 +10,7 @@ export const requestSkills: ListPageRequest<SkillFilter> = async (
 ) => {
   const qs = new URLSearchParams();
   if (filterValues?.name) qs.set("name", filterValues.name);
-  if (filterValues?.projectId) qs.set("projectId", filterValues.projectId);
+  if (filterValues?.skillSetId) qs.set("skillSetId", filterValues.skillSetId);
   qs.set("page", String(pageParams.current || 1));
   qs.set("pageSize", String(pageParams.pageSize || 20));
   const res = await authFetch(`/api/skills?${qs}`);

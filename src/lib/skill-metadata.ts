@@ -3,7 +3,7 @@ import matter from "gray-matter";
 /**
  * Skill metadata 解析与归一化。
  *
- * 技能包 frontmatter / meta 格式不统一，本模块单独维护：
+ * 技能 frontmatter / meta 格式不统一，本模块单独维护：
  * 1) 解析原始 frontmatter（严格 YAML + 宽松回退）
  * 2) 把多种字段别名映射为列表/库表使用的稳定字段
  *

@@ -3,7 +3,7 @@ import { prisma } from "@/lib/db";
 import {
   jsonError,
   jsonOk,
-  rejectSkillOutsideProject,
+  rejectSkillOutsideSkillSet,
   requireAuth,
 } from "@/lib/api";
 import { parseSkillZip } from "@/lib/skill-package";
@@ -40,17 +40,17 @@ export async function POST(req: NextRequest) {
       (form.get("version") as string)) ||
     undefined;
 
-  const projectIdsRaw = form.getAll("projectIds");
-  let projectIds = projectIdsRaw
+  const skillSetIdsRaw = form.getAll("skillSetIds");
+  let skillSetIds = skillSetIdsRaw
     .flatMap((v) => (typeof v === "string" ? v.split(",") : []))
     .map((s) => s.trim())
     .filter(Boolean);
 
-  if (auth.projectId) {
-    if (projectIds.length === 0) {
-      projectIds = [auth.projectId];
-    } else if (projectIds.length !== 1 || projectIds[0] !== auth.projectId) {
-      return jsonError("令牌只能上传到绑定项目", 403);
+  if (auth.skillSetId) {
+    if (skillSetIds.length === 0) {
+      skillSetIds = [auth.skillSetId];
+    } else if (skillSetIds.length !== 1 || skillSetIds[0] !== auth.skillSetId) {
+      return jsonError("令牌只能上传到绑定技能集", 403);
     }
   }
 
@@ -68,7 +68,7 @@ export async function POST(req: NextRequest) {
       filename: file.name,
     });
   } catch (e) {
-    return jsonError(e instanceof Error ? e.message : "解析技能包失败");
+    return jsonError(e instanceof Error ? e.message : "解析技能失败");
   }
 
   if (!parsed.version) {
@@ -77,12 +77,12 @@ export async function POST(req: NextRequest) {
     );
   }
 
-  if (projectIds.length > 0) {
+  if (skillSetIds.length > 0) {
     const owned = await prisma.project.count({
-      where: { ownerId: auth.user.id, id: { in: projectIds } },
+      where: { ownerId: auth.user.id, id: { in: skillSetIds } },
     });
-    if (owned !== projectIds.length) {
-      return jsonError("存在无权使用的项目", 403);
+    if (owned !== skillSetIds.length) {
+      return jsonError("存在无权使用的技能集", 403);
     }
   }
 
@@ -101,7 +101,7 @@ export async function POST(req: NextRequest) {
   }
 
   if (skill) {
-    const denied = await rejectSkillOutsideProject(auth, skill.id);
+    const denied = await rejectSkillOutsideSkillSet(auth, skill.id);
     if (denied) return denied;
 
     const existVer = await prisma.skillVersion.findUnique({
@@ -187,10 +187,10 @@ export async function POST(req: NextRequest) {
         data: { latestVersionId: version.id },
       });
 
-      if (projectIds.length > 0) {
+      if (skillSetIds.length > 0) {
         await tx.projectSkill.createMany({
-          data: projectIds.map((projectId) => ({
-            projectId,
+          data: skillSetIds.map((skillSetId) => ({
+            projectId: skillSetId,
             skillId: skill!.id,
           })),
           skipDuplicates: true,

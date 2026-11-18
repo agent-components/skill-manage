@@ -44,13 +44,13 @@ export function registerUploadTool(server: McpServer) {
     {
       title: "Upload skill",
       description:
-        "上传技能 zip 到当前项目。文件名必须为 {slug}-{version}.zip。" +
-        "项目内已有同 slug → 发新版本（更新）；否则新建。" +
+        "上传技能 zip 到当前技能集。文件名必须为 {slug}-{version}.zip。" +
+        "技能集内已有同 slug → 发新版本（更新）；否则新建。" +
         "同 slug+同 version 已存在则拒绝。",
       inputSchema: {
         zip_base64: z
           .string()
-          .describe("技能包 zip 的 base64（可带 data URL 前缀）"),
+          .describe("技能 zip 的 base64（可带 data URL 前缀）"),
         filename: z
           .string()
           .describe("压缩包文件名，必须为 {slug}-{version}.zip"),
@@ -63,7 +63,7 @@ export function registerUploadTool(server: McpServer) {
       },
     },
     async ({ zip_base64, filename }) => {
-      const { user, projectId } = getMcpContext();
+      const { user, skillSetId } = getMcpContext();
 
       const nameErr = skillArchiveFilenameError(filename);
       if (nameErr) return toolError(nameErr);
@@ -80,7 +80,7 @@ export function registerUploadTool(server: McpServer) {
           filename: filename.trim(),
         });
       } catch (e) {
-        return toolError(e instanceof Error ? e.message : "解析技能包失败");
+        return toolError(e instanceof Error ? e.message : "解析技能失败");
       }
 
       if (parsed.slug !== fromName.slug) {
@@ -99,10 +99,10 @@ export function registerUploadTool(server: McpServer) {
         );
       }
 
-      // 项目内同 slug → 更新；否则新建
+      // 技能集内同 slug → 更新；否则新建
       const linked = await prisma.projectSkill.findFirst({
         where: {
-          projectId,
+          projectId: skillSetId,
           skill: { ownerId: user.id, slug: parsed.slug },
         },
         include: { skill: true },
@@ -111,7 +111,7 @@ export function registerUploadTool(server: McpServer) {
       let skill = linked?.skill ?? null;
 
       if (!skill) {
-        // 用户已有同 slug 技能但未挂本项目 → 拒绝，避免串项目
+        // 用户已有同 slug 技能但未挂本技能集 → 拒绝，避免串到别的技能集
         const owned = await prisma.skill.findUnique({
           where: {
             ownerId_slug: { ownerId: user.id, slug: parsed.slug },
@@ -120,7 +120,7 @@ export function registerUploadTool(server: McpServer) {
         });
         if (owned) {
           return toolError(
-            `技能 ${parsed.slug} 已存在但未关联当前项目，无法用此令牌上传`,
+            `技能 ${parsed.slug} 已存在但未关联当前技能集，无法用此令牌上传`,
           );
         }
       }
@@ -216,7 +216,7 @@ export function registerUploadTool(server: McpServer) {
           });
 
           await tx.projectSkill.createMany({
-            data: [{ projectId, skillId: skill.id }],
+            data: [{ projectId: skillSetId, skillId: skill.id }],
             skipDuplicates: true,
           });
 
@@ -237,7 +237,7 @@ export function registerUploadTool(server: McpServer) {
                   tags: result.skill.tags,
                   version: result.version.version,
                   fileCount: result.version.fileCount,
-                  projectId,
+                  skillSetId,
                 },
                 null,
                 2,

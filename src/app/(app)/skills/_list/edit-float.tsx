@@ -3,8 +3,8 @@
 import { useState } from "react";
 import { Form, Input, Modal, Select, message } from "antd";
 import type { FloatComponentProps } from "listpage-components/ListPage";
-import { ProjectIconInput } from "@/components/ProjectIcon";
-import { ProjectSelect } from "@/components/project-options";
+import { SkillSetIconInput } from "@/components/icons";
+import { SkillSetSelect } from "@/components/skill-set-options";
 import { authFetch } from "@/lib/auth-client";
 import type { SkillRow } from "./types";
 
@@ -47,7 +47,7 @@ function EditSkillForm({
           displayName: values.displayName,
           summary: values.summary ?? "",
           tags: values.tags ?? [],
-          projectIds: values.projectIds ?? [],
+          skillSetIds: values.skillSetIds ?? [],
           icon: values.icon ?? null,
         }),
       });
@@ -82,11 +82,11 @@ function EditSkillForm({
           displayName: record.displayName,
           summary: record.summary ?? "",
           tags: record.tags ?? [],
-          projectIds: record.projects.map((p) => p.id),
+          skillSetIds: record.skillSets.map((item) => item.id),
         }}
       >
         <Form.Item name="icon">
-          <ProjectIconInput fallback="skill" />
+          <SkillSetIconInput fallback="skill" />
         </Form.Item>
         <Form.Item
           name="displayName"
@@ -106,8 +106,8 @@ function EditSkillForm({
             tokenSeparators={[",", "，"]}
           />
         </Form.Item>
-        <Form.Item name="projectIds" label="归属项目">
-          <ProjectSelect mode="multiple" placeholder="可选，可多选" />
+        <Form.Item name="skillSetIds" label="归属技能集">
+          <SkillSetSelect mode="multiple" placeholder="可选，可多选" />
         </Form.Item>
       </Form>
     </Modal>

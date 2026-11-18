@@ -6,8 +6,8 @@ import type { McpToolId } from "@/lib/mcp-tools";
 export type RequestAuth = {
   user: AuthUser;
   via: AuthVia;
-  /** 令牌鉴权时为绑定项目；登录会话为 null */
-  projectId: string | null;
+  /** 令牌鉴权时为绑定技能集；登录会话为 null */
+  skillSetId: string | null;
   /** 令牌鉴权时为允许的 MCP 工具；登录会话为 null */
   tools: McpToolId[] | null;
 };
@@ -17,7 +17,7 @@ export async function requireAuth(req: Request): Promise<
   | {
       user?: undefined;
       via?: undefined;
-      projectId?: undefined;
+      skillSetId?: undefined;
       tools?: undefined;
       error: NextResponse;
     }
@@ -31,7 +31,7 @@ export async function requireAuth(req: Request): Promise<
   return {
     user: ctx.user,
     via: ctx.via,
-    projectId: ctx.projectId,
+    skillSetId: ctx.skillSetId,
     tools: ctx.tools,
   };
 }
@@ -66,25 +66,25 @@ export function jsonError(message: string, status = 400) {
   return NextResponse.json({ message }, { status });
 }
 
-/** 令牌只能访问其绑定项目 */
-export function rejectOutsideProject(
-  auth: Pick<RequestAuth, "projectId">,
-  projectId: string,
+/** 令牌只能访问其绑定技能集 */
+export function rejectOutsideSkillSet(
+  auth: Pick<RequestAuth, "skillSetId">,
+  skillSetId: string,
 ) {
-  if (auth.projectId && auth.projectId !== projectId) {
-    return jsonError("令牌无权访问该项目", 403);
+  if (auth.skillSetId && auth.skillSetId !== skillSetId) {
+    return jsonError("令牌无权访问该技能集", 403);
   }
   return null;
 }
 
-/** 令牌只能访问已关联到绑定项目的技能 */
-export async function rejectSkillOutsideProject(
-  auth: Pick<RequestAuth, "projectId">,
+/** 令牌只能访问已关联到绑定技能集的技能 */
+export async function rejectSkillOutsideSkillSet(
+  auth: Pick<RequestAuth, "skillSetId">,
   skillId: string,
 ) {
-  if (!auth.projectId) return null;
+  if (!auth.skillSetId) return null;
   const linked = await prisma.projectSkill.findFirst({
-    where: { skillId, projectId: auth.projectId },
+    where: { skillId, projectId: auth.skillSetId },
     select: { id: true },
   });
   if (!linked) return jsonError("令牌无权访问该技能", 403);

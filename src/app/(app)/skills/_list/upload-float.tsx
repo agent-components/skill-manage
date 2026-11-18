@@ -4,7 +4,7 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { Form, Input, Modal, message } from "antd";
 import type { FloatComponentProps } from "listpage-components/ListPage";
-import { ProjectSelect } from "@/components/project-options";
+import { SkillSetSelect } from "@/components/skill-set-options";
 import { ZipUpload } from "@/components/skill/ZipUpload";
 import { authFetch } from "@/lib/auth-client";
 import { extractVersionFromFilename } from "@/lib/skill-version";
@@ -30,8 +30,8 @@ export function UploadSkillFloat({
       const fd = new FormData();
       fd.append("file", file);
       if (values?.version) fd.append("version", values.version);
-      for (const id of values?.projectIds || []) {
-        fd.append("projectIds", id);
+      for (const id of values?.skillSetIds || []) {
+        fd.append("skillSetIds", id);
       }
       const res = await authFetch("/api/skills/upload", {
         method: "POST",
@@ -51,7 +51,7 @@ export function UploadSkillFloat({
 
   return (
     <Modal
-      title="上传技能包"
+      title="上传技能"
       open={visible}
       onCancel={() => {
         if (!uploading) onClose();
@@ -83,8 +83,8 @@ export function UploadSkillFloat({
         >
           <Input placeholder="如 0.1.0" />
         </Form.Item>
-        <Form.Item name="projectIds" label="归属项目">
-          <ProjectSelect mode="multiple" placeholder="可选，可多选" />
+        <Form.Item name="skillSetIds" label="归属技能集">
+          <SkillSetSelect mode="multiple" placeholder="可选，可多选" />
         </Form.Item>
       </Form>
     </Modal>

@@ -8,17 +8,17 @@ export async function GET(req: NextRequest) {
 
   const { searchParams } = req.nextUrl;
   const name = searchParams.get("name")?.trim();
-  const projectId = searchParams.get("projectId")?.trim();
+  const skillSetId = searchParams.get("skillSetId")?.trim();
   const page = Math.max(1, Number(searchParams.get("page") || 1));
   const pageSize = Math.min(
     100,
     Math.max(1, Number(searchParams.get("pageSize") || 20)),
   );
 
-  if (auth.projectId && projectId && auth.projectId !== projectId) {
-    return jsonError("令牌无权访问该项目", 403);
+  if (auth.skillSetId && skillSetId && auth.skillSetId !== skillSetId) {
+    return jsonError("令牌无权访问该技能集", 403);
   }
-  const scopedProjectId = auth.projectId || projectId || undefined;
+  const scopedSkillSetId = auth.skillSetId || skillSetId || undefined;
 
   const where = {
     ownerId: auth.user.id,
@@ -30,8 +30,8 @@ export async function GET(req: NextRequest) {
           ],
         }
       : {}),
-    ...(scopedProjectId
-      ? { projects: { some: { projectId: scopedProjectId } } }
+    ...(scopedSkillSetId
+      ? { projects: { some: { projectId: scopedSkillSetId } } }
       : {}),
   };
 
@@ -60,10 +60,10 @@ export async function GET(req: NextRequest) {
       ...(auth.via === "session" ? { icon: s.icon } : {}),
       latestVersion: s.latestVersion?.version ?? null,
       versionCount: s._count.versions,
-      projects: s.projects.map((p) => ({
-        id: p.project.id,
-        name: p.project.name,
-        slug: p.project.slug,
+      skillSets: s.projects.map((link) => ({
+        id: link.project.id,
+        name: link.project.name,
+        slug: link.project.slug,
       })),
       createdAt: s.createdAt,
       updatedAt: s.updatedAt,

@@ -34,7 +34,10 @@ function writeStoredThemeId(id: string) {
 export function usePersistedProTheme(
   options?: UseProThemeOptions,
 ): UseProThemeResult {
-  const result = useProTheme(options);
+  const result = useProTheme({
+    defaultThemeId: "macos",
+    ...options,
+  });
   const [ready, setReady] = useState(false);
 
   useEffect(() => {

@@ -68,7 +68,7 @@ export function registerReadTool(server: McpServer) {
       annotations: { readOnlyHint: true, openWorldHint: false },
     },
     async ({ slug, path: filePath, version: versionInput }) => {
-      const { user, projectId } = getMcpContext();
+      const { user, skillSetId } = getMcpContext();
       const skillSlug = slug.trim();
       if (!skillSlug) return toolError("缺少 slug");
 
@@ -84,13 +84,13 @@ export function registerReadTool(server: McpServer) {
         where: {
           ownerId: user.id,
           slug: skillSlug,
-          projects: { some: { projectId } },
+          projects: { some: { projectId: skillSetId } },
         },
         include: {
           latestVersion: { select: { id: true, version: true } },
         },
       });
-      if (!skill) return toolError(`技能不存在或不在当前项目: ${skillSlug}`);
+      if (!skill) return toolError(`技能不存在或不在当前技能集: ${skillSlug}`);
 
       let versionRow:
         | { id: string; version: string }

@@ -4,15 +4,15 @@ import { useCallback, useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { AppstoreOutlined, UnorderedListOutlined, UploadOutlined } from "@ant-design/icons";
 import { Button, Dropdown, Input, Pagination, Spin } from "antd";
-import { SkillIcon } from "@/components/ProjectIcon";
-import { ProjectOptionsProvider, ProjectSelect } from "@/components/project-options";
+import { SkillIcon } from "@/components/icons";
+import { SkillSetOptionsProvider, SkillSetSelect } from "@/components/skill-set-options";
 import { DeleteSkillFloat } from "./_list/delete-float";
 import { EditSkillFloat } from "./_list/edit-float";
 import { requestSkills } from "./_list/request";
 import type { SkillRow } from "./_list/types";
 import { UploadSkillFloat } from "./_list/upload-float";
 import "@/styles/skill-ui.css";
-import "@/styles/project-ui.css";
+import "@/styles/pack-ui.css";
 
 type FloatKey = "upload" | "edit" | "delete" | null;
 
@@ -21,7 +21,7 @@ function SkillsBoard() {
   const [view, setView] = useState<"list" | "card">("list");
   const [name, setName] = useState("");
   const [query, setQuery] = useState("");
-  const [projectId, setProjectId] = useState<string | undefined>();
+  const [skillSetId, setSkillSetId] = useState<string | undefined>();
   const [page, setPage] = useState(1);
   const [pageSize, setPageSize] = useState(20);
   const [total, setTotal] = useState(0);
@@ -35,7 +35,7 @@ function SkillsBoard() {
     try {
       const data = await requestSkills(
         { current: page, pageSize },
-        { name: query || undefined, projectId },
+        { name: query || undefined, skillSetId },
         {},
       );
       setList(data.list as SkillRow[]);
@@ -46,7 +46,7 @@ function SkillsBoard() {
     } finally {
       setLoading(false);
     }
-  }, [page, pageSize, query, projectId]);
+  }, [page, pageSize, query, skillSetId]);
 
   useEffect(() => {
     void load();
@@ -83,7 +83,7 @@ function SkillsBoard() {
     <div className="skill-page pack-page">
       <div className="pack-head">
         <h1>技能</h1>
-        <p>可单独使用，也可挂到项目里 · 共 {total} 个技能</p>
+        <p>可单独使用，也可挂到技能集里 · 共 {total} 个技能</p>
       </div>
 
       <div className="pack-toolbar">
@@ -92,15 +92,15 @@ function SkillsBoard() {
           icon={<UploadOutlined />}
           onClick={() => open("upload")}
         >
-          上传技能包
+          上传技能
         </Button>
-        <ProjectSelect
+        <SkillSetSelect
           allowClear
-          placeholder="全部项目"
-          value={projectId}
+          placeholder="全部技能集"
+          value={skillSetId}
           onChange={(value) => {
             setPage(1);
-            setProjectId(value);
+            setSkillSetId(value);
           }}
           style={{ width: 180 }}
         />
@@ -159,10 +159,10 @@ function SkillsBoard() {
                   <span className="pack-desc">{row.summary || "暂无描述"}</span>
                 </span>
                 <span className="pack-side">
-                  <span className="pack-projects">
-                    {row.projects?.length
-                      ? row.projects.map((p) => p.name).join("、")
-                      : "未归属项目"}
+                  <span className="pack-skill-sets">
+                    {row.skillSets?.length
+                      ? row.skillSets.map((item) => item.name).join("、")
+                      : "未归属技能集"}
                   </span>
                   <Dropdown menu={menu(row)} trigger={["click"]}>
                     <Button type="link" onClick={(e) => e.stopPropagation()}>
@@ -199,10 +199,10 @@ function SkillsBoard() {
                 </span>
                 <span className="pack-desc">{row.summary || "暂无描述"}</span>
                 <span className="pack-card-foot">
-                  <span className="pack-projects">
-                    {row.projects?.length
-                      ? row.projects.map((p) => p.name).join("、")
-                      : "未归属项目"}
+                  <span className="pack-skill-sets">
+                    {row.skillSets?.length
+                      ? row.skillSets.map((item) => item.name).join("、")
+                      : "未归属技能集"}
                   </span>
                   <Dropdown menu={menu(row)} trigger={["click"]}>
                     <Button type="link" onClick={(e) => e.stopPropagation()}>
@@ -240,8 +240,8 @@ function SkillsBoard() {
 
 export default function SkillsPage() {
   return (
-    <ProjectOptionsProvider>
+    <SkillSetOptionsProvider>
       <SkillsBoard />
-    </ProjectOptionsProvider>
+    </SkillSetOptionsProvider>
   );
 }

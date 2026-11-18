@@ -84,7 +84,7 @@ export async function getTokenFromRequest(req?: Request) {
 /** 令牌鉴权：摘要匹配，且所属账号为启用状态（令牌永不过期） */
 export async function findUserByApiKey(raw: string): Promise<{
   user: AuthUser;
-  projectId: string;
+  skillSetId: string;
   tools: McpToolId[];
 } | null> {
   if (!isApiKey(raw)) return null;
@@ -117,7 +117,7 @@ export async function findUserByApiKey(raw: string): Promise<{
 
   return {
     user: toAuthUser(user),
-    projectId: record.projectId,
+    skillSetId: record.projectId,
     tools: normalizeMcpTools(record.tools),
   };
 }
@@ -127,7 +127,7 @@ export type AuthVia = "session" | "api_key";
 export async function getAuthContext(req?: Request): Promise<{
   user: AuthUser;
   via: AuthVia;
-  projectId: string | null;
+  skillSetId: string | null;
   tools: McpToolId[] | null;
 } | null> {
   const token = await getTokenFromRequest(req);
@@ -139,7 +139,7 @@ export async function getAuthContext(req?: Request): Promise<{
       ? {
           user: matched.user,
           via: "api_key",
-          projectId: matched.projectId,
+          skillSetId: matched.skillSetId,
           tools: matched.tools,
         }
       : null;
@@ -150,7 +150,7 @@ export async function getAuthContext(req?: Request): Promise<{
     ? {
         user: toAuthUser(user),
         via: "session",
-        projectId: null,
+        skillSetId: null,
         tools: null,
       }
     : null;

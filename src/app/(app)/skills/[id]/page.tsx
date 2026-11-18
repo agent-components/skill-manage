@@ -26,7 +26,7 @@ import {
 import dayjs from "dayjs";
 import relativeTime from "dayjs/plugin/relativeTime";
 import "dayjs/locale/zh-cn";
-import { SkillIcon } from "@/components/ProjectIcon";
+import { SkillIcon } from "@/components/icons";
 import { authFetch } from "@/lib/auth-client";
 import { ZipUpload } from "@/components/skill/ZipUpload";
 import { MarkdownRenderer } from "@/components/skill/MarkdownRenderer";
@@ -37,7 +37,7 @@ import {
 } from "@/components/skill/files-to-tree";
 import { extractVersionFromFilename } from "@/lib/skill-version";
 import "@/styles/skill-ui.css";
-import "@/styles/project-ui.css";
+import "@/styles/pack-ui.css";
 
 dayjs.extend(relativeTime);
 dayjs.locale("zh-cn");

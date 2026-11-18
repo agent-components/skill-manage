@@ -2,9 +2,9 @@
 
 import type { ListPageRequest } from "listpage-components/ListPage";
 import { authFetch } from "@/lib/auth-client";
-import type { ProjectFilter, ProjectRow } from "./types";
+import type { SkillSetFilter, SkillSetRow } from "./types";
 
-export const requestProjects: ListPageRequest<ProjectFilter> = async (
+export const requestSkillSets: ListPageRequest<SkillSetFilter> = async (
   pageParams,
   filterValues,
 ) => {
@@ -18,5 +18,5 @@ export const requestProjects: ListPageRequest<ProjectFilter> = async (
     throw new Error(data.message || "加载失败");
   }
   const data = await res.json();
-  return { list: data.list as ProjectRow[], total: data.total as number };
+  return { list: data.list as SkillSetRow[], total: data.total as number };
 };

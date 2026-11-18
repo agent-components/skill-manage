@@ -4,19 +4,19 @@ import { useCallback, useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { AppstoreOutlined, PlusOutlined, UnorderedListOutlined } from "@ant-design/icons";
 import { Button, Dropdown, Input, Pagination, Spin } from "antd";
-import { ProjectAvatar } from "@/components/ProjectIcon";
-import { CreateProjectFloat } from "./_list/create-float";
-import { DeleteProjectFloat } from "./_list/delete-float";
-import { EditProjectFloat } from "./_list/edit-float";
-import { requestProjects } from "./_list/request";
-import { ProjectSkillsFloat } from "./_list/skills-float";
-import type { ProjectRow } from "./_list/types";
+import { SkillSetAvatar } from "@/components/icons";
+import { CreateSkillSetFloat } from "./_list/create-float";
+import { DeleteSkillSetFloat } from "./_list/delete-float";
+import { EditSkillSetFloat } from "./_list/edit-float";
+import { requestSkillSets } from "./_list/request";
+import { SkillSetSkillsFloat } from "./_list/skills-float";
+import type { SkillSetRow } from "./_list/types";
 import "@/styles/skill-ui.css";
-import "@/styles/project-ui.css";
+import "@/styles/pack-ui.css";
 
 type FloatKey = "create" | "edit" | "skills" | "delete" | null;
 
-export default function ProjectsPage() {
+export default function SkillSetsPage() {
   const router = useRouter();
   const [view, setView] = useState<"list" | "card">("list");
   const [name, setName] = useState("");
@@ -24,20 +24,20 @@ export default function ProjectsPage() {
   const [page, setPage] = useState(1);
   const [pageSize, setPageSize] = useState(20);
   const [total, setTotal] = useState(0);
-  const [list, setList] = useState<ProjectRow[]>([]);
+  const [list, setList] = useState<SkillSetRow[]>([]);
   const [loading, setLoading] = useState(true);
   const [float, setFloat] = useState<FloatKey>(null);
-  const [record, setRecord] = useState<ProjectRow | undefined>();
+  const [record, setRecord] = useState<SkillSetRow | undefined>();
 
   const load = useCallback(async () => {
     setLoading(true);
     try {
-      const data = await requestProjects(
+      const data = await requestSkillSets(
         { current: page, pageSize },
         { name: query || undefined },
         {},
       );
-      setList(data.list as ProjectRow[]);
+      setList(data.list as SkillSetRow[]);
       setTotal(data.total);
     } catch {
       setList([]);
@@ -51,7 +51,7 @@ export default function ProjectsPage() {
     void load();
   }, [load]);
 
-  const open = (key: FloatKey, row?: ProjectRow) => {
+  const open = (key: FloatKey, row?: SkillSetRow) => {
     setRecord(row);
     setFloat(key);
   };
@@ -61,7 +61,7 @@ export default function ProjectsPage() {
     if (refresh) void load();
   };
 
-  const menu = (row: ProjectRow) => ({
+  const menu = (row: SkillSetRow) => ({
     items: [
       { key: "skills", label: "关联技能" },
       { key: "edit", label: "编辑" },
@@ -76,8 +76,8 @@ export default function ProjectsPage() {
   return (
     <div className="skill-page pack-page">
       <div className="pack-head">
-        <h1>项目</h1>
-        <p>把技能组合成完整工作流 · 共 {total} 个项目</p>
+        <h1>技能集</h1>
+        <p>把技能组合成完整工作流 · 共 {total} 个技能集</p>
       </div>
 
       <div className="pack-toolbar">
@@ -86,11 +86,11 @@ export default function ProjectsPage() {
           icon={<PlusOutlined />}
           onClick={() => open("create")}
         >
-          新建项目
+          新建技能集
         </Button>
         <Input
           allowClear
-          placeholder="搜索项目"
+          placeholder="搜索技能集"
           value={name}
           onChange={(e) => {
             setName(e.target.value);
@@ -120,7 +120,7 @@ export default function ProjectsPage() {
 
       <Spin spinning={loading}>
         {list.length === 0 ? (
-          <div className="pack-empty">还没有项目</div>
+          <div className="pack-empty">还没有技能集</div>
         ) : view === "list" ? (
           <div className="pack-list">
             {list.map((row) => (
@@ -130,7 +130,7 @@ export default function ProjectsPage() {
                 className="pack-row"
                 onClick={() => router.push(`/projects/${row.id}`)}
               >
-                <ProjectAvatar name={row.name} icon={row.icon} />
+                <SkillSetAvatar name={row.name} icon={row.icon} />
                 <span className="pack-main">
                   <span className="pack-title-line">
                     <strong>{row.name}</strong>
@@ -162,7 +162,7 @@ export default function ProjectsPage() {
                 onClick={() => router.push(`/projects/${row.id}`)}
               >
                 <span className="pack-title-line">
-                  <ProjectAvatar name={row.name} icon={row.icon} />
+                  <SkillSetAvatar name={row.name} icon={row.icon} />
                   <span>
                     <strong style={{ display: "block" }}>{row.name}</strong>
                     <span className="pack-role">{row.slug}</span>
@@ -198,14 +198,14 @@ export default function ProjectsPage() {
         </div>
       ) : null}
 
-      <CreateProjectFloat visible={float === "create"} onClose={close} />
-      <EditProjectFloat record={record} visible={float === "edit"} onClose={close} />
-      <ProjectSkillsFloat
+      <CreateSkillSetFloat visible={float === "create"} onClose={close} />
+      <EditSkillSetFloat record={record} visible={float === "edit"} onClose={close} />
+      <SkillSetSkillsFloat
         record={record}
         visible={float === "skills"}
         onClose={close}
       />
-      <DeleteProjectFloat
+      <DeleteSkillSetFloat
         record={record}
         visible={float === "delete"}
         onClose={close}

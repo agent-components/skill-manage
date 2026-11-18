@@ -3,10 +3,10 @@ import { prisma } from "@/lib/db";
 import {
   jsonError,
   jsonOk,
-  rejectSkillOutsideProject,
+  rejectSkillOutsideSkillSet,
   requireAuth,
 } from "@/lib/api";
-import { normalizeProjectIcon } from "@/lib/project-icon";
+import { normalizeIcon } from "@/lib/icon";
 import { normalizeTags } from "@/lib/skill-metadata";
 import { deleteObjects } from "@/lib/storage";
 
@@ -16,7 +16,7 @@ export async function GET(req: NextRequest, ctx: Ctx) {
   const auth = await requireAuth(req);
   if (auth.error) return auth.error;
   const { id } = await ctx.params;
-  const denied = await rejectSkillOutsideProject(auth, id);
+  const denied = await rejectSkillOutsideSkillSet(auth, id);
   if (denied) return denied;
 
   const skill = await prisma.skill.findFirst({
@@ -47,10 +47,10 @@ export async function GET(req: NextRequest, ctx: Ctx) {
       createdAt: v.createdAt,
     })),
     metadata: skill.latestVersion?.metadata ?? null,
-    projects: skill.projects.map((p) => ({
-      id: p.project.id,
-      name: p.project.name,
-      slug: p.project.slug,
+    skillSets: skill.projects.map((link) => ({
+      id: link.project.id,
+      name: link.project.name,
+      slug: link.project.slug,
     })),
     createdAt: skill.createdAt,
     updatedAt: skill.updatedAt,
@@ -61,7 +61,7 @@ export async function PATCH(req: NextRequest, ctx: Ctx) {
   const auth = await requireAuth(req);
   if (auth.error) return auth.error;
   const { id } = await ctx.params;
-  const denied = await rejectSkillOutsideProject(auth, id);
+  const denied = await rejectSkillOutsideSkillSet(auth, id);
   if (denied) return denied;
 
   const skill = await prisma.skill.findFirst({
@@ -73,7 +73,7 @@ export async function PATCH(req: NextRequest, ctx: Ctx) {
     displayName?: string;
     summary?: string | null;
     tags?: unknown;
-    projectIds?: string[];
+    skillSetIds?: string[];
     icon?: string | null;
   };
   try {
@@ -85,31 +85,34 @@ export async function PATCH(req: NextRequest, ctx: Ctx) {
   let icon: string | null | undefined;
   if (auth.via === "session" && body.icon !== undefined) {
     try {
-      icon = normalizeProjectIcon(body.icon) ?? null;
+      icon = normalizeIcon(body.icon) ?? null;
     } catch (e) {
       return jsonError(e instanceof Error ? e.message : "图标无效");
     }
   }
 
-  if (Array.isArray(body.projectIds)) {
-    if (auth.projectId) {
+  if (Array.isArray(body.skillSetIds)) {
+    if (auth.skillSetId) {
       const onlyBound =
-        body.projectIds.length === 1 && body.projectIds[0] === auth.projectId;
+        body.skillSetIds.length === 1 && body.skillSetIds[0] === auth.skillSetId;
       if (!onlyBound) {
-        return jsonError("令牌只能将技能关联到绑定项目", 403);
+        return jsonError("令牌只能将技能关联到绑定技能集", 403);
       }
     }
     const owned = await prisma.project.count({
-      where: { ownerId: auth.user.id, id: { in: body.projectIds } },
+      where: { ownerId: auth.user.id, id: { in: body.skillSetIds } },
     });
-    if (owned !== body.projectIds.length) {
-      return jsonError("存在无权使用的项目", 403);
+    if (owned !== body.skillSetIds.length) {
+      return jsonError("存在无权使用的技能集", 403);
     }
 
     await prisma.$transaction([
       prisma.projectSkill.deleteMany({ where: { skillId: id } }),
       prisma.projectSkill.createMany({
-        data: body.projectIds.map((projectId) => ({ projectId, skillId: id })),
+        data: body.skillSetIds.map((skillSetId) => ({
+          projectId: skillSetId,
+          skillId: id,
+        })),
         skipDuplicates: true,
       }),
     ]);
@@ -146,10 +149,10 @@ export async function PATCH(req: NextRequest, ctx: Ctx) {
     tags: updated.tags,
     ...(auth.via === "session" ? { icon: updated.icon } : {}),
     latestVersion: updated.latestVersion?.version ?? null,
-    projects: updated.projects.map((p) => ({
-      id: p.project.id,
-      name: p.project.name,
-      slug: p.project.slug,
+    skillSets: updated.projects.map((link) => ({
+      id: link.project.id,
+      name: link.project.name,
+      slug: link.project.slug,
     })),
   });
 }
@@ -158,7 +161,7 @@ export async function DELETE(req: NextRequest, ctx: Ctx) {
   const auth = await requireAuth(req);
   if (auth.error) return auth.error;
   const { id } = await ctx.params;
-  const denied = await rejectSkillOutsideProject(auth, id);
+  const denied = await rejectSkillOutsideSkillSet(auth, id);
   if (denied) return denied;
 
   const skill = await prisma.skill.findFirst({

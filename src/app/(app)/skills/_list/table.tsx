@@ -54,7 +54,7 @@ export const skillTable: TableConfig<SkillRow, SkillFilter> = {
       icon={<UploadOutlined />}
       onClick={() => ctx.showFloat(skillFloatKeys.upload)}
     >
-      上传技能包
+      上传技能
     </Button>
   ),
   columns: [
@@ -106,14 +106,14 @@ export const skillTable: TableConfig<SkillRow, SkillFilter> = {
       render: (v: string | null) => v || "-",
     },
     {
-      title: "项目",
-      dataIndex: "projects",
+      title: "技能集",
+      dataIndex: "skillSets",
       width: 200,
-      render: (ps: SkillRow["projects"]) =>
-        ps?.length
-          ? ps.map((p) => (
-            <Tag key={p.id} style={{ marginBottom: 2 }}>
-              {p.name}
+      render: (sets: SkillRow["skillSets"]) =>
+        sets?.length
+          ? sets.map((item) => (
+            <Tag key={item.id} style={{ marginBottom: 2 }}>
+              {item.name}
             </Tag>
           ))
           : "-",

@@ -1,12 +1,12 @@
 import { NextRequest } from "next/server";
 import { prisma } from "@/lib/db";
-import { jsonError, jsonOk, rejectOutsideProject, requireAuth } from "@/lib/api";
-import { normalizeProjectIcon } from "@/lib/project-icon";
+import { jsonError, jsonOk, rejectOutsideSkillSet, requireAuth } from "@/lib/api";
+import { normalizeIcon } from "@/lib/icon";
 import { slugify } from "@/lib/slug";
 
 type Ctx = { params: Promise<{ id: string }> };
 
-async function getOwnedProject(ownerId: string, id: string) {
+async function getOwnedSkillSet(ownerId: string, id: string) {
   return prisma.project.findFirst({ where: { id, ownerId } });
 }
 
@@ -14,10 +14,10 @@ export async function GET(req: NextRequest, ctx: Ctx) {
   const auth = await requireAuth(req);
   if (auth.error) return auth.error;
   const { id } = await ctx.params;
-  const denied = rejectOutsideProject(auth, id);
+  const denied = rejectOutsideSkillSet(auth, id);
   if (denied) return denied;
 
-  const project = await prisma.project.findFirst({
+  const skillSet = await prisma.project.findFirst({
     where: { id, ownerId: auth.user.id },
     include: {
       skills: {
@@ -33,17 +33,17 @@ export async function GET(req: NextRequest, ctx: Ctx) {
       },
     },
   });
-  if (!project) return jsonError("项目不存在", 404);
+  if (!skillSet) return jsonError("技能集不存在", 404);
 
   return jsonOk({
-    id: project.id,
-    name: project.name,
-    slug: project.slug,
-    description: project.description,
-    icon: project.icon,
-    createdAt: project.createdAt,
-    updatedAt: project.updatedAt,
-    skills: project.skills.map((ps) => ({
+    id: skillSet.id,
+    name: skillSet.name,
+    slug: skillSet.slug,
+    description: skillSet.description,
+    icon: skillSet.icon,
+    createdAt: skillSet.createdAt,
+    updatedAt: skillSet.updatedAt,
+    skills: skillSet.skills.map((ps) => ({
       id: ps.skill.id,
       slug: ps.skill.slug,
       displayName: ps.skill.displayName,
@@ -60,11 +60,11 @@ export async function PATCH(req: NextRequest, ctx: Ctx) {
   const auth = await requireAuth(req);
   if (auth.error) return auth.error;
   const { id } = await ctx.params;
-  const denied = rejectOutsideProject(auth, id);
+  const denied = rejectOutsideSkillSet(auth, id);
   if (denied) return denied;
 
-  const project = await getOwnedProject(auth.user.id, id);
-  if (!project) return jsonError("项目不存在", 404);
+  const skillSet = await getOwnedSkillSet(auth.user.id, id);
+  if (!skillSet) return jsonError("技能集不存在", 404);
 
   let body: {
     name?: string;
@@ -87,7 +87,7 @@ export async function PATCH(req: NextRequest, ctx: Ctx) {
 
   if (body.icon !== undefined) {
     try {
-      data.icon = normalizeProjectIcon(body.icon) ?? null;
+      data.icon = normalizeIcon(body.icon) ?? null;
     } catch (e) {
       return jsonError(e instanceof Error ? e.message : "图标无效");
     }
@@ -106,11 +106,11 @@ export async function PATCH(req: NextRequest, ctx: Ctx) {
       typeof body.description === "string" ? body.description.trim() || null : null;
   }
 
-  if (data.slug && data.slug !== project.slug) {
+  if (data.slug && data.slug !== skillSet.slug) {
     const clash = await prisma.project.findUnique({
       where: { ownerId_slug: { ownerId: auth.user.id, slug: data.slug } },
     });
-    if (clash) return jsonError("项目 slug 已存在", 409);
+    if (clash) return jsonError("技能集标识已存在", 409);
   }
 
   const updated = await prisma.project.update({
@@ -124,13 +124,13 @@ export async function DELETE(req: NextRequest, ctx: Ctx) {
   const auth = await requireAuth(req);
   if (auth.error) return auth.error;
   const { id } = await ctx.params;
-  const denied = rejectOutsideProject(auth, id);
+  const denied = rejectOutsideSkillSet(auth, id);
   if (denied) return denied;
 
-  const project = await getOwnedProject(auth.user.id, id);
-  if (!project) return jsonError("项目不存在", 404);
+  const skillSet = await getOwnedSkillSet(auth.user.id, id);
+  if (!skillSet) return jsonError("技能集不存在", 404);
 
-  // 只删项目和关联引用（技能挂载、令牌），技能实体与版本文件保留。
+  // 只删技能集和关联引用（技能挂载、令牌），技能实体与版本文件保留。
   await prisma.$transaction([
     prisma.projectSkill.deleteMany({ where: { projectId: id } }),
     prisma.apiKey.deleteMany({ where: { projectId: id } }),

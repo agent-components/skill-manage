@@ -1,5 +1,4 @@
-// 用户：复用已有 public.users
-// 业务表：统一放在 skills schema
+// 用户与业务表统一放在 skills schema
 
 generator client {
   provider = "prisma-client-js"
@@ -8,24 +7,23 @@ generator client {
 datasource db {
   provider = "postgresql"
   url      = env("DATABASE_URL")
-  schemas  = ["public", "skills"]
+  schemas  = ["skills"]
 }
 
 enum UserRole {
   ADMIN
   USER
 
-  @@schema("public")
+  @@schema("skills")
 }
 
 enum UserStatus {
   ACTIVE
   RESIGNED
 
-  @@schema("public")
+  @@schema("skills")
 }
 
-/// 共享用户表，勿对该表做破坏性迁移
 model User {
   id             String     @id
   account        String     @unique
@@ -38,11 +36,10 @@ model User {
   tokenExpiredAt DateTime?
   createdAt      DateTime   @default(now())
   updatedAt      DateTime
-  aboutMe        String?
   email          String?
 
   @@map("users")
-  @@schema("public")
+  @@schema("skills")
 }
 
 model Project {
@@ -163,7 +160,7 @@ model SkillFile {
   @@schema("skills")
 }
 
-/// 调用接口的令牌。必须绑定一个项目；列表仅返回脱敏展示，完整值通过复制接口获取。
+/// 调用接口的令牌。必须绑定一个技能集；列表仅返回脱敏展示，完整值通过复制接口获取。
 model ApiKey {
   id         String    @id @default(cuid())
   userId     String

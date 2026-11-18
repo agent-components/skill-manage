@@ -113,7 +113,7 @@ export async function parseSkillZip(
       f.filePath === "SKILL.md" || f.filePath.toLowerCase() === "skill.md",
   );
   if (!skillMd) {
-    throw new Error("技能包根目录必须包含 SKILL.md");
+    throw new Error("技能根目录必须包含 SKILL.md");
   }
 
   const meta = parseSkillMetadata(skillMd.content.toString("utf8"));

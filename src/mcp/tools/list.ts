@@ -9,7 +9,7 @@ export function registerListTool(server: McpServer) {
     {
       title: "List skills",
       description:
-        "列出当前项目下的技能；可选 query 按关键词过滤名称（displayName）与描述（summary）。",
+        "列出当前技能集下的技能；可选 query 按关键词过滤名称（displayName）与描述（summary）。",
       inputSchema: {
         query: z
           .string()
@@ -19,13 +19,13 @@ export function registerListTool(server: McpServer) {
       annotations: { readOnlyHint: true, openWorldHint: false },
     },
     async ({ query }) => {
-      const { user, projectId } = getMcpContext();
+      const { user, skillSetId } = getMcpContext();
       const keyword = query?.trim();
 
       const skills = await prisma.skill.findMany({
         where: {
           ownerId: user.id,
-          projects: { some: { projectId } },
+          projects: { some: { projectId: skillSetId } },
           ...(keyword
             ? {
                 OR: [

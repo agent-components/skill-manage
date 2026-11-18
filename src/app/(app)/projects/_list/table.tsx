@@ -6,21 +6,21 @@ import type {
   ListPageColumnComponentProps,
   TableConfig,
 } from "listpage-components/ListPage";
-import { projectFloatKeys } from "./floats";
-import type { ProjectFilter, ProjectRow } from "./types";
+import { skillSetFloatKeys } from "./floats";
+import type { SkillSetFilter, SkillSetRow } from "./types";
 
-function ProjectActions({
+function SkillSetActions({
   record,
   ctx,
-}: ListPageColumnComponentProps<ProjectRow, ProjectFilter>) {
+}: ListPageColumnComponentProps<SkillSetRow, SkillSetFilter>) {
   return (
     <Space>
-      <a onClick={() => ctx.showFloat(projectFloatKeys.skills, record)}>
+      <a onClick={() => ctx.showFloat(skillSetFloatKeys.skills, record)}>
         关联技能
       </a>
-      <a onClick={() => ctx.showFloat(projectFloatKeys.edit, record)}>编辑</a>
+      <a onClick={() => ctx.showFloat(skillSetFloatKeys.edit, record)}>编辑</a>
       <a
-        onClick={() => ctx.showFloat(projectFloatKeys.delete, record)}
+        onClick={() => ctx.showFloat(skillSetFloatKeys.delete, record)}
         style={{ color: "#ff4d4f" }}
       >
         删除
@@ -29,16 +29,16 @@ function ProjectActions({
   );
 }
 
-export const projectTable: TableConfig<ProjectRow, ProjectFilter> = {
+export const skillSetTable: TableConfig<SkillSetRow, SkillSetFilter> = {
   rowKey: "id",
-  title: "项目列表",
+  title: "技能集列表",
   extra: (ctx) => (
     <Button
       type="primary"
       icon={<PlusOutlined />}
-      onClick={() => ctx.showFloat(projectFloatKeys.create)}
+      onClick={() => ctx.showFloat(skillSetFloatKeys.create)}
     >
-      新建项目
+      新建技能集
     </Button>
   ),
   columns: [
@@ -49,7 +49,7 @@ export const projectTable: TableConfig<ProjectRow, ProjectFilter> = {
     {
       title: "操作",
       width: 220,
-      component: (props) => <ProjectActions {...props} />,
+      component: (props) => <SkillSetActions {...props} />,
     },
   ],
 };

@@ -4,13 +4,13 @@ import { useState } from "react";
 import { Modal, message } from "antd";
 import type { FloatComponentProps } from "listpage-components/ListPage";
 import { authFetch } from "@/lib/auth-client";
-import type { ProjectRow } from "./types";
+import type { SkillSetRow } from "./types";
 
-export function DeleteProjectFloat({
+export function DeleteSkillSetFloat({
   record,
   visible,
   onClose,
-}: FloatComponentProps<ProjectRow>) {
+}: FloatComponentProps<SkillSetRow>) {
   const [deleting, setDeleting] = useState(false);
   if (!record) return null;
 
@@ -34,7 +34,7 @@ export function DeleteProjectFloat({
 
   return (
     <Modal
-      title="删除项目？"
+      title="删除技能集？"
       open={visible}
       onCancel={() => {
         if (!deleting) onClose();
@@ -45,7 +45,7 @@ export function DeleteProjectFloat({
       okType="danger"
       cancelText="取消"
     >
-      {`将删除「${record.name}」，并解除技能关联、撤销该项目下的令牌。技能本身会保留。`}
+      {`将删除「${record.name}」，并解除技能关联、撤销该技能集下的令牌。技能本身会保留。`}
     </Modal>
   );
 }

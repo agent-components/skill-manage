@@ -5,7 +5,7 @@ import { useRouter } from "next/navigation";
 import { Drawer, Table, Tooltip, Typography, message } from "antd";
 import type { FloatComponentProps } from "listpage-components/ListPage";
 import { authFetch } from "@/lib/auth-client";
-import type { ProjectRow } from "./types";
+import type { SkillSetRow } from "./types";
 
 type LinkedSkill = {
   id: string;
@@ -16,14 +16,14 @@ type LinkedSkill = {
   versionCount: number;
 };
 
-export function ProjectSkillsFloat({
+export function SkillSetSkillsFloat({
   record,
   visible,
   onClose,
-}: FloatComponentProps<ProjectRow>) {
+}: FloatComponentProps<SkillSetRow>) {
   if (!record) return null;
   return (
-    <ProjectSkillsDrawer
+    <SkillSetSkillsDrawer
       key={record.id}
       record={record}
       visible={visible}
@@ -32,14 +32,14 @@ export function ProjectSkillsFloat({
   );
 }
 
-function ProjectSkillsDrawer({
+function SkillSetSkillsDrawer({
   record,
   visible,
   onClose,
 }: {
-  record: ProjectRow;
+  record: SkillSetRow;
   visible: boolean;
-  onClose: FloatComponentProps<ProjectRow>["onClose"];
+  onClose: FloatComponentProps<SkillSetRow>["onClose"];
 }) {
   const router = useRouter();
   const [loading, setLoading] = useState(false);

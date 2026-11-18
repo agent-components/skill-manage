@@ -11,7 +11,7 @@ export async function GET(req: NextRequest) {
 
   const { searchParams } = req.nextUrl;
   const name = searchParams.get("name")?.trim();
-  const projectId = searchParams.get("projectId")?.trim();
+  const skillSetId = searchParams.get("skillSetId")?.trim();
   const page = Math.max(1, Number(searchParams.get("page") || 1));
   const pageSize = Math.min(
     100,
@@ -21,7 +21,7 @@ export async function GET(req: NextRequest) {
   const where = {
     userId: auth.user.id,
     ...(name ? { name: { contains: name, mode: "insensitive" as const } } : {}),
-    ...(projectId ? { projectId } : {}),
+    ...(skillSetId ? { projectId: skillSetId } : {}),
   };
 
   const [total, list] = await Promise.all([
@@ -42,7 +42,7 @@ export async function GET(req: NextRequest) {
       id: item.id,
       name: item.name,
       displayToken: maskApiKey(item.prefix),
-      project: item.project,
+      skillSet: item.project,
       tools: normalizeMcpTools(item.tools),
       lastUsedAt: item.lastUsedAt,
       createdAt: item.createdAt,
@@ -55,7 +55,7 @@ export async function POST(req: NextRequest) {
   const auth = await requireSession(req);
   if (auth.error) return auth.error;
 
-  let body: { name?: string; projectId?: string; tools?: unknown };
+  let body: { name?: string; skillSetId?: string; tools?: unknown };
   try {
     body = await req.json();
   } catch {
@@ -66,17 +66,17 @@ export async function POST(req: NextRequest) {
   if (!name) return jsonError("请输入令牌名称");
   if (name.length > 64) return jsonError("令牌名称不能超过 64 个字符");
 
-  const projectId = body.projectId?.trim();
-  if (!projectId) return jsonError("请选择绑定项目");
+  const skillSetId = body.skillSetId?.trim();
+  if (!skillSetId) return jsonError("请选择绑定技能集");
 
   const toolsParsed = parseMcpToolsInput(body.tools);
   if (!toolsParsed.ok) return jsonError(toolsParsed.message);
 
-  const project = await prisma.project.findFirst({
-    where: { id: projectId, ownerId: auth.user.id },
+  const skillSet = await prisma.project.findFirst({
+    where: { id: skillSetId, ownerId: auth.user.id },
     select: { id: true, name: true, slug: true },
   });
-  if (!project) return jsonError("项目不存在或无权使用", 403);
+  if (!skillSet) return jsonError("技能集不存在或无权使用", 403);
 
   const generated = generateApiKey();
 
@@ -84,7 +84,7 @@ export async function POST(req: NextRequest) {
     const created = await prisma.apiKey.create({
       data: {
         userId: auth.user.id,
-        projectId: project.id,
+        projectId: skillSet.id,
         name,
         token: generated.token,
         keyHash: generated.keyHash,
@@ -101,7 +101,7 @@ export async function POST(req: NextRequest) {
         id: created.id,
         name: created.name,
         displayToken: maskApiKey(created.prefix),
-        project: created.project,
+        skillSet: created.project,
         tools: normalizeMcpTools(created.tools),
         createdAt: created.createdAt,
       },

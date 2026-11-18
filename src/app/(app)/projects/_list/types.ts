@@ -1,4 +1,4 @@
-export type ProjectRow = {
+export type SkillSetRow = {
   id: string;
   name: string;
   slug: string;
@@ -8,4 +8,4 @@ export type ProjectRow = {
   updatedAt: string;
 };
 
-export type ProjectFilter = { name?: string };
+export type SkillSetFilter = { name?: string };

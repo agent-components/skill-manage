@@ -1,6 +1,6 @@
 import slugifyLib from "slugify";
 
-/** Project / skill slug helper backed by community `slugify`. */
+/** 技能集与技能的 slug，基于 slugify。 */
 export function slugify(input: string, maxLen = 64): string {
   const s = slugifyLib(input.trim(), {
     lower: true,

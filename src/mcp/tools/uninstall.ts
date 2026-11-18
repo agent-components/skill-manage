@@ -15,7 +15,7 @@ export function registerUninstallTool(server: McpServer) {
     "uninstall",
     {
       title: "Uninstall skill",
-      description: "从当前项目卸下技能（不删除仓库中的技能实体）。",
+      description: "从当前技能集卸下技能（不删除仓库中的技能实体）。",
       inputSchema: {
         slug: z.string().describe("要卸下的技能 slug"),
       },
@@ -27,7 +27,7 @@ export function registerUninstallTool(server: McpServer) {
       },
     },
     async ({ slug }) => {
-      const { user, projectId } = getMcpContext();
+      const { user, skillSetId } = getMcpContext();
       const skillSlug = slug.trim();
       if (!skillSlug) return toolError("缺少 slug");
 
@@ -40,7 +40,7 @@ export function registerUninstallTool(server: McpServer) {
       }
 
       const result = await prisma.projectSkill.deleteMany({
-        where: { projectId, skillId: skill.id },
+        where: { projectId: skillSetId, skillId: skill.id },
       });
 
       const alreadyUnlinked = result.count === 0;
@@ -54,11 +54,11 @@ export function registerUninstallTool(server: McpServer) {
                 ok: true,
                 slug: skill.slug,
                 displayName: skill.displayName,
-                projectId,
+                skillSetId,
                 unlinked: !alreadyUnlinked,
                 message: alreadyUnlinked
-                  ? "技能未关联到当前项目（无需操作）"
-                  : "已从当前项目卸下技能",
+                  ? "技能未关联到当前技能集（无需操作）"
+                  : "已从当前技能集卸下技能",
               },
               null,
               2,

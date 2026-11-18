@@ -2,11 +2,11 @@
 
 import { useEffect, useRef, useState } from "react";
 import { PlusOutlined } from "@ant-design/icons";
-import { formatIconSize } from "@/lib/project-icon";
+import { formatIconSize } from "@/lib/icon";
 
 const MAX_ICON_BYTES = 200 * 1024;
 
-export function ProjectMark() {
+export function SkillSetMark() {
   return (
     <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
       <path
@@ -44,7 +44,7 @@ export function SkillIcon({
   );
 }
 
-export function ProjectAvatar({
+export function SkillSetAvatar({
   name,
   icon,
   className = "pack-avatar",
@@ -53,7 +53,7 @@ export function ProjectAvatar({
   icon?: string | null;
   className?: string;
 }) {
-  const initial = name.trim().slice(0, 1).toUpperCase() || "项";
+  const initial = name.trim().slice(0, 1).toUpperCase() || "集";
   return (
     <span className={className}>
       {icon ? <img src={icon} alt="" /> : initial}
@@ -61,7 +61,7 @@ export function ProjectAvatar({
   );
 }
 
-export function ProjectIconInput({
+export function SkillSetIconInput({
   value,
   onChange,
   fallback = "plus",

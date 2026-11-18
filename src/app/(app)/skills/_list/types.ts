@@ -7,7 +7,7 @@ export type SkillRow = {
   tags: string[];
   latestVersion: string | null;
   versionCount: number;
-  projects: { id: string; name: string; slug: string }[];
+  skillSets: { id: string; name: string; slug: string }[];
 };
 
-export type SkillFilter = { name?: string; projectId?: string };
+export type SkillFilter = { name?: string; skillSetId?: string };

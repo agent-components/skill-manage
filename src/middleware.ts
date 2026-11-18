@@ -28,6 +28,11 @@ export function middleware(req: NextRequest) {
     return NextResponse.next();
   }
 
+  // 宿主拉取组件菜单和工具：公开接口，不要登录态
+  if (pathname === "/api/harness/menus" || pathname === "/api/harness/tools") {
+    return NextResponse.next();
+  }
+
   // 其余 API 要求登录会话或令牌（Authorization: Bearer，或 X-Api-Key）
   const token = extractCredential(req);
   if (!token) {

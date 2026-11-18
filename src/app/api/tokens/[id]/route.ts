@@ -32,7 +32,7 @@ export async function PATCH(req: NextRequest, ctx: Ctx) {
   });
   if (!existing) return jsonError("令牌不存在", 404);
 
-  let body: { name?: string; projectId?: string; tools?: unknown };
+  let body: { name?: string; skillSetId?: string; tools?: unknown };
   try {
     body = await req.json();
   } catch {
@@ -48,15 +48,15 @@ export async function PATCH(req: NextRequest, ctx: Ctx) {
     data.name = name;
   }
 
-  if (typeof body.projectId === "string") {
-    const projectId = body.projectId.trim();
-    if (!projectId) return jsonError("请选择绑定项目");
-    const project = await prisma.project.findFirst({
-      where: { id: projectId, ownerId: auth.user.id },
+  if (typeof body.skillSetId === "string") {
+    const skillSetId = body.skillSetId.trim();
+    if (!skillSetId) return jsonError("请选择绑定技能集");
+    const skillSet = await prisma.project.findFirst({
+      where: { id: skillSetId, ownerId: auth.user.id },
       select: { id: true },
     });
-    if (!project) return jsonError("项目不存在或无权使用", 403);
-    data.projectId = project.id;
+    if (!skillSet) return jsonError("技能集不存在或无权使用", 403);
+    data.projectId = skillSet.id;
   }
 
   if (body.tools !== undefined) {
@@ -82,7 +82,7 @@ export async function PATCH(req: NextRequest, ctx: Ctx) {
       id: updated.id,
       name: updated.name,
       displayToken: maskApiKey(updated.prefix),
-      project: updated.project,
+      skillSet: updated.project,
       tools: normalizeMcpTools(updated.tools),
       lastUsedAt: updated.lastUsedAt,
       createdAt: updated.createdAt,

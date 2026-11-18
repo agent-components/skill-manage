@@ -13,8 +13,8 @@ function dataUrlBytes(value: string) {
   return Math.floor((body.length * 3) / 4) - padding;
 }
 
-/** 校验并规范化项目图标。空值表示清除；undefined 表示请求未带该字段。 */
-export function normalizeProjectIcon(value: unknown): string | null | undefined {
+/** 校验并规范化图标。空值表示清除；undefined 表示请求未带该字段。 */
+export function normalizeIcon(value: unknown): string | null | undefined {
   if (value === undefined) return undefined;
   if (value === null || value === "") return null;
   if (typeof value !== "string" || !ICON_RE.test(value)) {

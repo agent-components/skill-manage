@@ -3,7 +3,7 @@ import { prisma } from "@/lib/db";
 import {
   jsonError,
   jsonOk,
-  rejectSkillOutsideProject,
+  rejectSkillOutsideSkillSet,
   requireAuth,
 } from "@/lib/api";
 import {
@@ -18,7 +18,7 @@ export async function GET(req: NextRequest, ctx: Ctx) {
   const auth = await requireAuth(req);
   if (auth.error) return auth.error;
   const { id, version } = await ctx.params;
-  const denied = await rejectSkillOutsideProject(auth, id);
+  const denied = await rejectSkillOutsideSkillSet(auth, id);
   if (denied) return denied;
   const path = req.nextUrl.searchParams.get("path")?.trim();
   if (!path) return jsonError("缺少 path 参数");

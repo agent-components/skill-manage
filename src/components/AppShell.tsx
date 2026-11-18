@@ -1,9 +1,9 @@
 "use client";
 
-import { useCallback, useMemo, useState } from "react";
+import { useCallback, useMemo, useState, useSyncExternalStore } from "react";
 import { usePathname, useRouter } from "next/navigation";
 import { KeyOutlined } from "@ant-design/icons";
-import { ProjectMark, SkillMark } from "@/components/ProjectIcon";
+import { SkillMark, SkillSetMark } from "@/components/icons";
 import {
   AppProvider,
   Layout,
@@ -20,30 +20,26 @@ import {
 import { usePersistedProTheme } from "@/lib/use-persisted-pro-theme";
 import { AuthGuard } from "@/components/AuthGuard";
 import { SkillsLogo } from "@/components/SkillsLogo";
+import { isEmbeddedFrame } from "@/lib/embed";
+import { HARNESS_MENUS } from "@/lib/harness-menus";
 import "@/styles/listpage-components.css";
 
 setupZhCNLocale();
 
-const MENU: LayoutMenuNode[] = [
-  {
-    key: "projects",
-    label: "项目管理",
-    icon: <ProjectMark />,
-    href: "/projects",
-  },
-  {
-    key: "skills",
-    label: "技能管理",
-    icon: <SkillMark />,
-    href: "/skills",
-  },
-  {
-    key: "tokens",
-    label: "令牌管理",
-    icon: <KeyOutlined />,
-    href: "/tokens",
-  },
-];
+const MENU_ICONS: Record<string, React.ReactNode> = {
+  projects: <SkillSetMark />,
+  skills: <SkillMark />,
+  tokens: <KeyOutlined />,
+};
+
+const MENU: LayoutMenuNode[] = HARNESS_MENUS.filter((item) => item.path).map(
+  (item) => ({
+    key: item.key,
+    label: item.label,
+    icon: MENU_ICONS[item.key],
+    href: item.path,
+  }),
+);
 
 /** 合并为单一 section，避免 leaf→section 归一化后的 16px 段间距 */
 const MENU_SECTIONS: LayoutMenuSection[] = [
@@ -174,21 +170,27 @@ function ShellInner({
   );
 }
 
+function subscribeEmbedded() {
+  return () => { };
+}
+
 export function AppShell({ children }: { children: React.ReactNode }) {
+  const embedded = useSyncExternalStore(
+    subscribeEmbedded,
+    isEmbeddedFrame,
+    () => false,
+  );
   const [user, setUser] = useState<ClientUser | null>(null);
   const onUser = useCallback((u: ClientUser | null) => setUser(u), []);
 
   return (
-    <div
-      style={{
-        height: "100%",
-        minHeight: "100vh",
-        display: "flex",
-        flexDirection: "column",
-      }}
-    >
+    <div className="app-frame">
       <AuthGuard onUser={onUser}>
-        <ShellInner user={user}>{children}</ShellInner>
+        {embedded ? (
+          <div className="app-embed">{children}</div>
+        ) : (
+          <ShellInner user={user}>{children}</ShellInner>
+        )}
       </AuthGuard>
     </div>
   );

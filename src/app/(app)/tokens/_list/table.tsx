@@ -95,8 +95,8 @@ function TokenActions({
       const data = await res.json().catch(() => ({}));
       if (!res.ok) throw new Error(data.message || "复制失败");
       if (!data.token) throw new Error("未获取到令牌");
-      const serverKey = record.project?.slug
-        ? `${record.project.slug}-skill`
+      const serverKey = record.skillSet?.slug
+        ? `${record.skillSet.slug}-skill`
         : "skill";
       const config = {
         mcpServers: {
@@ -152,12 +152,12 @@ export const tokenTable: TableConfig<TokenRow, TokenFilter> = {
   columns: [
     { title: "名称", dataIndex: "name", width: 160 },
     {
-      title: "项目",
-      dataIndex: ["project", "name"],
+      title: "技能集",
+      dataIndex: ["skillSet", "name"],
       width: 140,
       ellipsis: { showTitle: false },
       render: (_: unknown, row: TokenRow) => {
-        const name = row.project?.name || "-";
+        const name = row.skillSet?.name || "-";
         return (
           <Typography.Text
             ellipsis={{ tooltip: name }}

@@ -13,10 +13,10 @@ export function createSkillMcpServer(allowedTools?: readonly McpToolId[]) {
         tools: {},
       },
       instructions: [
-        "本服务管理项目技能库。",
+        "本服务管理技能集里的技能。",
         "消费：list → read → download 到本地后再使用。",
-        "维护：upload 发布；uninstall 从当前项目卸下（不删实体）。",
-        "连接已绑定唯一项目，无需传 projectId。",
+        "维护：upload 发布；uninstall 从当前技能集卸下（不删实体）。",
+        "连接已绑定唯一技能集，无需传 skillSetId。",
       ].join("\n"),
     },
   );

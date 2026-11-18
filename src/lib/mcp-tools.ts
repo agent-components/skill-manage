@@ -3,7 +3,7 @@ export const MCP_TOOLS = [
   {
     id: "list",
     label: "列出技能",
-    description: "列出当前项目里的技能，也可以按名称或描述搜索",
+    description: "列出当前技能集里的技能，也可以按名称或描述搜索",
   },
   {
     id: "read",
@@ -18,12 +18,12 @@ export const MCP_TOOLS = [
   {
     id: "upload",
     label: "发布",
-    description: "上传新技能，或为项目里已有技能发布新版本",
+    description: "上传新技能，或为技能集里已有技能发布新版本",
   },
   {
     id: "uninstall",
     label: "卸下",
-    description: "把技能从当前项目移除，技能仍保留在技能库中",
+    description: "把技能从当前技能集移除，技能仍保留在技能库中",
   },
 ] as const;
 

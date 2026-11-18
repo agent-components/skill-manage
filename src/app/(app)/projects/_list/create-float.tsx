@@ -3,14 +3,14 @@
 import { useState } from "react";
 import { Form, Input, Modal, message } from "antd";
 import type { FloatComponentProps } from "listpage-components/ListPage";
-import { ProjectIconInput } from "@/components/ProjectIcon";
+import { SkillSetIconInput } from "@/components/icons";
 import { authFetch } from "@/lib/auth-client";
-import type { ProjectRow } from "./types";
+import type { SkillSetRow } from "./types";
 
-export function CreateProjectFloat({
+export function CreateSkillSetFloat({
   visible,
   onClose,
-}: FloatComponentProps<ProjectRow>) {
+}: FloatComponentProps<SkillSetRow>) {
   const [form] = Form.useForm();
   const [saving, setSaving] = useState(false);
 
@@ -25,7 +25,7 @@ export function CreateProjectFloat({
       });
       const data = await res.json().catch(() => ({}));
       if (!res.ok) throw new Error(data.message || "创建失败");
-      message.success("已创建项目");
+      message.success("已创建技能集");
       onClose(true);
     } catch (e) {
       message.error(e instanceof Error ? e.message : "创建失败");
@@ -36,7 +36,7 @@ export function CreateProjectFloat({
 
   return (
     <Modal
-      title="新建项目"
+      title="新建技能集"
       open={visible}
       onCancel={() => onClose()}
       onOk={onCreate}
@@ -44,14 +44,14 @@ export function CreateProjectFloat({
     >
       <Form form={form} layout="vertical" style={{ marginTop: 16 }}>
         <Form.Item name="icon">
-          <ProjectIconInput />
+          <SkillSetIconInput />
         </Form.Item>
         <Form.Item
           name="name"
           label="名称"
           rules={[{ required: true, message: "请输入名称" }]}
         >
-          <Input placeholder="项目名称" />
+          <Input placeholder="技能集名称" />
         </Form.Item>
         <Form.Item name="slug" label="Slug" extra="留空则根据名称自动生成">
           <Input placeholder="可选" />

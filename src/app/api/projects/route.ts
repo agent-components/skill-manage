@@ -1,7 +1,7 @@
 import { NextRequest } from "next/server";
 import { prisma } from "@/lib/db";
 import { jsonError, jsonOk, requireAuth } from "@/lib/api";
-import { normalizeProjectIcon } from "@/lib/project-icon";
+import { normalizeIcon } from "@/lib/icon";
 import { slugify } from "@/lib/slug";
 
 export async function GET(req: NextRequest) {
@@ -18,7 +18,7 @@ export async function GET(req: NextRequest) {
 
   const where = {
     ownerId: auth.user.id,
-    ...(auth.projectId ? { id: auth.projectId } : {}),
+    ...(auth.skillSetId ? { id: auth.skillSetId } : {}),
     ...(name ? { name: { contains: name, mode: "insensitive" as const } } : {}),
   };
 
@@ -51,8 +51,8 @@ export async function GET(req: NextRequest) {
 export async function POST(req: NextRequest) {
   const auth = await requireAuth(req);
   if (auth.error) return auth.error;
-  if (auth.projectId) {
-    return jsonError("令牌无权创建项目", 403);
+  if (auth.skillSetId) {
+    return jsonError("令牌无权创建技能集", 403);
   }
 
   let body: { name?: string; slug?: string; description?: string; icon?: string | null };
@@ -64,22 +64,22 @@ export async function POST(req: NextRequest) {
 
   let icon: string | null | undefined;
   try {
-    icon = normalizeProjectIcon(body.icon);
+    icon = normalizeIcon(body.icon);
   } catch (e) {
     return jsonError(e instanceof Error ? e.message : "图标无效");
   }
 
   const name = body.name?.trim();
-  if (!name) return jsonError("请输入项目名称");
+  if (!name) return jsonError("请输入技能集名称");
 
   const slug = slugify(body.slug?.trim() || name);
 
   const existing = await prisma.project.findUnique({
     where: { ownerId_slug: { ownerId: auth.user.id, slug } },
   });
-  if (existing) return jsonError("项目 slug 已存在", 409);
+  if (existing) return jsonError("技能集标识已存在", 409);
 
-  const project = await prisma.project.create({
+  const skillSet = await prisma.project.create({
     data: {
       ownerId: auth.user.id,
       name,
@@ -89,5 +89,5 @@ export async function POST(req: NextRequest) {
     },
   });
 
-  return jsonOk(project, { status: 201 });
+  return jsonOk(skillSet, { status: 201 });
 }

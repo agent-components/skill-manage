@@ -4,10 +4,10 @@ export type TokenRow = {
   id: string;
   name: string;
   displayToken: string;
-  project: { id: string; name: string; slug: string };
+  skillSet: { id: string; name: string; slug: string };
   tools: McpToolId[];
   lastUsedAt: string | null;
   createdAt: string;
 };
 
-export type TokenFilter = { name?: string; projectId?: string };
+export type TokenFilter = { name?: string; skillSetId?: string };
