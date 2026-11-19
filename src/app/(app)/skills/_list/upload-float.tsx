@@ -33,7 +33,7 @@ export function UploadSkillFloat({
       for (const id of values?.skillSetIds || []) {
         fd.append("skillSetIds", id);
       }
-      const res = await authFetch("/api/skills/upload", {
+      const res = await authFetch("/api/openapi/skills", {
         method: "POST",
         body: fd,
       });

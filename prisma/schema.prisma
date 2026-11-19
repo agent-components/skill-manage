@@ -42,7 +42,7 @@ model User {
   @@schema("skills")
 }
 
-model Project {
+model SkillSet {
   id          String   @id @default(cuid())
   ownerId     String
   name        String
@@ -53,12 +53,11 @@ model Project {
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
 
-  skills  ProjectSkill[]
-  apiKeys ApiKey[]
+  skills SkillSetSkill[]
 
   @@unique([ownerId, slug])
   @@index([ownerId])
-  @@map("projects")
+  @@map("skill_sets")
   @@schema("skills")
 }
 
@@ -70,13 +69,13 @@ model Skill {
   summary         String?
   /// 列表展示用标签（上传时写入，不依赖 version.metadata）
   tags            String[] @default([])
-  /// 自定义图标，仅前端使用；MCP 不读写该字段
+  /// 自定义图标，data URL（data:image/...;base64,...）
   icon            String?  @db.Text
   latestVersionId String?  @unique
   createdAt       DateTime @default(now())
   updatedAt       DateTime @updatedAt
 
-  projects     ProjectSkill[]
+  skillSets     SkillSetSkill[]
   versions     SkillVersion[]
   latestVersion SkillVersion? @relation("SkillLatestVersion", fields: [latestVersionId], references: [id], onDelete: SetNull)
 
@@ -86,18 +85,18 @@ model Skill {
   @@schema("skills")
 }
 
-model ProjectSkill {
-  id        String   @id @default(cuid())
-  projectId String
-  skillId   String
-  createdAt DateTime @default(now())
+model SkillSetSkill {
+  id         String   @id @default(cuid())
+  skillSetId String
+  skillId    String
+  createdAt  DateTime @default(now())
 
-  project Project @relation(fields: [projectId], references: [id], onDelete: Cascade)
-  skill   Skill   @relation(fields: [skillId], references: [id], onDelete: Cascade)
+  skillSet SkillSet @relation(fields: [skillSetId], references: [id], onDelete: Cascade)
+  skill     Skill    @relation(fields: [skillId], references: [id], onDelete: Cascade)
 
-  @@unique([projectId, skillId])
+  @@unique([skillSetId, skillId])
   @@index([skillId])
-  @@map("project_skills")
+  @@map("skill_set_skills")
   @@schema("skills")
 }
 
@@ -113,32 +112,13 @@ model SkillVersion {
   metadata    Json?
   createdAt   DateTime @default(now())
 
-  skill           Skill               @relation(fields: [skillId], references: [id], onDelete: Cascade)
-  latestForSkills Skill[]             @relation("SkillLatestVersion")
+  skill           Skill     @relation(fields: [skillId], references: [id], onDelete: Cascade)
+  latestForSkills Skill[]   @relation("SkillLatestVersion")
   files           SkillFile[]
-  downloadLinks   SkillDownloadLink[]
 
   @@unique([skillId, version])
   @@index([skillId])
   @@map("skill_versions")
-  @@schema("skills")
-}
-
-/// MCP / 对外下载短链：凭 token 匿名拉取 zip，到期失效
-model SkillDownloadLink {
-  id        String   @id @default(cuid())
-  token     String   @unique
-  versionId String
-  /// 创建者 userId（审计）
-  createdBy String?
-  expiresAt DateTime
-  createdAt DateTime @default(now())
-
-  version SkillVersion @relation(fields: [versionId], references: [id], onDelete: Cascade)
-
-  @@index([expiresAt])
-  @@index([versionId])
-  @@map("skill_download_links")
   @@schema("skills")
 }
 
@@ -157,30 +137,5 @@ model SkillFile {
   @@unique([versionId, filePath])
   @@index([versionId])
   @@map("skill_files")
-  @@schema("skills")
-}
-
-/// 调用接口的令牌。必须绑定一个技能集；列表仅返回脱敏展示，完整值通过复制接口获取。
-model ApiKey {
-  id         String    @id @default(cuid())
-  userId     String
-  projectId  String
-  name       String
-  /// 完整令牌，仅复制接口返回
-  token      String    @unique
-  keyHash    String    @unique
-  /// 列表脱敏展示用前缀
-  prefix     String
-  /// 允许的 MCP 工具；空数组表示全部
-  tools      String[]  @default([])
-  lastUsedAt DateTime?
-  createdAt  DateTime  @default(now())
-
-  project Project @relation(fields: [projectId], references: [id], onDelete: Cascade)
-
-  @@unique([userId, name])
-  @@index([userId])
-  @@index([projectId])
-  @@map("api_keys")
   @@schema("skills")
 }

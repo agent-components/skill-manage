@@ -16,7 +16,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="zh-CN" style={{ height: "100%" }}>
+    <html lang="zh-CN" style={{ height: "100%" }} suppressHydrationWarning>
       <body style={{ height: "100%", margin: 0 }}>
         <Script id="embed-detect" strategy="beforeInteractive">
           {EMBED_DETECT}

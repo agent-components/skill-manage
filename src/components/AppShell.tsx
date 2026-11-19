@@ -2,8 +2,7 @@
 
 import { useCallback, useMemo, useState, useSyncExternalStore } from "react";
 import { usePathname, useRouter } from "next/navigation";
-import { KeyOutlined } from "@ant-design/icons";
-import { SkillMark, SkillSetMark } from "@/components/icons";
+import { SkillMark, SkillSetMark, SkillSquareMark } from "@/components/icons";
 import {
   AppProvider,
   Layout,
@@ -27,9 +26,9 @@ import "@/styles/listpage-components.css";
 setupZhCNLocale();
 
 const MENU_ICONS: Record<string, React.ReactNode> = {
-  projects: <SkillSetMark />,
+  "skill-sets": <SkillSetMark />,
   skills: <SkillMark />,
-  tokens: <KeyOutlined />,
+  "skill-square": <SkillSquareMark />,
 };
 
 const MENU: LayoutMenuNode[] = HARNESS_MENUS.filter((item) => item.path).map(

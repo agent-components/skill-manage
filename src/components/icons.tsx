@@ -18,6 +18,18 @@ export function SkillSetMark() {
   );
 }
 
+export function SkillSquareMark() {
+  return (
+    <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+      <path
+        d="M2.25 2.25h4.7v4.7h-4.7v-4.7Zm6.8 0h4.7v4.7h-4.7v-4.7Zm-6.8 6.8h4.7v4.7h-4.7v-4.7Zm6.8 0h4.7v4.7h-4.7v-4.7Z"
+        fill="currentColor"
+        fillOpacity="0.9"
+      />
+    </svg>
+  );
+}
+
 export function SkillMark() {
   return (
     <svg width="16" height="16" viewBox="0 0 16 16" fill="none">

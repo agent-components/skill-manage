@@ -17,7 +17,7 @@ export function DeleteSkillFloat({
   const onDelete = async () => {
     setDeleting(true);
     try {
-      const res = await authFetch(`/api/skills/${record.id}`, {
+      const res = await authFetch(`/api/openapi/skills/${record.id}`, {
         method: "DELETE",
       });
       if (!res.ok) {

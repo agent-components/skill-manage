@@ -19,7 +19,7 @@ export function SkillSetOptionsProvider({ children }: { children: ReactNode }) {
 
   useEffect(() => {
     let alive = true;
-    authFetch("/api/projects?pageSize=100")
+    authFetch("/api/openapi/skill-sets?pageSize=100")
       .then((r) => r.json())
       .then((d) => {
         if (!alive) return;

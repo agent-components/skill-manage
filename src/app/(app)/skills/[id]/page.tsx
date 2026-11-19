@@ -20,7 +20,6 @@ import {
   LeftOutlined,
   RightOutlined,
   RollbackOutlined,
-  UpOutlined,
   UploadOutlined,
 } from "@ant-design/icons";
 import dayjs from "dayjs";
@@ -51,15 +50,6 @@ type SkillDetail = {
   latestVersion: string | null;
   updatedAt?: string;
   metadata: Record<string, unknown> | null;
-  versions: {
-    id: string;
-    version: string;
-    fileCount: number;
-    totalSize: string;
-    changelog: string | null;
-    metadata: Record<string, unknown> | null;
-    createdAt: string;
-  }[];
 };
 
 type PreviewState = {
@@ -71,12 +61,11 @@ type PreviewState = {
   fileSize?: string;
 };
 
-type TabKey = "overview" | "files" | "history";
+type TabKey = "overview" | "files";
 
 const TABS: { key: TabKey; label: string }[] = [
   { key: "overview", label: "概述" },
   { key: "files", label: "文件" },
-  { key: "history", label: "版本历史" },
 ];
 
 function formatFileSize(value: string) {
@@ -91,37 +80,6 @@ function versionLabel(version: string) {
   return /^v\d/i.test(version) ? version : `v${version}`;
 }
 
-function asText(value: unknown): string {
-  if (typeof value === "string") return value.trim();
-  if (typeof value === "number" || typeof value === "boolean") return String(value);
-  if (Array.isArray(value)) return value.map(asText).filter(Boolean).join(", ");
-  return "";
-}
-
-function versionNote(item: {
-  version: string;
-  changelog: string | null;
-  metadata: Record<string, unknown> | null;
-}): string {
-  const changelog = item.changelog?.trim();
-  if (changelog) return changelog;
-  const meta = item.metadata;
-  if (!meta) return "";
-  const fromMeta = asText(meta.changelog);
-  if (fromMeta) return fromMeta;
-
-  const license = asText(meta.license);
-  const category =
-    asText(meta.category) || asText(meta.categories) || asText(meta.tags);
-  const bits: string[] = [];
-  if (license) {
-    bits.push(license.toLowerCase().includes("license") ? license : `${license} license`);
-  }
-  if (category) bits.push(`分类: ${category}`);
-  if (!bits.length) return "";
-  return `${versionLabel(item.version)} - ${bits.join(", ")}`;
-}
-
 export default function SkillDetailPage() {
   const params = useParams();
   const id = params.id as string;
@@ -129,7 +87,6 @@ export default function SkillDetailPage() {
 
   const [loading, setLoading] = useState(true);
   const [skill, setSkill] = useState<SkillDetail | null>(null);
-  const [version, setVersion] = useState<string>("");
   const [tab, setTab] = useState<TabKey>("overview");
   const [files, setFiles] = useState<SkillFileMeta[]>([]);
   const [filesReady, setFilesReady] = useState(false);
@@ -142,7 +99,6 @@ export default function SkillDetailPage() {
   const [uploading, setUploading] = useState(false);
   const [file, setFile] = useState<File | null>(null);
   const [form] = Form.useForm();
-  const [collapsedNotes, setCollapsedNotes] = useState<Record<string, boolean>>({});
 
   const fileTree = useMemo(() => buildSkillFileTree(files), [files]);
 
@@ -165,12 +121,10 @@ export default function SkillDetailPage() {
   const loadSkill = useCallback(async () => {
     setLoading(true);
     try {
-      const res = await authFetch(`/api/skills/${id}`);
+      const res = await authFetch(`/api/openapi/skills/${id}/detail`);
       const data = await res.json();
       if (!res.ok) throw new Error(data.message || "加载失败");
       setSkill(data);
-      const ver = data.latestVersion || data.versions?.[0]?.version || "";
-      setVersion(ver);
     } catch (e) {
       message.error(e instanceof Error ? e.message : "加载失败");
     } finally {
@@ -183,12 +137,11 @@ export default function SkillDetailPage() {
   }, [loadSkill]);
 
   const loadFiles = useCallback(
-    async (ver: string) => {
-      if (!ver) return;
+    async () => {
       setFilesReady(false);
       setOpenedFile(null);
       try {
-        const res = await authFetch(`/api/skills/${id}/versions/${ver}/files`);
+        const res = await authFetch(`/api/openapi/skills/${id}/versions/files`);
         const data = await res.json();
         if (!res.ok) {
           message.error(data.message || "加载文件失败");
@@ -209,15 +162,16 @@ export default function SkillDetailPage() {
   );
 
   useEffect(() => {
-    if (version) void loadFiles(version);
-  }, [version, loadFiles]);
+    if (!skill?.latestVersion) return;
+    void loadFiles();
+  }, [skill?.latestVersion, loadFiles]);
 
   useEffect(() => {
-    if (!previewPath || !version) return;
+    if (!previewPath || !skill?.latestVersion) return;
     let cancelled = false;
     setPreviewLoading(true);
     authFetch(
-      `/api/skills/${id}/versions/${version}/files/content?path=${encodeURIComponent(previewPath)}`,
+      `/api/openapi/skills/${id}/versions/files/content?path=${encodeURIComponent(previewPath)}`,
     )
       .then(async (res) => {
         const data = await res.json();
@@ -244,14 +198,14 @@ export default function SkillDetailPage() {
     return () => {
       cancelled = true;
     };
-  }, [id, version, previewPath]);
+  }, [id, skill?.latestVersion, previewPath]);
 
   const onDownload = async (targetVersion?: string) => {
-    const ver = targetVersion || version;
-    if (!ver || !skill) return;
+    if (!skill?.latestVersion) return;
+    const ver = targetVersion || skill.latestVersion;
     try {
       const res = await authFetch(
-        `/api/skills/${id}/versions/${ver}/download`,
+        `/api/openapi/skills/${id}/versions/download?version=${encodeURIComponent(ver)}`,
       );
       if (!res.ok) {
         const data = await res.json().catch(() => ({}));
@@ -281,7 +235,7 @@ export default function SkillDetailPage() {
       fd.append("file", file);
       fd.append("skillId", id);
       if (values?.version) fd.append("version", values.version);
-      const res = await authFetch("/api/skills/upload", {
+      const res = await authFetch("/api/openapi/skills", {
         method: "POST",
         body: fd,
       });
@@ -292,7 +246,6 @@ export default function SkillDetailPage() {
       setFile(null);
       form.resetFields();
       await loadSkill();
-      setVersion(data.version);
     } catch (e) {
       message.error(e instanceof Error ? e.message : "上传失败");
     } finally {
@@ -431,7 +384,9 @@ export default function SkillDetailPage() {
         <p className="skill-hero-summary">{skill.summary || "暂无描述"}</p>
         <div className="skill-chips">
           {updatedLabel ? <span className="skill-chip">{updatedLabel}</span> : null}
-          {version ? <span className="skill-chip">{versionLabel(version)}</span> : null}
+          {skill.latestVersion ? (
+            <span className="skill-chip">{versionLabel(skill.latestVersion)}</span>
+          ) : null}
         </div>
       </div>
 
@@ -504,63 +459,6 @@ export default function SkillDetailPage() {
               </div>
             </div>
           )
-        ) : null}
-
-        {tab === "history" ? (
-          <div>
-            <ol className="skill-timeline">
-              {skill.versions.map((item) => {
-                const note = versionNote(item);
-                const expanded = !collapsedNotes[item.id];
-                const isLatest = item.version === skill.latestVersion;
-                return (
-                  <li
-                    key={item.id}
-                    className={`skill-timeline-item${isLatest ? " is-latest" : ""}`}
-                  >
-                    <div className="skill-timeline-rail">
-                      <span className="skill-timeline-dot" />
-                    </div>
-                    <div className="skill-timeline-main">
-                      <div className="skill-timeline-head">
-                        <div className="skill-timeline-title">
-                          <span>{versionLabel(item.version)}</span>
-                          {isLatest ? <span className="skill-latest-badge">最新</span> : null}
-                        </div>
-                        <div className="skill-timeline-side">
-                          <time dateTime={item.createdAt}>
-                            {dayjs(item.createdAt).format("YYYY/MM/DD")}
-                          </time>
-                          {note ? (
-                            <button
-                              type="button"
-                              aria-label={expanded ? "收起说明" : "展开说明"}
-                              onClick={() =>
-                                setCollapsedNotes((prev) => ({
-                                  ...prev,
-                                  [item.id]: expanded,
-                                }))
-                              }
-                            >
-                              {expanded ? <UpOutlined /> : <DownOutlined />}
-                            </button>
-                          ) : null}
-                          <button
-                            type="button"
-                            aria-label={`下载 ${versionLabel(item.version)}`}
-                            onClick={() => void onDownload(item.version)}
-                          >
-                            <DownloadOutlined />
-                          </button>
-                        </div>
-                      </div>
-                      {note && expanded ? <p className="skill-timeline-note">{note}</p> : null}
-                    </div>
-                  </li>
-                );
-              })}
-            </ol>
-          </div>
         ) : null}
       </div>
 

@@ -7,7 +7,7 @@ export type HarnessMenuItem = {
 };
 
 export const HARNESS_MENUS: HarnessMenuItem[] = [
-  { key: "projects", label: "技能集管理", path: "/projects" },
-  { key: "skills", label: "技能管理", path: "/skills" },
-  { key: "tokens", label: "令牌管理", path: "/tokens" },
+  { key: "skill-sets", label: "专家列表", path: "/skill-sets" },
+  { key: "skills", label: "技能列表", path: "/skills" },
+  { key: "skill-square", label: "技能广场", path: "/skill-square" },
 ];

@@ -1,13 +1,10 @@
 import { NextRequest, NextResponse } from "next/server";
 
-function extractCredential(req: NextRequest): string | null {
+function extractBearer(req: NextRequest): string | null {
   const authorization = req.headers.get("authorization");
-  if (authorization) {
-    const match = /^Bearer\s+(.+)$/i.exec(authorization.trim());
-    const bearer = match?.[1]?.trim();
-    if (bearer) return bearer;
-  }
-  return req.headers.get("x-api-key")?.trim() || null;
+  if (!authorization) return null;
+  const match = /^Bearer\s+(.+)$/i.exec(authorization.trim());
+  return match?.[1]?.trim() || null;
 }
 
 export function middleware(req: NextRequest) {
@@ -18,13 +15,8 @@ export function middleware(req: NextRequest) {
     return NextResponse.next();
   }
 
-  // 登录接口放行
-  if (pathname === "/api/auth/login") {
-    return NextResponse.next();
-  }
-
-  // 下载短链：凭 token 访问，无需登录
-  if (pathname.startsWith("/api/d/")) {
+  // 登录与宿主 SSO 兑换放行
+  if (pathname === "/api/auth/login" || pathname === "/api/auth/sso") {
     return NextResponse.next();
   }
 
@@ -33,13 +25,36 @@ export function middleware(req: NextRequest) {
     return NextResponse.next();
   }
 
-  // 其余 API 要求登录会话或令牌（Authorization: Bearer，或 X-Api-Key）
-  const token = extractCredential(req);
+  if (pathname.startsWith("/api/openapi/")) {
+    if (req.method === "OPTIONS") {
+      return openApiCors(new NextResponse(null, { status: 204 }));
+    }
+    const token = extractBearer(req);
+    if (!token) {
+      return openApiCors(NextResponse.json({ message: "未登录" }, { status: 401 }));
+    }
+    return openApiCors(NextResponse.next());
+  }
+
+  const token = extractBearer(req);
   if (!token) {
     return NextResponse.json({ message: "未登录" }, { status: 401 });
   }
 
   return NextResponse.next();
+}
+
+function openApiCors(res: NextResponse) {
+  res.headers.set("access-control-allow-origin", "*");
+  res.headers.set(
+    "access-control-allow-methods",
+    "GET, PUT, PATCH, POST, DELETE, OPTIONS",
+  );
+  res.headers.set(
+    "access-control-allow-headers",
+    "Authorization, Content-Type, Accept, x-skill-set-id",
+  );
+  return res;
 }
 
 export const config = {

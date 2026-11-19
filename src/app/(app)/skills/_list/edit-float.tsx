@@ -40,8 +40,8 @@ function EditSkillForm({
     const values = await form.validateFields();
     setSaving(true);
     try {
-      const res = await authFetch(`/api/skills/${record.id}`, {
-        method: "PATCH",
+      const res = await authFetch(`/api/openapi/skills/${record.id}`, {
+        method: "PUT",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           displayName: values.displayName,

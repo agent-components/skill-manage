@@ -10,4 +10,4 @@ export type SkillRow = {
   skillSets: { id: string; name: string; slug: string }[];
 };
 
-export type SkillFilter = { name?: string; skillSetId?: string };
+export type SkillFilter = { name?: string; skillSetId?: string | string[] };

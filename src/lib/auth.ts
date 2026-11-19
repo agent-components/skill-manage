@@ -1,14 +1,19 @@
 import { createHash, randomBytes } from "crypto";
 import { headers } from "next/headers";
-import { hashApiKey, isApiKey } from "@/lib/api-key";
 import { AUTH_TOKEN_KEY } from "@/lib/constants";
 import { prisma } from "@/lib/db";
-import { normalizeMcpTools, type McpToolId } from "@/lib/mcp-tools";
 
 export { AUTH_TOKEN_KEY };
 
-/** Token 有效期：30 天 */
-export const TOKEN_TTL_MS = 30 * 24 * 60 * 60 * 1000;
+/** 密码登录会话。再次登录从当前时间重新计算，剩余时间不会超过 7 天。 */
+export const PASSWORD_SESSION_TTL_MS = 7 * 24 * 60 * 60 * 1000;
+
+/** 宿主兑换得到的组件会话。再次兑换重置为 8 小时；当前过期时间更晚则保持不变。 */
+export const SSO_SESSION_TTL_MS = 8 * 60 * 60 * 1000;
+
+export function sessionExpiry(ttlMs: number, now = Date.now()) {
+  return new Date(now + ttlMs);
+}
 
 export type AuthUser = {
   id: string;
@@ -57,7 +62,7 @@ export async function findUserByToken(token: string) {
   return user;
 }
 
-/** 从 Authorization: Bearer <token> 提取 token */
+/** 从 Authorization: Bearer <token> 提取登录会话 */
 export function extractBearerToken(
   authorization: string | null | undefined,
 ): string | null {
@@ -66,99 +71,17 @@ export function extractBearerToken(
   return match?.[1]?.trim() || null;
 }
 
-function extractApiKeyHeader(value: string | null | undefined): string | null {
-  const key = value?.trim();
-  return key || null;
-}
-
 export async function getTokenFromRequest(req?: Request) {
-  const read = (get: (name: string) => string | null) =>
-    extractBearerToken(get("authorization")) ||
-    extractApiKeyHeader(get("x-api-key"));
-
-  if (req) return read((name) => req.headers.get(name));
+  if (req) return extractBearerToken(req.headers.get("authorization"));
   const h = await headers();
-  return read((name) => h.get(name));
-}
-
-/** 令牌鉴权：摘要匹配，且所属账号为启用状态（令牌永不过期） */
-export async function findUserByApiKey(raw: string): Promise<{
-  user: AuthUser;
-  skillSetId: string;
-  tools: McpToolId[];
-} | null> {
-  if (!isApiKey(raw)) return null;
-  const now = new Date();
-  const record = await prisma.apiKey.findFirst({
-    where: { keyHash: hashApiKey(raw) },
-    include: { project: { select: { id: true, ownerId: true } } },
-  });
-  if (!record?.project || record.project.ownerId !== record.userId) return null;
-
-  const user = await prisma.user.findFirst({
-    where: { id: record.userId, status: "ACTIVE" },
-  });
-  if (!user) return null;
-
-  const staleBefore = new Date(now.getTime() - 60_000);
-  if (!record.lastUsedAt || record.lastUsedAt < staleBefore) {
-    try {
-      await prisma.apiKey.updateMany({
-        where: {
-          id: record.id,
-          OR: [{ lastUsedAt: null }, { lastUsedAt: { lt: staleBefore } }],
-        },
-        data: { lastUsedAt: now },
-      });
-    } catch {
-      // 最近使用时间写失败不影响本次鉴权
-    }
-  }
-
-  return {
-    user: toAuthUser(user),
-    skillSetId: record.projectId,
-    tools: normalizeMcpTools(record.tools),
-  };
-}
-
-export type AuthVia = "session" | "api_key";
-
-export async function getAuthContext(req?: Request): Promise<{
-  user: AuthUser;
-  via: AuthVia;
-  skillSetId: string | null;
-  tools: McpToolId[] | null;
-} | null> {
-  const token = await getTokenFromRequest(req);
-  if (!token) return null;
-
-  if (isApiKey(token)) {
-    const matched = await findUserByApiKey(token);
-    return matched
-      ? {
-          user: matched.user,
-          via: "api_key",
-          skillSetId: matched.skillSetId,
-          tools: matched.tools,
-        }
-      : null;
-  }
-
-  const user = await findUserByToken(token);
-  return user
-    ? {
-        user: toAuthUser(user),
-        via: "session",
-        skillSetId: null,
-        tools: null,
-      }
-    : null;
+  return extractBearerToken(h.get("authorization"));
 }
 
 export async function getCurrentUser(req?: Request) {
-  const ctx = await getAuthContext(req);
-  return ctx?.user ?? null;
+  const token = await getTokenFromRequest(req);
+  if (!token) return null;
+  const user = await findUserByToken(token);
+  return user ? toAuthUser(user) : null;
 }
 
 export async function requireUser(req?: Request) {

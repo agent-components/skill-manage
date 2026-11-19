@@ -8,18 +8,26 @@ body {
   min-height: 100dvh;
 }
 
-body {
-  display: flex;
-  flex-direction: column;
-}
-
 /*
- * 只拉伸应用根 div，不要用 body > *。
+ * 只给应用根 div 设满高，不要用 body > *。
  * Next.js 调试浮层挂在 body 下的 nextjs-portal，若被拉成 100% 宽高会挡住整页点击。
+ * Modal、Dropdown、Popover 也会直接挂到 body。它们一旦吃到 height: 100%，
+ * 点开一次就会在页面底部多出一整块空白。
  */
-body > div {
-  flex: 1 1 auto;
-  min-height: 0;
+body > div:not(.ant-modal-root,
+  .ant-dropdown,
+  .ant-popover,
+  .ant-tooltip,
+  .ant-select-dropdown,
+  .ant-picker-dropdown,
+  .ant-cascader-dropdown,
+  .ant-tree-select-dropdown,
+  .ant-mentions-dropdown,
+  .ant-color-picker,
+  .ant-image-preview-root,
+  .ant-message,
+  .ant-notification,
+  .ant-drawer) {
   width: 100%;
   height: 100%;
 }

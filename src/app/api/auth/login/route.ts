@@ -1,7 +1,8 @@
 import { NextRequest, NextResponse } from "next/server";
 import {
-  TOKEN_TTL_MS,
+  PASSWORD_SESSION_TTL_MS,
   createAccessToken,
+  sessionExpiry,
   toAuthUser,
   verifyPassword,
 } from "@/lib/auth";
@@ -33,7 +34,7 @@ export async function POST(req: NextRequest) {
   }
 
   const token = user.token || createAccessToken();
-  const tokenExpiredAt = new Date(Date.now() + TOKEN_TTL_MS);
+  const tokenExpiredAt = sessionExpiry(PASSWORD_SESSION_TTL_MS);
   await prisma.user.update({
     where: { id: user.id },
     data: { token, tokenExpiredAt, updatedAt: new Date() },

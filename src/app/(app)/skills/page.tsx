@@ -21,7 +21,7 @@ function SkillsBoard() {
   const [view, setView] = useState<"list" | "card">("list");
   const [name, setName] = useState("");
   const [query, setQuery] = useState("");
-  const [skillSetId, setSkillSetId] = useState<string | undefined>();
+  const [skillSetIds, setSkillSetIds] = useState<string[]>([]);
   const [page, setPage] = useState(1);
   const [pageSize, setPageSize] = useState(20);
   const [total, setTotal] = useState(0);
@@ -35,7 +35,7 @@ function SkillsBoard() {
     try {
       const data = await requestSkills(
         { current: page, pageSize },
-        { name: query || undefined, skillSetId },
+        { name: query || undefined, skillSetId: skillSetIds },
         {},
       );
       setList(data.list as SkillRow[]);
@@ -46,7 +46,7 @@ function SkillsBoard() {
     } finally {
       setLoading(false);
     }
-  }, [page, pageSize, query, skillSetId]);
+  }, [page, pageSize, query, skillSetIds]);
 
   useEffect(() => {
     void load();
@@ -95,14 +95,16 @@ function SkillsBoard() {
           上传技能
         </Button>
         <SkillSetSelect
+          mode="multiple"
           allowClear
+          maxTagCount="responsive"
           placeholder="全部技能集"
-          value={skillSetId}
+          value={skillSetIds}
           onChange={(value) => {
             setPage(1);
-            setSkillSetId(value);
+            setSkillSetIds(Array.isArray(value) ? value : []);
           }}
-          style={{ width: 180 }}
+          style={{ width: 260 }}
         />
         <Input
           allowClear

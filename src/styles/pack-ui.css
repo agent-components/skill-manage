@@ -110,6 +110,11 @@
   background: #fafafa;
 }
 
+.pack-row.is-static,
+.pack-card.is-static {
+  cursor: default;
+}
+
 .pack-avatar {
   display: grid;
   flex: none;

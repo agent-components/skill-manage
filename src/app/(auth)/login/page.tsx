@@ -8,8 +8,14 @@ import {
   AppProvider,
   setupZhCNLocale,
 } from "listpage-components";
-import { getClientToken, loginRequest } from "@/lib/auth-client";
+import {
+  exchangeHarnessSso,
+  getClientToken,
+  loginRequest,
+} from "@/lib/auth-client";
 import { usePersistedProTheme } from "@/lib/use-persisted-pro-theme";
+import { HarnessOpenNotice } from "@/components/HarnessOpenNotice";
+import { isEmbeddedFrame } from "@/lib/embed";
 import { SkillsLogo } from "@/components/SkillsLogo";
 import "@/styles/listpage-components.css";
 
@@ -25,13 +31,46 @@ function LoginFormCard() {
   const searchParams = useSearchParams();
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [blocked, setBlocked] = useState(false);
 
   useEffect(() => {
+    const from = searchParams.get("from");
+    const next = from && from.startsWith("/") ? from : "/skills";
+    const code = searchParams.get("harness_sso")?.trim() || "";
+
+    if (code) {
+      let cancelled = false;
+      void exchangeHarnessSso(code)
+        .then(() => {
+          if (!cancelled) router.replace(next);
+        })
+        .catch(() => {
+          if (!cancelled) setBlocked(true);
+        });
+      return () => {
+        cancelled = true;
+      };
+    }
+
+    if (isEmbeddedFrame()) {
+      setBlocked(true);
+      return;
+    }
+
     if (getClientToken()) {
-      const from = searchParams.get("from");
-      router.replace(from && from.startsWith("/") ? from : "/skills");
+      router.replace(next);
     }
   }, [router, searchParams]);
+
+  if (blocked) return <HarnessOpenNotice />;
+
+  if (searchParams.get("harness_sso")?.trim()) {
+    return (
+      <div style={{ display: "flex", justifyContent: "center", padding: 48 }}>
+        <Spin size="large" />
+      </div>
+    );
+  }
 
   const onFinish = async (values: LoginForm) => {
     setLoading(true);
