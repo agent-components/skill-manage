@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useState, type ReactNode } from "react";
 import { useRouter } from "next/navigation";
 import { AppstoreOutlined, UnorderedListOutlined, UploadOutlined } from "@ant-design/icons";
 import { Button, Dropdown, Input, Pagination, Spin } from "antd";
@@ -15,6 +15,33 @@ import "@/styles/skill-ui.css";
 import "@/styles/pack-ui.css";
 
 type FloatKey = "upload" | "edit" | "delete" | null;
+
+function ClickableRow({
+  className,
+  onClick,
+  children,
+}: {
+  className: string;
+  onClick: () => void;
+  children: ReactNode;
+}) {
+  return (
+    <div
+      role="button"
+      tabIndex={0}
+      className={className}
+      onClick={onClick}
+      onKeyDown={(event) => {
+        if (event.target !== event.currentTarget) return;
+        if (event.key !== "Enter" && event.key !== " ") return;
+        event.preventDefault();
+        onClick();
+      }}
+    >
+      {children}
+    </div>
+  );
+}
 
 function SkillManageMenu({
   row,
@@ -161,9 +188,8 @@ function SkillsBoard() {
         ) : view === "list" ? (
           <div className="pack-list">
             {list.map((row) => (
-              <button
+              <ClickableRow
                 key={row.id}
-                type="button"
                 className="pack-row"
                 onClick={() => router.push(`/skills/${row.id}`)}
               >
@@ -187,15 +213,14 @@ function SkillsBoard() {
                   </span>
                   <SkillManageMenu row={row} onAction={open} />
                 </span>
-              </button>
+              </ClickableRow>
             ))}
           </div>
         ) : (
           <div className="pack-grid">
             {list.map((row) => (
-              <button
+              <ClickableRow
                 key={row.id}
-                type="button"
                 className="pack-card"
                 onClick={() => router.push(`/skills/${row.id}`)}
               >
@@ -223,7 +248,7 @@ function SkillsBoard() {
                   </span>
                   <SkillManageMenu row={row} onAction={open} />
                 </span>
-              </button>
+              </ClickableRow>
             ))}
           </div>
         )}

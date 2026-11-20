@@ -57,9 +57,10 @@ body > div:has(> .ant-modal-root,
   overscroll-behavior: contain;
 }
 
-/* 菜单点击被 stopPropagation 拦住时，收起动画期间层级仍高于对话框。 */
-body:has(.ant-modal-root) .ant-dropdown {
-  display: none;
+/* 菜单收起动画还在播时层级高于对话框。只在弹窗真正可见时藏起来，避免 display:none 掐断动画。 */
+body:has(.ant-modal-wrap:not([style*="display: none"])) .ant-dropdown {
+  visibility: hidden;
+  pointer-events: none;
 }
 
 .app-frame {

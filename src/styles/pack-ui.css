@@ -92,6 +92,7 @@
   border: 0;
   background: transparent;
   text-align: left;
+  font: inherit;
   cursor: pointer;
   color: inherit;
 }
@@ -303,6 +304,7 @@
   .pack-toolbar {
     flex-wrap: wrap;
   }
+
   .pack-toolbar .ant-input-affix-wrapper {
     width: 100%;
     margin-left: 0;
