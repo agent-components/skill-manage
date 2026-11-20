@@ -16,6 +16,41 @@ import "@/styles/pack-ui.css";
 
 type FloatKey = "upload" | "edit" | "delete" | null;
 
+function SkillManageMenu({
+  row,
+  onAction,
+}: {
+  row: SkillRow;
+  onAction: (key: "edit" | "delete", row: SkillRow) => void;
+}) {
+  const [open, setOpen] = useState(false);
+  return (
+    <Dropdown
+      destroyOnHidden
+      open={open}
+      trigger={["click"]}
+      onOpenChange={setOpen}
+      menu={{
+        items: [
+          { key: "edit", label: "编辑" },
+          { key: "delete", label: "删除", danger: true },
+        ],
+        onClick: ({ key, domEvent }) => {
+          // 菜单在 body 上，点击仍会沿 React 树冒泡到整行。
+          // stopPropagation 能拦住跳进详情，但 Dropdown 也因此收不到关闭事件。
+          domEvent.stopPropagation();
+          setOpen(false);
+          onAction(key as "edit" | "delete", row);
+        },
+      }}
+    >
+      <Button type="link" onClick={(event) => event.stopPropagation()}>
+        管理
+      </Button>
+    </Dropdown>
+  );
+}
+
 function SkillsBoard() {
   const router = useRouter();
   const [view, setView] = useState<"list" | "card">("list");
@@ -61,23 +96,6 @@ function SkillsBoard() {
     setFloat(null);
     if (refresh) void load();
   };
-
-  const menu = (row: SkillRow) => ({
-    items: [
-      { key: "edit", label: "编辑" },
-      { key: "delete", label: "删除", danger: true },
-    ],
-    onClick: ({
-      key,
-      domEvent,
-    }: {
-      key: string;
-      domEvent: { stopPropagation: () => void };
-    }) => {
-      domEvent.stopPropagation();
-      open(key as FloatKey, row);
-    },
-  });
 
   return (
     <div className="skill-page pack-page">
@@ -167,11 +185,7 @@ function SkillsBoard() {
                       ? row.skillSets.map((item) => item.name).join("、")
                       : "未归属技能集"}
                   </span>
-                  <Dropdown menu={menu(row)} trigger={["click"]}>
-                    <Button type="link" onClick={(e) => e.stopPropagation()}>
-                      管理
-                    </Button>
-                  </Dropdown>
+                  <SkillManageMenu row={row} onAction={open} />
                 </span>
               </button>
             ))}
@@ -207,11 +221,7 @@ function SkillsBoard() {
                       ? row.skillSets.map((item) => item.name).join("、")
                       : "未归属技能集"}
                   </span>
-                  <Dropdown menu={menu(row)} trigger={["click"]}>
-                    <Button type="link" onClick={(e) => e.stopPropagation()}>
-                      管理
-                    </Button>
-                  </Dropdown>
+                  <SkillManageMenu row={row} onAction={open} />
                 </span>
               </button>
             ))}

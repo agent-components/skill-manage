@@ -11,8 +11,9 @@ body {
 /*
  * 只给应用根 div 设满高，不要用 body > *。
  * Next.js 调试浮层挂在 body 下的 nextjs-portal，若被拉成 100% 宽高会挡住整页点击。
- * Modal、Dropdown、Popover 也会直接挂到 body。它们一旦吃到 height: 100%，
- * 点开一次就会在页面底部多出一整块空白。
+ * antd 6 的 Modal / Dropdown / Select 等挂到 body 时，外层是没有类名的 div，
+ * .ant-modal-root、.ant-dropdown 在它里面。这个外层一旦被 height: 100% 拉高，
+ * 关掉弹窗、body 滚动锁解除后，页面会被滚进这块空白，主区域只剩滚动条。
  */
 body > div:not(.ant-modal-root,
   .ant-dropdown,
@@ -30,6 +31,35 @@ body > div:not(.ant-modal-root,
   .ant-drawer) {
   width: 100%;
   height: 100%;
+}
+
+body > div:has(> .ant-modal-root,
+  > .ant-dropdown,
+  > .ant-popover,
+  > .ant-tooltip,
+  > .ant-select-dropdown,
+  > .ant-picker-dropdown,
+  > .ant-cascader-dropdown,
+  > .ant-tree-select-dropdown,
+  > .ant-mentions-dropdown,
+  > .ant-color-picker,
+  > .ant-image-preview-root,
+  > .ant-message,
+  > .ant-notification,
+  > .ant-drawer) {
+  width: 0;
+  height: 0;
+  overflow: visible;
+}
+
+/* 遮罩本身不接收点击，点的是可滚动的 wrap。挡住滚动链，避免松手后把背后页面带走。 */
+.ant-modal-wrap {
+  overscroll-behavior: contain;
+}
+
+/* 菜单点击被 stopPropagation 拦住时，收起动画期间层级仍高于对话框。 */
+body:has(.ant-modal-root) .ant-dropdown {
+  display: none;
 }
 
 .app-frame {

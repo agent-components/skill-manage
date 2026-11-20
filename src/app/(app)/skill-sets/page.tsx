@@ -15,6 +15,41 @@ import "@/styles/skill-ui.css";
 import "@/styles/pack-ui.css";
 
 type FloatKey = "create" | "edit" | "skills" | "delete" | null;
+type ManageKey = "skills" | "edit" | "delete";
+
+function SkillSetManageMenu({
+  row,
+  onAction,
+}: {
+  row: SkillSetRow;
+  onAction: (key: ManageKey, row: SkillSetRow) => void;
+}) {
+  const [open, setOpen] = useState(false);
+  return (
+    <Dropdown
+      destroyOnHidden
+      open={open}
+      trigger={["click"]}
+      onOpenChange={setOpen}
+      menu={{
+        items: [
+          { key: "skills", label: "关联技能" },
+          { key: "edit", label: "编辑" },
+          { key: "delete", label: "删除", danger: true },
+        ],
+        onClick: ({ key, domEvent }) => {
+          domEvent.stopPropagation();
+          setOpen(false);
+          onAction(key as ManageKey, row);
+        },
+      }}
+    >
+      <Button type="link" onClick={(event) => event.stopPropagation()}>
+        管理
+      </Button>
+    </Dropdown>
+  );
+}
 
 export default function SkillSetsPage() {
   const router = useRouter();
@@ -60,18 +95,6 @@ export default function SkillSetsPage() {
     setFloat(null);
     if (refresh) void load();
   };
-
-  const menu = (row: SkillSetRow) => ({
-    items: [
-      { key: "skills", label: "关联技能" },
-      { key: "edit", label: "编辑" },
-      { key: "delete", label: "删除", danger: true },
-    ],
-    onClick: ({ key, domEvent }: { key: string; domEvent: { stopPropagation: () => void } }) => {
-      domEvent.stopPropagation();
-      open(key as FloatKey, row);
-    },
-  });
 
   return (
     <div className="skill-page pack-page">
@@ -140,14 +163,7 @@ export default function SkillSetsPage() {
                 </span>
                 <span className="pack-side">
                   <span>{row.skillCount} 个技能</span>
-                  <Dropdown menu={menu(row)} trigger={["click"]}>
-                    <Button
-                      type="link"
-                      onClick={(e) => e.stopPropagation()}
-                    >
-                      管理
-                    </Button>
-                  </Dropdown>
+                  <SkillSetManageMenu row={row} onAction={open} />
                 </span>
               </button>
             ))}
@@ -171,11 +187,7 @@ export default function SkillSetsPage() {
                 <span className="pack-desc">{row.description || "暂无描述"}</span>
                 <span className="pack-card-foot">
                   <span>{row.skillCount} 个技能</span>
-                  <Dropdown menu={menu(row)} trigger={["click"]}>
-                    <Button type="link" onClick={(e) => e.stopPropagation()}>
-                      管理
-                    </Button>
-                  </Dropdown>
+                  <SkillSetManageMenu row={row} onAction={open} />
                 </span>
               </button>
             ))}

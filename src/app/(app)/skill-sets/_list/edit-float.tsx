@@ -71,6 +71,7 @@ function EditSkillSetForm({
       onOk={onSave}
       confirmLoading={saving}
       okText="保存"
+      cancelText="取消"
     >
       <Form
         form={form}
