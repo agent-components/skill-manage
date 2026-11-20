@@ -21,7 +21,7 @@ function SkillsBoard() {
   const [view, setView] = useState<"list" | "card">("list");
   const [name, setName] = useState("");
   const [query, setQuery] = useState("");
-  const [skillSetIds, setSkillSetIds] = useState<string[]>([]);
+  const [skillSetSlugs, setSkillSetSlugs] = useState<string[]>([]);
   const [page, setPage] = useState(1);
   const [pageSize, setPageSize] = useState(20);
   const [total, setTotal] = useState(0);
@@ -35,7 +35,7 @@ function SkillsBoard() {
     try {
       const data = await requestSkills(
         { current: page, pageSize },
-        { name: query || undefined, skillSetId: skillSetIds },
+        { name: query || undefined, skillSetId: skillSetSlugs },
         {},
       );
       setList(data.list as SkillRow[]);
@@ -46,7 +46,7 @@ function SkillsBoard() {
     } finally {
       setLoading(false);
     }
-  }, [page, pageSize, query, skillSetIds]);
+  }, [page, pageSize, query, skillSetSlugs]);
 
   useEffect(() => {
     void load();
@@ -99,10 +99,11 @@ function SkillsBoard() {
           allowClear
           maxTagCount="responsive"
           placeholder="全部技能集"
-          value={skillSetIds}
+          valueKey="slug"
+          value={skillSetSlugs}
           onChange={(value) => {
             setPage(1);
-            setSkillSetIds(Array.isArray(value) ? value : []);
+            setSkillSetSlugs(Array.isArray(value) ? value : []);
           }}
           style={{ width: 260 }}
         />

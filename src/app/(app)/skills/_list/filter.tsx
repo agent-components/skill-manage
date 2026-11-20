@@ -15,7 +15,7 @@ export const skillFilter: FilterConfig<SkillFilter> = {
     {
       name: "skillSetId",
       label: "技能集",
-      component: <SkillSetSelect mode="multiple" placeholder="全部技能集" />,
+      component: <SkillSetSelect mode="multiple" valueKey="slug" placeholder="全部技能集" />,
     },
   ],
 };

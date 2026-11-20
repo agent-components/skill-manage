@@ -64,7 +64,7 @@ function skillSetsOf(
   }));
 }
 
-function skillSetIdsFromHeader(header: string | null | undefined) {
+function skillSetSlugsFromHeader(header: string | null | undefined) {
   if (!header) return [];
   return [...new Set(header.split(",").map((item) => item.trim()).filter(Boolean))];
 }
@@ -75,7 +75,7 @@ export async function listSkills(
   skillSetHeader?: string | null,
 ) {
   const name = searchParams.get("name")?.trim();
-  const skillSetIds = skillSetIdsFromHeader(skillSetHeader);
+  const skillSetSlugs = skillSetSlugsFromHeader(skillSetHeader);
   const { current, pageSize } = parsePage(searchParams);
   const where = {
     ownerId,
@@ -88,8 +88,12 @@ export async function listSkills(
           ],
         }
       : {}),
-    ...(skillSetIds.length
-      ? { skillSets: { some: { skillSetId: { in: skillSetIds } } } }
+    ...(skillSetSlugs.length
+      ? {
+          skillSets: {
+            some: { skillSet: { ownerId, slug: { in: skillSetSlugs } } },
+          },
+        }
       : {}),
   };
 

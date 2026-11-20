@@ -10,7 +10,7 @@ import {
 import { Select, type SelectProps } from "antd";
 import { authFetch } from "@/lib/auth-client";
 
-export type SkillSetOption = { id: string; name: string };
+export type SkillSetOption = { id: string; name: string; slug: string };
 
 const SkillSetOptionsContext = createContext<SkillSetOption[]>([]);
 
@@ -24,9 +24,10 @@ export function SkillSetOptionsProvider({ children }: { children: ReactNode }) {
       .then((d) => {
         if (!alive) return;
         setSkillSets(
-          (d.list || []).map((item: { id: string; name: string }) => ({
+          (d.list || []).map((item: { id: string; name: string; slug: string }) => ({
             id: item.id,
             name: item.name,
+            slug: item.slug,
           })),
         );
       })
@@ -43,14 +44,17 @@ export function SkillSetOptionsProvider({ children }: { children: ReactNode }) {
   );
 }
 
-export function SkillSetSelect(props: SelectProps) {
+export function SkillSetSelect({
+  valueKey = "id",
+  ...props
+}: SelectProps & { valueKey?: "id" | "slug" }) {
   const skillSets = useContext(SkillSetOptionsContext);
   return (
     <Select
       allowClear
       optionFilterProp="label"
       {...props}
-      options={skillSets.map((item) => ({ value: item.id, label: item.name }))}
+      options={skillSets.map((item) => ({ value: item[valueKey], label: item.name }))}
     />
   );
 }

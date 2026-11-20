@@ -111,11 +111,11 @@ export const HARNESS_TOOLS: HarnessTool[] = [
     headers: [
       {
         name: "x-skill-set-id",
-        description: "技能集 ID。多个用英文逗号隔开，只返回挂在这些技能集下的技能",
+        description: "技能集 slug。多个用英文逗号隔开，只返回挂在这些技能集下的技能",
         required: false,
         schema: {
           type: "string",
-          description: "技能集 ID，多个用英文逗号隔开",
+          description: "技能集 slug，多个用英文逗号隔开",
         },
       },
     ],
