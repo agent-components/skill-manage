@@ -13,7 +13,7 @@ import { CreateSkillSetFloat } from "@/features/skill-sets/floats/CreateSkillSet
 import { DeleteSkillSetFloat } from "@/features/skill-sets/floats/DeleteSkillSetFloat";
 import { EditSkillSetFloat } from "@/features/skill-sets/floats/EditSkillSetFloat";
 import { SkillSetSkillsFloat } from "@/features/skill-sets/floats/SkillSetSkillsFloat";
-import type { SkillSetRow } from "@/features/types";
+import type { SkillSetRow } from "@/features/skill-sets/types";
 import "@/styles/skill-ui.css";
 import "@/styles/pack-ui.css";
 

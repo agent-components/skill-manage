@@ -2,7 +2,7 @@ import { useNavigate } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
 import { Drawer, Table, Tooltip, Typography } from "antd";
 import { useTRPC } from "@/lib/trpc";
-import type { SkillSetRow } from "@/features/types";
+import type { SkillSetRow } from "@/features/skill-sets/types";
 
 export function SkillSetSkillsFloat({
   record,

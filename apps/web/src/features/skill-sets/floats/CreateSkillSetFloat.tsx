@@ -3,7 +3,7 @@ import { Form, Input, Modal, message } from "antd";
 import { SkillSetIconInput } from "@/components/icons";
 import { useTRPCClient } from "@/lib/trpc";
 import { errorMessage } from "@/lib/error";
-import type { SkillSetRow } from "@/features/types";
+import type { SkillSetRow } from "@/features/skill-sets/types";
 
 export function CreateSkillSetFloat({
   visible,

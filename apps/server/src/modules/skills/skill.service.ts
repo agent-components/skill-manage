@@ -6,8 +6,14 @@ import {
   normalizeTags,
   parseSkillArchiveFilename,
   skillArchiveFilenameError,
+  type IconEntry,
+  type PageOutput,
+  type SkillDetail,
+  type SkillFileContent,
   type SkillListItem,
   type SkillSetRef,
+  type SkillUploadResult,
+  type SkillVersionFile,
 } from "@skill-manage/shared";
 import { prisma } from "../../infra/prisma.js";
 import {
@@ -45,7 +51,7 @@ export async function listSkills(
   ownerId: string,
   input: { current?: number; pageSize?: number; name?: string },
   skillSetSlugs: string[] = [],
-) {
+): Promise<PageOutput<SkillListItem>> {
   const name = input.name?.trim();
   const slugs = skillSetSlugsFromList(skillSetSlugs);
   const { current, pageSize } = parsePage(input);
@@ -109,7 +115,10 @@ export async function listSkills(
   return { list, total };
 }
 
-export async function listSkillIcons(ownerId: string, ids: string[]) {
+export async function listSkillIcons(
+  ownerId: string,
+  ids: string[],
+): Promise<IconEntry[]> {
   const unique = [...new Set(ids.map((id) => id.trim()).filter(Boolean))].slice(0, 100);
   if (unique.length === 0) return [];
   const rows = await prisma.skill.findMany({
@@ -313,7 +322,7 @@ export async function uploadSkillPackage(
     skillSetIds?: string[];
     matchFilename?: boolean;
   },
-) {
+): Promise<SkillUploadResult> {
   const filename = input.filename?.trim() || "";
   if (input.matchFilename) {
     const nameErr = skillArchiveFilenameError(filename);
@@ -481,7 +490,10 @@ export function zipBufferFromBase64(raw: unknown) {
   return decodeZipBase64(raw);
 }
 
-export async function getSkillDetail(ownerId: string, id: string) {
+export async function getSkillDetail(
+  ownerId: string,
+  id: string,
+): Promise<SkillDetail> {
   const skill = await prisma.skill.findFirst({
     where: { id, ownerId },
     include: {
@@ -524,7 +536,10 @@ async function ownedSkillVersion(ownerId: string, skillId: string, version?: str
   return { skill, version: ver };
 }
 
-export async function listSkillVersionFiles(ownerId: string, skillId: string) {
+export async function listSkillVersionFiles(
+  ownerId: string,
+  skillId: string,
+): Promise<{ version: string; files: SkillVersionFile[] }> {
   const { version: ver } = await ownedSkillVersion(ownerId, skillId);
   const files = await prisma.skillFile.findMany({
     where: { versionId: ver.id },
@@ -546,7 +561,7 @@ export async function readSkillVersionFile(
   ownerId: string,
   skillId: string,
   path: string | null,
-) {
+): Promise<SkillFileContent> {
   const filePath = path?.trim();
   if (!filePath) throw new SkillError("缺少 path 参数");
   const { version: ver } = await ownedSkillVersion(ownerId, skillId);

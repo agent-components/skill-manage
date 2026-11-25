@@ -1,4 +1,4 @@
-import type { HarnessMenuItem } from "./types.js";
+import type { HarnessMenuItem } from "../types.js";
 
 /**
  * 宿主拉取的公开菜单。path 相对本组件域名，必须以 / 开头。

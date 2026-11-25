@@ -2,7 +2,7 @@ import { useState } from "react";
 import { Modal, message } from "antd";
 import { useTRPCClient } from "@/lib/trpc";
 import { errorMessage } from "@/lib/error";
-import type { SkillRow } from "@/features/types";
+import type { SkillRow } from "@/features/skills/types";
 
 export function DeleteSkillFloat({
   record,

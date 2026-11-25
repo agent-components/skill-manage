@@ -37,6 +37,17 @@ apps/web          React 19 + Vite + React Router v7 单页应用
 它名义上「框架无关」，实际却依赖了 fastify、S3 SDK 和 Prisma，
 而 `apps/server` 又只有两个文件在转发它的导出——这层间接没有任何价值。
 
+### 共享包目录
+
+```
+packages/shared/src
+├── types.ts        前后端共用的数据结构（AuthUser、列表项、详情等）
+├── constants.ts    本地存储键等常量
+├── icon.ts         图标规范化与体积校验
+├── harness/        宿主契约：菜单
+└── skill/          技能相关规则：frontmatter 解析、slug、版本号比较
+```
+
 ### 服务端目录
 
 ```
@@ -74,11 +85,11 @@ apps/server/src
 ```
 apps/web/src
 ├── app/                   应用外壳：路由、布局、鉴权守卫
-├── features/              按业务域切分，页面与浮层就近放置
+├── features/              按业务域切分，页面、浮层与行类型就近放置
 │   ├── auth/              登录页、会话客户端
-│   ├── skills/            技能列表/详情 + floats/
-│   ├── skill-sets/        技能集列表/详情 + floats/
-│   └── skill-square/      技能广场列表/详情 + floats/
+│   ├── skills/            技能列表/详情 + floats/ + types.ts
+│   ├── skill-sets/        技能集列表/详情 + floats/ + types.ts
+│   └── skill-square/      技能广场列表/详情 + floats/ + types.ts
 ├── components/            跨功能复用的展示组件
 ├── lib/                   与业务无关的工具（trpc 客户端、文件、主题）
 └── styles/                全局样式

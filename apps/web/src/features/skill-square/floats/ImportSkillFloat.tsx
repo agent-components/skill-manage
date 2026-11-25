@@ -3,7 +3,7 @@ import { Form, Modal, message } from "antd";
 import { SkillSetSelect } from "@/components/skill-set-options";
 import { useTRPCClient } from "@/lib/trpc";
 import { errorMessage } from "@/lib/error";
-import type { SquareSkill } from "@/features/types";
+import type { SquareSkill } from "@/features/skill-square/types";
 
 export function ImportSkillFloat({
   record,

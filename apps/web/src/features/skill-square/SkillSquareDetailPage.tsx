@@ -25,7 +25,7 @@ import {
 } from "@/components/skill/files-to-tree";
 import { useTRPC } from "@/lib/trpc";
 import { ImportSkillFloat } from "@/features/skill-square/floats/ImportSkillFloat";
-import type { SquareSkill } from "@/features/types";
+import type { SquareSkill } from "@/features/skill-square/types";
 import "@/styles/skill-ui.css";
 import "@/styles/pack-ui.css";
 

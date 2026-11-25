@@ -16,7 +16,7 @@ import { useTRPC } from "@/lib/trpc";
 import { DeleteSkillFloat } from "@/features/skills/floats/DeleteSkillFloat";
 import { EditSkillFloat } from "@/features/skills/floats/EditSkillFloat";
 import { UploadSkillFloat } from "@/features/skills/floats/UploadSkillFloat";
-import type { SkillRow } from "@/features/types";
+import type { SkillRow } from "@/features/skills/types";
 import "@/styles/skill-ui.css";
 import "@/styles/pack-ui.css";
 

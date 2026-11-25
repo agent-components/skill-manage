@@ -1,14 +1,4 @@
-/** 分页入参 */
-export type PageInput = {
-  current?: number;
-  pageSize?: number;
-};
-
-/** 分页结果 */
-export type PageOutput<T> = {
-  list: T[];
-  total: number;
-};
+import type { PageInput } from "@skill-manage/shared";
 
 const DEFAULT_PAGE_SIZE = 20;
 const MAX_PAGE_SIZE = 100;

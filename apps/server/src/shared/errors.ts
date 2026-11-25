@@ -28,13 +28,6 @@ export class SkillHubError extends AppError {
   }
 }
 
-/** 鉴权相关错误 */
-export class AuthError extends AppError {
-  constructor(message = "未登录", status = 401) {
-    super(message, status);
-  }
-}
-
 /** 判断是否为带状态码的业务异常 */
 export function isAppError(error: unknown): error is AppError {
   return error instanceof AppError;

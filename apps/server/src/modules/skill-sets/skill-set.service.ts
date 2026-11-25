@@ -1,6 +1,9 @@
 import {
   normalizeIcon,
   slugify,
+  type IconEntry,
+  type PageOutput,
+  type SkillSetDetail,
   type SkillSetListItem,
 } from "@skill-manage/shared";
 import { prisma } from "../../infra/prisma.js";
@@ -54,7 +57,7 @@ function readIcon(value: unknown) {
 export async function listSkillSets(
   ownerId: string,
   input: { current?: number; pageSize?: number; name?: string },
-) {
+): Promise<PageOutput<SkillSetListItem>> {
   const name = input.name?.trim();
   const { current, pageSize } = parsePage(input);
   const where = {
@@ -96,7 +99,10 @@ export async function listSkillSets(
   return { list, total };
 }
 
-export async function listSkillSetIcons(ownerId: string, ids: string[]) {
+export async function listSkillSetIcons(
+  ownerId: string,
+  ids: string[],
+): Promise<IconEntry[]> {
   const unique = [...new Set(ids.map((id) => id.trim()).filter(Boolean))].slice(0, 100);
   if (unique.length === 0) return [];
   const rows = await prisma.skillSet.findMany({
@@ -201,7 +207,10 @@ export async function deleteSkillSet(ownerId: string, id: string) {
   ]);
 }
 
-export async function getSkillSetDetail(ownerId: string, id: string) {
+export async function getSkillSetDetail(
+  ownerId: string,
+  id: string,
+): Promise<SkillSetDetail> {
   const skillSet = await prisma.skillSet.findFirst({
     where: { id, ownerId },
     include: {
