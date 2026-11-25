@@ -1,0 +1,42 @@
+# skill-manage 生产镜像：pnpm monorepo 构建 shared / prisma / server / web
+# 单个容器同时提供 tRPC API 与前端静态产物（apps/server 的 fastify-static）
+FROM node:22-slim AS builder
+ENV CI=true
+RUN npm install -g pnpm@10.32.1
+WORKDIR /app
+
+# 先只拷贝清单与锁文件，业务代码改动可以复用依赖安装层
+COPY package.json pnpm-lock.yaml pnpm-workspace.yaml ./
+COPY apps/server/package.json apps/server/
+COPY apps/web/package.json apps/web/
+COPY packages/shared/package.json packages/shared/
+COPY packages/prisma/package.json packages/prisma/
+RUN --mount=type=cache,target=/pnpm/store pnpm install --frozen-lockfile --store-dir /pnpm/store
+
+COPY . .
+
+# Prisma client 的生成产物已随仓库提交（packages/prisma/src），这里只需编译
+RUN pnpm --filter @skill-manage/shared build \
+ && pnpm --filter @skill-manage/prisma build \
+ && pnpm --filter @skill-manage/web build \
+ && pnpm --filter @skill-manage/server build
+
+# server 及其生产依赖摊平成自包含目录，运行阶段不再装依赖
+RUN pnpm --filter @skill-manage/server deploy --legacy --prod --ignore-scripts /out
+
+FROM node:22-slim AS runtime
+ENV NODE_ENV=production \
+    HOST=0.0.0.0 \
+    PORT=3001 \
+    WEB_DIST_DIR=/app/web-dist
+WORKDIR /app
+COPY --from=builder /out/dist ./dist
+COPY --from=builder /out/node_modules ./node_modules
+COPY --from=builder /out/package.json ./package.json
+# 前端产物由本服务托管
+COPY --from=builder /app/apps/web/dist ./web-dist
+# 启动时建表 + 播种管理员的脚本
+COPY .sealos/db ./bootstrap
+USER node
+EXPOSE 3001
+CMD ["sh", "-c", "node bootstrap/init.mjs && exec node dist/index.js"]

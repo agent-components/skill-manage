@@ -1,0 +1,152 @@
+apiVersion: app.sealos.io/v1
+kind: Template
+metadata:
+  name: skill-manage
+spec:
+  title: Skill Manage
+  url: ''
+  gitRepo: ''
+  author: ''
+  description: 自建技能库：上传、更新并把自己的技能归入技能集
+  readme: ''
+  icon: ''
+  templateType: inline
+  locale: en
+  categories: []
+  defaults:
+    app_name:
+      type: string
+      value: skill-manage-${{ random(8) }}
+    app_host:
+      type: string
+      value: skill-manage-${{ random(8) }}
+  inputs: {}
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: ${{ defaults.app_name }}-skill-manage
+  annotations:
+    originImageName: harbor.bja.sealos.run/ns-bk7v1fnd/project-a1b0658fd/skill-manage:20261125-041810
+    deploy.cloud.sealos.io/minReplicas: '1'
+    deploy.cloud.sealos.io/maxReplicas: '1'
+  labels:
+    app: ${{ defaults.app_name }}-skill-manage
+    cloud.sealos.io/app-deploy-manager: ${{ defaults.app_name }}-skill-manage
+spec:
+  replicas: 1
+  revisionHistoryLimit: 1
+  selector:
+    matchLabels:
+      app: ${{ defaults.app_name }}-skill-manage
+  template:
+    metadata:
+      labels:
+        app: ${{ defaults.app_name }}-skill-manage
+    spec:
+      automountServiceAccountToken: false
+      terminationGracePeriodSeconds: 10
+      imagePullSecrets:
+      - name: harbor-registry-cred-hp-ns-bk7v1fnd
+      containers:
+      - name: ${{ defaults.app_name }}-skill-manage
+        image: harbor.bja.sealos.run/ns-bk7v1fnd/project-a1b0658fd/skill-manage:20261125-041810
+        imagePullPolicy: IfNotPresent
+        env:
+        - name: NODE_ENV
+          value: production
+        - name: HOST
+          value: 0.0.0.0
+        - name: PORT
+          value: '3001'
+        - name: WEB_DIST_DIR
+          value: /app/web-dist
+        - name: MCP_ENABLED
+          value: '1'
+        - name: DOWNLOAD_LINK_TTL_SECONDS
+          value: '900'
+        - name: MINIO_REGION
+          value: us-east-1
+        - name: APP_BASE_URL
+          value: https://${{ defaults.app_host }}.${{ SEALOS_CLOUD_DOMAIN }}
+        - name: HARNESS_ORIGIN
+          value: https://alwjuuzdmmqx.sealosgzg.site
+        - name: HARNESS_COMPONENT_ID
+          value: skill-manage
+        resources:
+          requests:
+            cpu: 50m
+            memory: 102Mi
+          limits:
+            cpu: 500m
+            memory: 1024Mi
+        ports:
+        - containerPort: 3001
+          name: http
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: ${{ defaults.app_name }}-skill-manage
+  labels:
+    app: ${{ defaults.app_name }}-skill-manage
+    cloud.sealos.io/app-deploy-manager: ${{ defaults.app_name }}-skill-manage
+spec:
+  ports:
+  - name: http
+    port: 3001
+    targetPort: 3001
+    protocol: TCP
+  selector:
+    app: ${{ defaults.app_name }}-skill-manage
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: ${{ defaults.app_name }}-skill-manage
+  labels:
+    cloud.sealos.io/app-deploy-manager: ${{ defaults.app_name }}-skill-manage
+    cloud.sealos.io/app-deploy-manager-domain: ${{ defaults.app_host }}
+  annotations:
+    kubernetes.io/ingress.class: nginx
+    nginx.ingress.kubernetes.io/proxy-body-size: 32m
+    nginx.ingress.kubernetes.io/server-snippet: |
+      client_header_buffer_size 64k;
+      large_client_header_buffers 4 128k;
+    nginx.ingress.kubernetes.io/ssl-redirect: 'true'
+    nginx.ingress.kubernetes.io/backend-protocol: HTTP
+    nginx.ingress.kubernetes.io/client-body-buffer-size: 64k
+    nginx.ingress.kubernetes.io/proxy-buffer-size: 64k
+    nginx.ingress.kubernetes.io/proxy-send-timeout: '300'
+    nginx.ingress.kubernetes.io/proxy-read-timeout: '300'
+spec:
+  rules:
+  - host: ${{ defaults.app_host }}.${{ SEALOS_CLOUD_DOMAIN }}
+    http:
+      paths:
+      - pathType: Prefix
+        path: /
+        backend:
+          service:
+            name: ${{ defaults.app_name }}-skill-manage
+            port:
+              number: 3001
+  tls:
+  - hosts:
+    - ${{ defaults.app_host }}.${{ SEALOS_CLOUD_DOMAIN }}
+    secretName: ${{ SEALOS_CERT_SECRET_NAME }}
+---
+apiVersion: app.sealos.io/v1
+kind: App
+metadata:
+  name: ${{ defaults.app_name }}-skill-manage
+  labels:
+    app: ${{ defaults.app_name }}-skill-manage
+    cloud.sealos.io/app-deploy-manager: ${{ defaults.app_name }}-skill-manage
+spec:
+  data:
+    url: https://${{ defaults.app_host }}.${{ SEALOS_CLOUD_DOMAIN }}
+  displayType: normal
+  icon: ''
+  name: Skill Manage
+  type: link
