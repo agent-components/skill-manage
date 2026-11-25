@@ -112,13 +112,32 @@ model SkillVersion {
   metadata    Json?
   createdAt   DateTime @default(now())
 
-  skill           Skill     @relation(fields: [skillId], references: [id], onDelete: Cascade)
-  latestForSkills Skill[]   @relation("SkillLatestVersion")
+  skill           Skill               @relation(fields: [skillId], references: [id], onDelete: Cascade)
+  latestForSkills Skill[]             @relation("SkillLatestVersion")
   files           SkillFile[]
+  downloadLinks   SkillDownloadLink[]
 
   @@unique([skillId, version])
   @@index([skillId])
   @@map("skill_versions")
+  @@schema("skills")
+}
+
+/// MCP 下载短链：凭 token 匿名拉取 zip，到期失效
+model SkillDownloadLink {
+  id        String   @id @default(cuid())
+  token     String   @unique
+  versionId String
+  /// 创建者 userId（审计）
+  createdBy String?
+  expiresAt DateTime
+  createdAt DateTime @default(now())
+
+  version SkillVersion @relation(fields: [versionId], references: [id], onDelete: Cascade)
+
+  @@index([expiresAt])
+  @@index([versionId])
+  @@map("skill_download_links")
   @@schema("skills")
 }
 
