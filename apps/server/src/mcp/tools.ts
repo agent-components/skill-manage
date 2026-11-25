@@ -1,6 +1,5 @@
 import type { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
 import type { CallToolResult } from "@modelcontextprotocol/sdk/types.js";
-import { z } from "zod";
 import type { AuthUser } from "@skill-manage/shared";
 import { listSkillSets } from "../modules/skill-sets/skill-set.service.js";
 import {
@@ -14,6 +13,13 @@ import {
   createSkillDownloadLink,
   downloadLinkTtlMs,
 } from "../modules/skills/download-link.service.js";
+import {
+  downloadSkillTool,
+  listSkillFilesTool,
+  listSkillsTool,
+  listSkillSetsTool,
+  readSkillTool,
+} from "../shared/tool-definitions.js";
 import { isAppError } from "../shared/errors.js";
 
 export type McpRequestContext = {
@@ -51,24 +57,16 @@ function splitSlugs(raw: string | undefined) {
     .filter(Boolean);
 }
 
-const pageSchema = {
-  current: z.number().int().min(1).optional().describe("页码，默认 1"),
-  pageSize: z.number().int().min(1).max(100).optional().describe("每页条数，默认 20"),
-};
+const READ_ONLY = { readOnlyHint: true, openWorldHint: false } as const;
 
 export function registerSkillTools(server: McpServer, ctx: McpRequestContext) {
   server.registerTool(
-    "list_skills",
+    listSkillsTool.name,
     {
-      title: "列出技能",
-      description:
-        "列出当前账号的技能，返回 ID、slug、名称、描述、标签与最新版本，不含文件内容。",
-      inputSchema: {
-        query: z.string().optional().describe("关键词，匹配名称、标识或描述"),
-        skillSet: z.string().optional().describe("技能集 slug，多个用英文逗号分隔"),
-        ...pageSchema,
-      },
-      annotations: { readOnlyHint: true, openWorldHint: false },
+      title: listSkillsTool.title,
+      description: listSkillsTool.description,
+      inputSchema: listSkillsTool.params,
+      annotations: READ_ONLY,
     },
     async ({ query, skillSet, current, pageSize }) => {
       try {
@@ -85,15 +83,12 @@ export function registerSkillTools(server: McpServer, ctx: McpRequestContext) {
   );
 
   server.registerTool(
-    "list_skill_sets",
+    listSkillSetsTool.name,
     {
-      title: "列出技能集",
-      description: "列出当前账号的技能集，返回 ID、slug、名称、描述与技能数量。",
-      inputSchema: {
-        query: z.string().optional().describe("名称关键词"),
-        ...pageSchema,
-      },
-      annotations: { readOnlyHint: true, openWorldHint: false },
+      title: listSkillSetsTool.title,
+      description: listSkillSetsTool.description,
+      inputSchema: listSkillSetsTool.params,
+      annotations: READ_ONLY,
     },
     async ({ query, current, pageSize }) => {
       try {
@@ -105,16 +100,12 @@ export function registerSkillTools(server: McpServer, ctx: McpRequestContext) {
   );
 
   server.registerTool(
-    "read_skill",
+    readSkillTool.name,
     {
-      title: "阅读技能文件",
-      description:
-        "返回技能最新版本中的文本文件内容，默认 SKILL.md，可用 path 读取包内其他文本文件。",
-      inputSchema: {
-        skill: z.string().describe("技能 ID 或 slug"),
-        path: z.string().optional().describe("包内相对路径，默认 SKILL.md"),
-      },
-      annotations: { readOnlyHint: true, openWorldHint: false },
+      title: readSkillTool.title,
+      description: readSkillTool.description,
+      inputSchema: readSkillTool.params,
+      annotations: READ_ONLY,
     },
     async ({ skill, path }) => {
       try {
@@ -128,14 +119,12 @@ export function registerSkillTools(server: McpServer, ctx: McpRequestContext) {
   );
 
   server.registerTool(
-    "list_skill_files",
+    listSkillFilesTool.name,
     {
-      title: "列出技能文件",
-      description: "列出技能最新版本包内的文件路径与大小，不返回文件内容。",
-      inputSchema: {
-        skill: z.string().describe("技能 ID 或 slug"),
-      },
-      annotations: { readOnlyHint: true, openWorldHint: false },
+      title: listSkillFilesTool.title,
+      description: listSkillFilesTool.description,
+      inputSchema: listSkillFilesTool.params,
+      annotations: READ_ONLY,
     },
     async ({ skill }) => {
       try {
@@ -148,16 +137,12 @@ export function registerSkillTools(server: McpServer, ctx: McpRequestContext) {
   );
 
   server.registerTool(
-    "download_skill",
+    downloadSkillTool.name,
     {
-      title: "下载技能压缩包",
-      description:
-        "为技能版本生成临时下载短链，GET 该链接即可下载 zip，无需再带鉴权；链接过期自动失效。",
-      inputSchema: {
-        skill: z.string().describe("技能 ID 或 slug"),
-        version: z.string().optional().describe("版本号，默认最新版本"),
-      },
-      annotations: { readOnlyHint: true, openWorldHint: false },
+      title: downloadSkillTool.title,
+      description: downloadSkillTool.description,
+      inputSchema: downloadSkillTool.params,
+      annotations: READ_ONLY,
     },
     async ({ skill, version }) => {
       try {

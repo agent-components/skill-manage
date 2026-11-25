@@ -23,6 +23,8 @@ export const config = {
   appBaseUrl: process.env.APP_BASE_URL?.trim() || "",
   /** 宿主 Harness Admin 源，用于服务端兑换 harness_sso */
   harnessOrigin: process.env.HARNESS_ORIGIN?.trim() || "",
+  /** 本组件在宿主里的组件标识，兑换 harness_sso 时校验 */
+  harnessComponentId: process.env.HARNESS_COMPONENT_ID?.trim() || "",
   /** 技能广场上游 */
   skillHubBaseUrl: process.env.SKILLHUB_BASE_URL?.trim() || "https://api.skillhub.cn",
   /** MCP 服务开关：MCP_ENABLED 存在且不为 0 时暴露 /mcp 端点 */

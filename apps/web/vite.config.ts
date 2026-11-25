@@ -20,6 +20,10 @@ export default defineConfig({
         target: process.env.VITE_API_TARGET || "http://localhost:3001",
         changeOrigin: true,
       },
+      "/mcp": {
+        target: process.env.VITE_API_TARGET || "http://localhost:3001",
+        changeOrigin: true,
+      },
     },
   },
   build: {

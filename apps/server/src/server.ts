@@ -24,7 +24,6 @@ export async function buildServer() {
       "Authorization",
       "Content-Type",
       "Accept",
-      "x-skill-set-id",
       "trpc-accept",
       "mcp-protocol-version",
       "mcp-session-id",

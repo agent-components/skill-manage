@@ -8,6 +8,7 @@ import {
   listSkills,
   readSkillFile,
   readSkillVersionFile,
+  resolveSkillRef,
   updateSkill,
   uploadSkillPackage,
   zipBufferFromBase64,
@@ -28,20 +29,16 @@ export function registerSkillRoutes(app: FastifyInstance) {
     const user = await requireOpenApiUser(req, reply);
     if (!user) return reply;
     const q = queryOf(req);
-    const skillSetHeader = req.headers["x-skill-set-id"];
-    const slugs =
-      typeof skillSetHeader === "string"
-        ? skillSetHeader
-            .split(",")
-            .map((s) => s.trim())
-            .filter(Boolean)
-        : [];
+    const slugs = (q.skillSet ?? "")
+      .split(",")
+      .map((s) => s.trim())
+      .filter(Boolean);
     const data = await listSkills(
       user.id,
       {
         current: Number(q.current ?? 1),
         pageSize: Number(q.pageSize ?? 20),
-        name: q.name,
+        name: q.query,
       },
       slugs
     );
@@ -126,7 +123,10 @@ export function registerSkillRoutes(app: FastifyInstance) {
     const { id } = paramsOf<{ id: string }>(req);
     const q = queryOf(req);
     try {
-      return reply.headers(CORS_HEADERS).send(await readSkillFile(user.id, id, q.path ?? null));
+      const skill = await resolveSkillRef(user.id, id);
+      return reply
+        .headers(CORS_HEADERS)
+        .send(await readSkillFile(user.id, skill.id, q.path ?? null));
     } catch (error) {
       return replyWithError(reply, error);
     }
@@ -137,8 +137,9 @@ export function registerSkillRoutes(app: FastifyInstance) {
     if (!user) return reply;
     const { id } = paramsOf<{ id: string }>(req);
     try {
+      const skill = await resolveSkillRef(user.id, id);
       const body = (req.body ?? {}) as Record<string, unknown>;
-      return reply.headers(CORS_HEADERS).send(await updateSkill(user.id, id, body));
+      return reply.headers(CORS_HEADERS).send(await updateSkill(user.id, skill.id, body));
     } catch (error) {
       return replyWithError(reply, error);
     }
@@ -149,7 +150,8 @@ export function registerSkillRoutes(app: FastifyInstance) {
     if (!user) return reply;
     const { id } = paramsOf<{ id: string }>(req);
     try {
-      await deleteSkill(user.id, id);
+      const skill = await resolveSkillRef(user.id, id);
+      await deleteSkill(user.id, skill.id);
       return reply.headers(CORS_HEADERS).send({ ok: true });
     } catch (error) {
       return replyWithError(reply, error);
@@ -161,7 +163,8 @@ export function registerSkillRoutes(app: FastifyInstance) {
     if (!user) return reply;
     const { id } = paramsOf<{ id: string }>(req);
     try {
-      return reply.headers(CORS_HEADERS).send(await getSkillDetail(user.id, id));
+      const skill = await resolveSkillRef(user.id, id);
+      return reply.headers(CORS_HEADERS).send(await getSkillDetail(user.id, skill.id));
     } catch (error) {
       return replyWithError(reply, error);
     }
@@ -172,7 +175,8 @@ export function registerSkillRoutes(app: FastifyInstance) {
     if (!user) return reply;
     const { id } = paramsOf<{ id: string }>(req);
     try {
-      return reply.headers(CORS_HEADERS).send(await listSkillVersionFiles(user.id, id));
+      const skill = await resolveSkillRef(user.id, id);
+      return reply.headers(CORS_HEADERS).send(await listSkillVersionFiles(user.id, skill.id));
     } catch (error) {
       return replyWithError(reply, error);
     }
@@ -184,9 +188,10 @@ export function registerSkillRoutes(app: FastifyInstance) {
     const { id } = paramsOf<{ id: string }>(req);
     const q = queryOf(req);
     try {
+      const skill = await resolveSkillRef(user.id, id);
       return reply
         .headers(CORS_HEADERS)
-        .send(await readSkillVersionFile(user.id, id, q.path ?? null));
+        .send(await readSkillVersionFile(user.id, skill.id, q.path ?? null));
     } catch (error) {
       return replyWithError(reply, error);
     }
@@ -198,7 +203,8 @@ export function registerSkillRoutes(app: FastifyInstance) {
     const { id } = paramsOf<{ id: string }>(req);
     const q = queryOf(req);
     try {
-      const file = await downloadSkillVersion(user.id, id, q.version ?? null);
+      const skill = await resolveSkillRef(user.id, id);
+      const file = await downloadSkillVersion(user.id, skill.id, q.version ?? null);
       return reply
         .headers(CORS_HEADERS)
         .header("Content-Type", "application/zip")

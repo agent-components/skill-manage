@@ -12,3 +12,4 @@ export {
 // Layout components
 export { SkillsLogo } from "../layout/SkillsLogo";
 export { HarnessOpenNotice } from "../layout/HarnessOpenNotice";
+export { McpConnectFloat } from "../layout/McpConnectFloat";

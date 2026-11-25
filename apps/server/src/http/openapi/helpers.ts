@@ -7,7 +7,7 @@ import { isAppError, SkillError } from "../../shared/errors.js";
 export const CORS_HEADERS = {
   "access-control-allow-origin": "*",
   "access-control-allow-methods": "GET, PUT, PATCH, POST, DELETE, OPTIONS",
-  "access-control-allow-headers": "Authorization, Content-Type, Accept, x-skill-set-id",
+  "access-control-allow-headers": "Authorization, Content-Type, Accept",
 };
 
 /** 统一错误响应体。 */

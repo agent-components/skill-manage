@@ -60,6 +60,13 @@ export async function exchangeHarnessCode(
   origin: string,
   code: string
 ): Promise<HarnessUser | null> {
+  // 未配置组件标识时直接拒绝，避免任意组件用同一份凭证换出会话。
+  const expectedComponentId = config.harnessComponentId;
+  if (!expectedComponentId) {
+    console.error("harness sso 验收失败：未配置 HARNESS_COMPONENT_ID");
+    return null;
+  }
+
   let response: Response;
   try {
     response = await fetch(`${origin}/api/sso/exchange`, {
@@ -75,6 +82,13 @@ export async function exchangeHarnessCode(
 
   const body: unknown = await response.json().catch(() => null);
   if (!response.ok) return null;
+
+  const componentId = (body as { componentId?: unknown } | null)?.componentId;
+  if (typeof componentId !== "string" || componentId.trim() !== expectedComponentId) {
+    console.error("harness sso 组件不匹配", { expected: expectedComponentId, actual: componentId });
+    return null;
+  }
+
   const user = (body as { user?: unknown } | null)?.user;
   return asHarnessUser(user);
 }

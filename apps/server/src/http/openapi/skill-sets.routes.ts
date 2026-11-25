@@ -18,7 +18,7 @@ export function registerSkillSetRoutes(app: FastifyInstance) {
     const data = await listSkillSets(user.id, {
       current: Number(q.current ?? 1),
       pageSize: Number(q.pageSize ?? 20),
-      name: q.name,
+      name: q.query,
     });
     return reply.headers(CORS_HEADERS).send(data);
   });

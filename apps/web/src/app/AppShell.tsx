@@ -11,7 +11,7 @@ import {
 } from "listpage-components";
 import { logoutRequest, type ClientUser } from "@/services";
 import { usePersistedProTheme } from "@/hooks";
-import { SkillMark, SkillSetMark, SkillSquareMark, SkillsLogo } from "@/components/ui";
+import { McpConnectFloat, SkillMark, SkillSetMark, SkillSquareMark, SkillsLogo } from "@/components/ui";
 import { isEmbeddedFrame } from "@/utils";
 import { AuthGuard } from "@/app";
 import { HARNESS_MENUS } from "@skill-manage/shared";
@@ -71,6 +71,7 @@ function ShellInner({ children, user }: { children: React.ReactNode; user: Clien
   const location = useLocation();
   const navigate = useNavigate();
   const { appProviderProps, sidebarTheme, themeUserProfileItem } = usePersistedProTheme();
+  const [mcpOpen, setMcpOpen] = useState(false);
 
   const pathname = location.pathname;
 
@@ -131,7 +132,14 @@ function ShellInner({ children, user }: { children: React.ReactNode; user: Clien
         tabs={layoutTabs}
         userProfile={{
           name: user?.displayName || user?.account || "未登录",
-          items: [themeUserProfileItem],
+          items: [
+            {
+              key: "mcp-connect",
+              label: "接入 MCP",
+              onClick: () => setMcpOpen(true),
+            },
+            themeUserProfileItem,
+          ],
           logout: {
             key: "logout",
             label: "退出登录",
@@ -143,6 +151,7 @@ function ShellInner({ children, user }: { children: React.ReactNode; user: Clien
       >
         {children}
       </Layout>
+      <McpConnectFloat open={mcpOpen} onClose={() => setMcpOpen(false)} />
     </AppProvider>
   );
 }
