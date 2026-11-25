@@ -580,3 +580,25 @@ export async function downloadSkillVersion(
     filename: `${skill.slug}-${ver.version}.zip`,
   };
 }
+
+/** 按 ID 或 slug 定位当前账号的技能。 */
+export async function resolveSkillRef(ownerId: string, ref: string) {
+  const value = ref.trim();
+  if (!value) throw new SkillError("缺少技能标识");
+  const skill = await prisma.skill.findFirst({
+    where: { ownerId, OR: [{ id: value }, { slug: value }] },
+    select: { id: true, slug: true, displayName: true },
+  });
+  if (!skill) throw new SkillError("技能不存在", 404);
+  return skill;
+}
+
+/** 取技能指定版本（缺省为最新版），供 MCP 下载短链使用。 */
+export async function resolveSkillVersionForDownload(
+  ownerId: string,
+  ref: string,
+  version?: string | null
+) {
+  const skill = await resolveSkillRef(ownerId, ref);
+  return ownedSkillVersion(ownerId, skill.id, version);
+}

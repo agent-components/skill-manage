@@ -4,11 +4,12 @@ import multipart from "@fastify/multipart";
 import Fastify from "fastify";
 import { fastifyTRPCPlugin } from "@trpc/server/adapters/fastify";
 import type { CreateFastifyContextOptions } from "@trpc/server/adapters/fastify";
-import { isTest } from "./config/env.js";
+import { config, isTest } from "./config/env.js";
 import { registerOpenApiRoutes } from "./http/openapi/index.js";
+import { registerMcpRoutes } from "./mcp/routes.js";
 import { appRouter, createContext } from "./trpc/router.js";
 
-/** 组装 Fastify 实例：挂载 tRPC 与 REST 兼容层。 */
+/** 组装 Fastify 实例：挂载 tRPC、REST 兼容层，以及可选 MCP 端点。 */
 export async function buildServer() {
   const app = Fastify({
     logger: !isTest,
@@ -19,7 +20,17 @@ export async function buildServer() {
     origin: true,
     credentials: true,
     methods: ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
-    allowedHeaders: ["Authorization", "Content-Type", "Accept", "x-skill-set-id", "trpc-accept"],
+    allowedHeaders: [
+      "Authorization",
+      "Content-Type",
+      "Accept",
+      "x-skill-set-id",
+      "trpc-accept",
+      "mcp-protocol-version",
+      "mcp-session-id",
+      "last-event-id",
+    ],
+    exposedHeaders: ["Mcp-Session-Id"],
   });
 
   await app.register(multipart, {
@@ -41,6 +52,10 @@ export async function buildServer() {
   });
 
   await registerOpenApiRoutes(app);
+
+  if (config.mcpEnabled) {
+    await registerMcpRoutes(app);
+  }
 
   return app;
 }

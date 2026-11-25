@@ -1,5 +1,6 @@
 import type { FastifyInstance } from "fastify";
 import { registerHarnessRoutes } from "../harness.routes.js";
+import { registerDownloadRoutes } from "../download.routes.js";
 import { CORS_HEADERS } from "./helpers.js";
 import { registerSkillRoutes } from "./skills.routes.js";
 import { registerSkillSetRoutes } from "./skill-sets.routes.js";
@@ -12,6 +13,7 @@ import { registerSkillSquareRoutes } from "./skill-square.routes.js";
  */
 export function registerOpenApiRoutes(app: FastifyInstance) {
   registerHarnessRoutes(app);
+  registerDownloadRoutes(app);
   registerSkillSetRoutes(app);
   registerSkillRoutes(app);
   registerSkillSquareRoutes(app);

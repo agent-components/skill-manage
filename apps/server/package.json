@@ -32,6 +32,7 @@
     "@aws-sdk/client-s3": "^3.1156.0",
     "@fastify/cors": "^11.4.3",
     "@fastify/multipart": "^10.1.9",
+    "@modelcontextprotocol/sdk": "1.32.2",
     "@paralleldrive/cuid2": "^3.3.0",
     "@prisma/adapter-pg": "^7.10.1",
     "@skill-manage/prisma": "workspace:*",

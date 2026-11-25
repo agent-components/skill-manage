@@ -1,9 +1,9 @@
 import { ReactNode } from "react";
 import { BrowserRouter } from "react-router-dom";
-import { QueryClientProvider } from "@tanstack/react-query";
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { TRPCProvider, trpcClient } from "@/services/trpc";
 
-const queryClient = new (require("@tanstack/react-query").QueryClient)({
+const queryClient = new QueryClient({
   defaultOptions: {
     queries: {
       retry: 1,
@@ -16,7 +16,7 @@ const queryClient = new (require("@tanstack/react-query").QueryClient)({
 export function AppProviders({ children }: { children: ReactNode }) {
   return (
     <BrowserRouter>
-      <TRPCProvider client={trpcClient} queryClient={queryClient}>
+      <TRPCProvider trpcClient={trpcClient} queryClient={queryClient}>
         <QueryClientProvider client={queryClient}>{children}</QueryClientProvider>
       </TRPCProvider>
     </BrowserRouter>
