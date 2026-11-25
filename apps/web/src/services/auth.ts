@@ -1,23 +1,10 @@
-import { AUTH_TOKEN_KEY } from "@skill-manage/shared";
 import type { AuthUser } from "@skill-manage/shared";
 import { trpcClient } from "@/services/trpc/client";
+import { getClientToken, saveClientToken, clearClientToken } from "@/services/trpc/token";
 
 export type ClientUser = AuthUser;
 
-export function getClientToken(): string | null {
-  if (typeof window === "undefined") return null;
-  return localStorage.getItem(AUTH_TOKEN_KEY);
-}
-
-export function saveClientToken(token: string) {
-  if (typeof window === "undefined") return;
-  localStorage.setItem(AUTH_TOKEN_KEY, token);
-}
-
-export function clearClientToken() {
-  if (typeof window === "undefined") return;
-  localStorage.removeItem(AUTH_TOKEN_KEY);
-}
+export { getClientToken, saveClientToken, clearClientToken };
 
 /** 父页面来源。服务端已配置 HARNESS_ORIGIN 时会忽略这里。 */
 export function detectHarnessOrigin(): string {

@@ -26,7 +26,7 @@ import {
   type SkillTreeNode,
 } from "@/components/skill/files-to-tree";
 import { downloadBase64, fileToBase64 } from "@/utils/file";
-import { useTRPC, useTRPCClient } from "@/services/trpc/provider";
+import { useTRPC, useTRPCClient } from "@/services/trpc";
 import { errorMessage } from "@/utils/error";
 import "@/styles/skill-ui.css";
 import "@/styles/pack-ui.css";

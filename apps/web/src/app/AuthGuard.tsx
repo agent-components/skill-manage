@@ -8,7 +8,7 @@ import {
   fetchCurrentUser,
   getClientToken,
   type ClientUser,
-} from "@/services/auth";
+} from "@/services";
 import { isEmbeddedFrame } from "@/utils/embed";
 
 function readSsoCode() {

@@ -10,7 +10,7 @@ import {
   type LayoutMenuNode,
   type LayoutMenuSection,
 } from "listpage-components";
-import { logoutRequest, type ClientUser } from "@/services/auth";
+import { logoutRequest, type ClientUser } from "@/services";
 import { usePersistedProTheme } from "@/hooks/use-persisted-pro-theme";
 import { AuthGuard } from "@/app/AuthGuard";
 import { SkillsLogo } from "@/components/layout/SkillsLogo";

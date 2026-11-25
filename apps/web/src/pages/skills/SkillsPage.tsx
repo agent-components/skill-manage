@@ -5,7 +5,7 @@ import { AppstoreOutlined, UnorderedListOutlined, UploadOutlined } from "@ant-de
 import { Button, Dropdown, Input, Pagination, Spin } from "antd";
 import { SkillIcon } from "@/components/ui/icons";
 import { SkillSetOptionsProvider, SkillSetSelect } from "@/components/skill-set/SkillSetSelect";
-import { useTRPC } from "@/services/trpc/provider";
+import { useTRPC } from "@/services/trpc";
 import { DeleteSkillFloat } from "@/components/skill/DeleteSkillFloat";
 import { EditSkillFloat } from "@/components/skill/EditSkillFloat";
 import { UploadSkillFloat } from "@/components/skill/UploadSkillFloat";

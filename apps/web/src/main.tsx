@@ -3,8 +3,7 @@ import { createRoot } from "react-dom/client";
 import { BrowserRouter } from "react-router-dom";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { App } from "@/app/App";
-import { TRPCProvider } from "@/services/trpc/provider";
-import { trpcClient } from "@/services/trpc/client";
+import { TRPCProvider, trpcClient } from "@/services/trpc";
 import "./styles/globals.css";
 
 const queryClient = new QueryClient({

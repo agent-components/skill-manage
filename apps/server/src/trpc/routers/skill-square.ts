@@ -20,14 +20,12 @@ export const skillSquareRouter = router({
         name: z.string().optional(),
         category: z.string().optional(),
         sortBy: z.string().optional(),
-      }),
+      })
     )
     .query(({ ctx, input }) => listSquareSkills(input, ctx.user.id)),
 
   /** 广场分类 */
-  categories: protectedProcedure.query(({ ctx }) =>
-    listSquareCategories(ctx.user.id),
-  ),
+  categories: protectedProcedure.query(({ ctx }) => listSquareCategories(ctx.user.id)),
 
   /** 广场技能详情 */
   detail: protectedProcedure
@@ -42,9 +40,7 @@ export const skillSquareRouter = router({
   /** 广场技能的文件内容 */
   fileContent: protectedProcedure
     .input(z.object({ slug: z.string(), path: z.string() }))
-    .query(({ ctx, input }) =>
-      readSquareFile(input.slug, input.path, ctx.user.id),
-    ),
+    .query(({ ctx, input }) => readSquareFile(input.slug, input.path, ctx.user.id)),
 
   /** 把广场技能导入自己的技能库 */
   import: protectedProcedure
@@ -52,15 +48,11 @@ export const skillSquareRouter = router({
       z.object({
         slug: z.string(),
         skillSetIds: z.array(z.string()).optional(),
-      }),
+      })
     )
     .mutation(async ({ ctx, input }) => {
       try {
-        return await importSquareSkill(
-          ctx.user.id,
-          input.slug,
-          input.skillSetIds ?? [],
-        );
+        return await importSquareSkill(ctx.user.id, input.slug, input.skillSetIds ?? []);
       } catch (error) {
         if (error instanceof SkillHubError) throw error;
         throw error;

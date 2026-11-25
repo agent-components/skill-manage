@@ -23,7 +23,7 @@ import {
   type SkillFileMeta,
   type SkillTreeNode,
 } from "@/components/skill/files-to-tree";
-import { useTRPC } from "@/services/trpc/provider";
+import { useTRPC } from "@/services/trpc";
 import { ImportSkillFloat } from "@/components/skill-square/ImportSkillFloat";
 import type { SquareSkill } from "@/types/skill-square";
 import "@/styles/skill-ui.css";

@@ -4,7 +4,7 @@ import { useQuery } from "@tanstack/react-query";
 import { AppstoreOutlined, PlusOutlined, UnorderedListOutlined } from "@ant-design/icons";
 import { Button, Dropdown, Input, Pagination, Spin } from "antd";
 import { SkillSetAvatar } from "@/components/ui/icons";
-import { useTRPC } from "@/services/trpc/provider";
+import { useTRPC } from "@/services/trpc";
 import { CreateSkillSetFloat } from "@/components/skill-set/CreateSkillSetFloat";
 import { DeleteSkillSetFloat } from "@/components/skill-set/DeleteSkillSetFloat";
 import { EditSkillSetFloat } from "@/components/skill-set/EditSkillSetFloat";

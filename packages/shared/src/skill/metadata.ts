@@ -41,10 +41,7 @@ function isCompleteQuotedScalar(parts: string[]): boolean {
   if (parts.length !== 1) return false;
   const v = parts[0];
   if (v.length < 2) return false;
-  return (
-    (v.startsWith('"') && v.endsWith('"')) ||
-    (v.startsWith("'") && v.endsWith("'"))
-  );
+  return (v.startsWith('"') && v.endsWith('"')) || (v.startsWith("'") && v.endsWith("'"));
 }
 
 function isBlockScalarMarker(value: string): boolean {
@@ -118,9 +115,7 @@ function parseLooseFrontmatter(content: string): SkillMetadataRaw {
     const listItem = /^\s*-\s+(.*)$/.exec(rawLine);
     if (listItem) {
       if (!currentList) {
-        currentList = currentParts.length
-          ? currentParts.map((p) => stripWrappingQuotes(p))
-          : [];
+        currentList = currentParts.length ? currentParts.map((p) => stripWrappingQuotes(p)) : [];
         currentParts = [];
         inBlock = false;
       }
@@ -151,11 +146,7 @@ function parseLooseFrontmatter(content: string): SkillMetadataRaw {
 
 function toJsonSafe(value: unknown): unknown {
   if (value == null) return null;
-  if (
-    typeof value === "string" ||
-    typeof value === "number" ||
-    typeof value === "boolean"
-  ) {
+  if (typeof value === "string" || typeof value === "number" || typeof value === "boolean") {
     return value;
   }
   if (Array.isArray(value)) return value.map(toJsonSafe);
@@ -195,10 +186,7 @@ export function normalizeTags(value: unknown): string[] {
   return [...new Set(parts)];
 }
 
-function pickString(
-  sources: SkillMetadataRaw[],
-  keys: string[],
-): string | null {
+function pickString(sources: SkillMetadataRaw[], keys: string[]): string | null {
   for (const source of sources) {
     for (const key of keys) {
       const value = asMetaString(source[key]);
@@ -252,9 +240,7 @@ export function parseSkillFrontmatterRaw(content: string): SkillMetadataRaw {
  * 把任意格式的 raw metadata 归一成稳定字段。
  * 兼容顶层字段、嵌套 metadata、以及常见别名。
  */
-export function normalizeSkillMetadata(
-  raw: SkillMetadataRaw,
-): ParsedSkillMetadata {
+export function normalizeSkillMetadata(raw: SkillMetadataRaw): ParsedSkillMetadata {
   const nested = nestedMetadata(raw);
   const sources = [raw, nested];
 
@@ -264,22 +250,11 @@ export function normalizeSkillMetadata(
   }
 
   const displayName =
-    pickString(sources, [
-      "displayName",
-      "display_name",
-      "display-name",
-      "title",
-    ]) || name;
+    pickString(sources, ["displayName", "display_name", "display-name", "title"]) || name;
 
-  const slugSource =
-    pickString(sources, ["slug", "id", "package"]) || name;
+  const slugSource = pickString(sources, ["slug", "id", "package"]) || name;
 
-  const summary = pickString(sources, [
-    "summary",
-    "description",
-    "desc",
-    "about",
-  ]);
+  const summary = pickString(sources, ["summary", "description", "desc", "about"]);
 
   const version = pickString(sources, ["version", "ver"]);
   const tags = pickTags(sources);

@@ -3,7 +3,7 @@ import { useNavigate, useParams } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
 import { Modal, Spin, message } from "antd";
 import { SkillIcon, SkillSetAvatar } from "@/components/ui/icons";
-import { useTRPC, useTRPCClient } from "@/services/trpc/provider";
+import { useTRPC, useTRPCClient } from "@/services/trpc";
 import { errorMessage } from "@/utils/error";
 import "@/styles/skill-ui.css";
 import "@/styles/pack-ui.css";

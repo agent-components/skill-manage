@@ -15,7 +15,7 @@ export function parseSkillArchiveFilename(filename: string): {
   if (!base) return null;
 
   const match = base.match(
-    /^([a-z0-9]+(?:-[a-z0-9]+)*)-v?(\d+\.\d+\.\d+(?:[-+][0-9A-Za-z.]+)?)\.zip$/i,
+    /^([a-z0-9]+(?:-[a-z0-9]+)*)-v?(\d+\.\d+\.\d+(?:[-+][0-9A-Za-z.]+)?)\.zip$/i
   );
   if (!match) return null;
 

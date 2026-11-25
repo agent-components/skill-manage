@@ -409,7 +409,8 @@
   border-radius: 8px;
   background: #fff;
   cursor: pointer;
-  transition: border-color 0.2s cubic-bezier(0.4, 0, 0.2, 1),
+  transition:
+    border-color 0.2s cubic-bezier(0.4, 0, 0.2, 1),
     box-shadow 0.2s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
@@ -517,7 +518,6 @@
 }
 
 @media (max-width: 980px) {
-
   .pack-detail,
   .pack-module-grid {
     grid-template-columns: 1fr;

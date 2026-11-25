@@ -71,9 +71,7 @@ export function filesToTreeData(files: SkillFileMeta[]): DataNode[] {
   type Dir = { children: Map<string, Dir>; files: DataNode[] };
   const root: Dir = { children: new Map(), files: [] };
 
-  const sorted = [...files].sort((a, b) =>
-    a.filePath.localeCompare(b.filePath),
-  );
+  const sorted = [...files].sort((a, b) => a.filePath.localeCompare(b.filePath));
 
   for (const file of sorted) {
     const parts = file.filePath.split("/");
@@ -106,9 +104,7 @@ export function filesToTreeData(files: SkillFileMeta[]): DataNode[] {
           children: toNodes(child, path),
         };
       });
-    const files = [...dir.files].sort((a, b) =>
-      String(a.title).localeCompare(String(b.title)),
-    );
+    const files = [...dir.files].sort((a, b) => String(a.title).localeCompare(String(b.title)));
     return [...dirs, ...files];
   }
 

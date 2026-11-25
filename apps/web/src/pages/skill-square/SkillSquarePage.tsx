@@ -5,7 +5,7 @@ import { AppstoreOutlined, UnorderedListOutlined } from "@ant-design/icons";
 import { Button, Input, Pagination, Select, Spin } from "antd";
 import { SkillIcon } from "@/components/ui/icons";
 import { SkillSetOptionsProvider } from "@/components/skill-set/SkillSetSelect";
-import { useTRPC } from "@/services/trpc/provider";
+import { useTRPC } from "@/services/trpc";
 import { ImportSkillFloat } from "@/components/skill-square/ImportSkillFloat";
 import type { SquareSkill } from "@/types/skill-square";
 import "@/styles/skill-ui.css";

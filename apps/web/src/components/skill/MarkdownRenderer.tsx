@@ -34,13 +34,7 @@ function isComplex(value: unknown): boolean {
   return typeof value === "object" && value !== null;
 }
 
-function Frontmatter({
-  data,
-  raw,
-}: {
-  data: Record<string, unknown>;
-  raw: string;
-}) {
+function Frontmatter({ data, raw }: { data: Record<string, unknown>; raw: string }) {
   const entries = Object.entries(data).filter(([, value]) => value != null && value !== "");
   if (!entries.length && !raw.trim()) return null;
 
@@ -55,9 +49,7 @@ function Frontmatter({
           {entries.map(([key, value]) => (
             <div key={key} className={isComplex(value) ? "is-complex" : undefined}>
               <dt>{key}</dt>
-              <dd>
-                {isComplex(value) ? <pre>{formatFmValue(value)}</pre> : formatFmValue(value)}
-              </dd>
+              <dd>{isComplex(value) ? <pre>{formatFmValue(value)}</pre> : formatFmValue(value)}</dd>
             </div>
           ))}
         </dl>

@@ -3,7 +3,7 @@ import { useNavigate, useSearchParams } from "react-router-dom";
 import { Alert, Button, Card, Form, Input, Spin, Typography } from "antd";
 import { LockOutlined, UserOutlined } from "@ant-design/icons";
 import { AppProvider, setupZhCNLocale } from "listpage-components";
-import { exchangeHarnessSso, getClientToken, loginRequest } from "@/services/auth";
+import { exchangeHarnessSso, getClientToken, loginRequest } from "@/services";
 import { usePersistedProTheme } from "@/hooks/use-persisted-pro-theme";
 import { HarnessOpenNotice } from "@/components/layout/HarnessOpenNotice";
 import { isEmbeddedFrame } from "@/utils/embed";

@@ -26,9 +26,7 @@ export const skillRouter = router({
         skillSetSlugs: z.array(z.string()).optional(),
       })
     )
-    .query(({ ctx, input }) =>
-      listSkills(ctx.user.id, input, input.skillSetSlugs ?? [])
-    ),
+    .query(({ ctx, input }) => listSkills(ctx.user.id, input, input.skillSetSlugs ?? [])),
 
   /** 批量取图标 */
   icons: protectedProcedure
@@ -94,11 +92,7 @@ export const skillRouter = router({
   downloadVersion: protectedProcedure
     .input(z.object({ id: z.string(), version: z.string().optional() }))
     .query(async ({ ctx, input }) => {
-      const file = await downloadSkillVersion(
-        ctx.user.id,
-        input.id,
-        input.version ?? null
-      );
+      const file = await downloadSkillVersion(ctx.user.id, input.id, input.version ?? null);
       return {
         filename: file.filename,
         zipBase64: file.buffer.toString("base64"),
@@ -113,14 +107,10 @@ export const skillRouter = router({
   /** 读取技能包内文件内容 */
   versionFileContent: protectedProcedure
     .input(z.object({ id: z.string(), path: z.string().optional() }))
-    .query(({ ctx, input }) =>
-      readSkillVersionFile(ctx.user.id, input.id, input.path ?? null)
-    ),
+    .query(({ ctx, input }) => readSkillVersionFile(ctx.user.id, input.id, input.path ?? null)),
 
   /** 阅读技能正文（默认 SKILL.md） */
   read: protectedProcedure
     .input(z.object({ id: z.string(), path: z.string().optional() }))
-    .query(({ ctx, input }) =>
-      readSkillFile(ctx.user.id, input.id, input.path ?? null)
-    ),
+    .query(({ ctx, input }) => readSkillFile(ctx.user.id, input.id, input.path ?? null)),
 });
