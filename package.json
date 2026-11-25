@@ -9,7 +9,17 @@
     "dev:server": "pnpm --filter @skill-manage/server dev",
     "build": "pnpm --filter @skill-manage/shared build && pnpm --filter @skill-manage/prisma build && pnpm --filter @skill-manage/server build && pnpm --filter @skill-manage/web build",
     "typecheck": "pnpm --filter @skill-manage/shared build && pnpm --filter @skill-manage/prisma build && pnpm -r typecheck",
+    "lint": "pnpm typecheck",
+    "lint:fix": "prettier --write \"apps/web/src/**/*.{ts,tsx}\"",
+    "format": "prettier --write \"**/*.{ts,tsx,js,json,css,md}\"",
+    "test": "pnpm --filter @skill-manage/web test",
     "db:generate": "pnpm --filter @skill-manage/prisma db:generate",
     "db:push": "pnpm --filter @skill-manage/prisma db:push"
+  },
+  "devDependencies": {
+    "@eslint/js": "^10.0.1",
+    "husky": "^9.1.7",
+    "lint-staged": "^17.6.2",
+    "prettier": "^3.10.1"
   }
 }

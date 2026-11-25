@@ -67,8 +67,7 @@ export const HARNESS_TOOLS: HarnessTool[] = [
   },
   {
     name: "update_skill_set",
-    description:
-      "修改一个技能集的名称、标识、描述、图标或包含的技能。未传入的字段保持不变。",
+    description: "修改一个技能集的名称、标识、描述、图标或包含的技能。未传入的字段保持不变。",
     method: "PUT",
     path: "/api/openapi/skill-sets/{id}",
     headers: [],
@@ -80,7 +79,10 @@ export const HARNESS_TOOLS: HarnessTool[] = [
         name: { type: "string", description: "名称" },
         slug: { type: "string", description: "标识" },
         description: { type: "string", description: "描述。空字符串表示清空" },
-        icon: { type: "string", description: "PNG data URL，以 data:image/png;base64, 开头。空字符串表示清除" },
+        icon: {
+          type: "string",
+          description: "PNG data URL，以 data:image/png;base64, 开头。空字符串表示清除",
+        },
         skillIds: {
           type: "array",
           items: { type: "string" },
@@ -129,8 +131,7 @@ export const HARNESS_TOOLS: HarnessTool[] = [
   },
   {
     name: "upload_skill",
-    description:
-      "上传技能压缩包。",
+    description: "上传技能压缩包。",
     method: "POST",
     path: "/api/openapi/skills",
     headers: [],
@@ -156,8 +157,7 @@ export const HARNESS_TOOLS: HarnessTool[] = [
   },
   {
     name: "update_skill",
-    description:
-      "修改技能的名称、描述、标签、图标或归属技能集。未传入的字段保持不变。",
+    description: "修改技能的名称、描述、标签、图标或归属技能集。未传入的字段保持不变。",
     method: "PUT",
     path: "/api/openapi/skills/{id}",
     headers: [],
@@ -175,8 +175,7 @@ export const HARNESS_TOOLS: HarnessTool[] = [
         },
         icon: {
           type: "string",
-          description:
-            "PNG data URL，以 data:image/png;base64, 开头。空字符串表示清除",
+          description: "PNG data URL，以 data:image/png;base64, 开头。空字符串表示清除",
         },
         skillSetIds: {
           type: "array",

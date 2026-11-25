@@ -11,8 +11,7 @@ export const config = {
   /** 宿主 Harness Admin 源，用于服务端兑换 harness_sso */
   harnessOrigin: process.env.HARNESS_ORIGIN?.trim() || "",
   /** 技能广场上游 */
-  skillHubBaseUrl:
-    process.env.SKILLHUB_BASE_URL?.trim() || "https://api.skillhub.cn",
+  skillHubBaseUrl: process.env.SKILLHUB_BASE_URL?.trim() || "https://api.skillhub.cn",
 } as const;
 
 export const isProduction = config.nodeEnv === "production";

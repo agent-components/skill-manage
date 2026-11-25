@@ -32,7 +32,7 @@ function view(
     updatedAt: Date;
     _count?: { skills: number };
   },
-  skillCount?: number,
+  skillCount?: number
 ): SkillSetView {
   return {
     id: row.id,
@@ -56,7 +56,7 @@ function readIcon(value: unknown) {
 
 export async function listSkillSets(
   ownerId: string,
-  input: { current?: number; pageSize?: number; name?: string },
+  input: { current?: number; pageSize?: number; name?: string }
 ): Promise<PageOutput<SkillSetListItem>> {
   const name = input.name?.trim();
   const { current, pageSize } = parsePage(input);
@@ -99,10 +99,7 @@ export async function listSkillSets(
   return { list, total };
 }
 
-export async function listSkillSetIcons(
-  ownerId: string,
-  ids: string[],
-): Promise<IconEntry[]> {
+export async function listSkillSetIcons(ownerId: string, ids: string[]): Promise<IconEntry[]> {
   const unique = [...new Set(ids.map((id) => id.trim()).filter(Boolean))].slice(0, 100);
   if (unique.length === 0) return [];
   const rows = await prisma.skillSet.findMany({
@@ -123,8 +120,7 @@ export async function createSkillSet(ownerId: string, body: Record<string, unkno
   });
   if (existing) throw new SkillSetError("技能集标识已存在", 409);
 
-  const description =
-    typeof body.description === "string" ? body.description.trim() || null : null;
+  const description = typeof body.description === "string" ? body.description.trim() || null : null;
   const icon = readIcon(body.icon) ?? null;
   const created = await prisma.skillSet.create({
     data: { ownerId, name, slug, description, icon },
@@ -132,11 +128,7 @@ export async function createSkillSet(ownerId: string, body: Record<string, unkno
   return view(created, 0);
 }
 
-export async function updateSkillSet(
-  ownerId: string,
-  id: string,
-  body: Record<string, unknown>,
-) {
+export async function updateSkillSet(ownerId: string, id: string, body: Record<string, unknown>) {
   const current = await prisma.skillSet.findFirst({
     where: { id, ownerId },
     include: { _count: { select: { skills: true } } },
@@ -207,10 +199,7 @@ export async function deleteSkillSet(ownerId: string, id: string) {
   ]);
 }
 
-export async function getSkillSetDetail(
-  ownerId: string,
-  id: string,
-): Promise<SkillSetDetail> {
+export async function getSkillSetDetail(ownerId: string, id: string): Promise<SkillSetDetail> {
   const skillSet = await prisma.skillSet.findFirst({
     where: { id, ownerId },
     include: {
@@ -261,7 +250,7 @@ function idList(value: unknown) {
 export async function changeSkillSetSkills(
   ownerId: string,
   skillSetId: string,
-  body: { add?: unknown; remove?: unknown },
+  body: { add?: unknown; remove?: unknown }
 ) {
   const skillSet = await prisma.skillSet.findFirst({
     where: { id: skillSetId, ownerId },

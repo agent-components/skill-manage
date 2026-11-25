@@ -46,8 +46,7 @@ function asHarnessUser(value: unknown): HarnessUser | null {
   const user = value as Record<string, unknown>;
   const id = typeof user.id === "string" ? user.id.trim() : "";
   const account = typeof user.account === "string" ? user.account.trim() : "";
-  const displayName =
-    typeof user.displayName === "string" ? user.displayName.trim() : "";
+  const displayName = typeof user.displayName === "string" ? user.displayName.trim() : "";
   if (!id || !account) return null;
   return {
     id,
@@ -59,7 +58,7 @@ function asHarnessUser(value: unknown): HarnessUser | null {
 
 export async function exchangeHarnessCode(
   origin: string,
-  code: string,
+  code: string
 ): Promise<HarnessUser | null> {
   let response: Response;
   try {
@@ -121,9 +120,7 @@ export async function establishHarnessSession(harnessUser: HarnessUser): Promise
         where: { id: byId.id },
         data: {
           ...profile,
-          ...(byId.account === harnessUser.account
-            ? {}
-            : { account: harnessUser.account }),
+          ...(byId.account === harnessUser.account ? {} : { account: harnessUser.account }),
         },
       });
     } catch {

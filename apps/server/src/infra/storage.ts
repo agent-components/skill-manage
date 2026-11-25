@@ -31,11 +31,7 @@ export function getS3Client() {
   return client;
 }
 
-export function packageZipKey(
-  ownerId: string,
-  skillId: string,
-  version: string,
-) {
+export function packageZipKey(ownerId: string, skillId: string, version: string) {
   return `${ownerId}/${skillId}/${version}/package.zip`;
 }
 
@@ -43,23 +39,19 @@ export function packageFileKey(
   ownerId: string,
   skillId: string,
   version: string,
-  filePath: string,
+  filePath: string
 ) {
   return `${ownerId}/${skillId}/${version}/files/${filePath}`;
 }
 
-export async function putObject(
-  key: string,
-  body: Buffer | Uint8Array,
-  contentType?: string,
-) {
+export async function putObject(key: string, body: Buffer | Uint8Array, contentType?: string) {
   await getS3Client().send(
     new PutObjectCommand({
       Bucket: getBucket(),
       Key: key,
       Body: body,
       ContentType: contentType,
-    }),
+    })
   );
 }
 
@@ -68,7 +60,7 @@ export async function getObjectBuffer(key: string): Promise<Buffer> {
     new GetObjectCommand({
       Bucket: getBucket(),
       Key: key,
-    }),
+    })
   );
   const bytes = await res.Body?.transformToByteArray();
   if (!bytes) throw new Error(`Empty object: ${key}`);
@@ -87,7 +79,7 @@ export async function deleteObjects(keys: string[]) {
           Objects: chunk.map((Key) => ({ Key })),
           Quiet: true,
         },
-      }),
+      })
     );
   }
 }

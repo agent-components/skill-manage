@@ -7,9 +7,7 @@ const MAX_PAGE_SIZE = 100;
 export function parsePage(input: PageInput) {
   const currentRaw = Number(input.current ?? 1);
   const pageSizeRaw = Number(input.pageSize ?? DEFAULT_PAGE_SIZE);
-  const current = Number.isFinite(currentRaw)
-    ? Math.max(1, Math.floor(currentRaw))
-    : 1;
+  const current = Number.isFinite(currentRaw) ? Math.max(1, Math.floor(currentRaw)) : 1;
   const pageSize = Number.isFinite(pageSizeRaw)
     ? Math.min(MAX_PAGE_SIZE, Math.max(1, Math.floor(pageSizeRaw)))
     : DEFAULT_PAGE_SIZE;

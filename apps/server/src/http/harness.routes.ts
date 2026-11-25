@@ -7,11 +7,7 @@ import { HARNESS_TOOLS } from "../modules/harness/tools.js";
  * 这些接口不需要登录态。
  */
 export function registerHarnessRoutes(app: FastifyInstance) {
-  app.get("/api/harness/menus", async (_req, reply) =>
-    reply.send({ menus: HARNESS_MENUS }),
-  );
+  app.get("/api/harness/menus", async (_req, reply) => reply.send({ menus: HARNESS_MENUS }));
 
-  app.get("/api/harness/tools", async (_req, reply) =>
-    reply.send({ tools: HARNESS_TOOLS }),
-  );
+  app.get("/api/harness/tools", async (_req, reply) => reply.send({ tools: HARNESS_TOOLS }));
 }

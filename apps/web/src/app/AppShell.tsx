@@ -1,6 +1,6 @@
 import { useCallback, useMemo, useState, useSyncExternalStore } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
-import { SkillMark, SkillSetMark, SkillSquareMark } from "@/components/icons";
+import { SkillMark, SkillSetMark, SkillSquareMark } from "@/components/ui/icons";
 import {
   AppProvider,
   Layout,
@@ -10,11 +10,11 @@ import {
   type LayoutMenuNode,
   type LayoutMenuSection,
 } from "listpage-components";
-import { logoutRequest, type ClientUser } from "@/features/auth/auth-client";
-import { usePersistedProTheme } from "@/lib/use-persisted-pro-theme";
+import { logoutRequest, type ClientUser } from "@/services/auth";
+import { usePersistedProTheme } from "@/hooks/use-persisted-pro-theme";
 import { AuthGuard } from "@/app/AuthGuard";
-import { SkillsLogo } from "@/components/SkillsLogo";
-import { isEmbeddedFrame } from "@/lib/embed";
+import { SkillsLogo } from "@/components/layout/SkillsLogo";
+import { isEmbeddedFrame } from "@/utils/embed";
 import { HARNESS_MENUS } from "@skill-manage/shared";
 import "@/styles/listpage-components.css";
 
@@ -26,14 +26,12 @@ const MENU_ICONS: Record<string, React.ReactNode> = {
   "skill-square": <SkillSquareMark />,
 };
 
-const MENU: LayoutMenuNode[] = HARNESS_MENUS.filter((item) => item.path).map(
-  (item) => ({
-    key: item.key,
-    label: item.label,
-    icon: MENU_ICONS[item.key],
-    href: item.path,
-  }),
-);
+const MENU: LayoutMenuNode[] = HARNESS_MENUS.filter((item) => item.path).map((item) => ({
+  key: item.key,
+  label: item.label,
+  icon: MENU_ICONS[item.key],
+  href: item.path,
+}));
 
 /** 合并为单一 section，避免 leaf→section 归一化后的 16px 段间距 */
 const MENU_SECTIONS: LayoutMenuSection[] = [
@@ -70,42 +68,29 @@ function resolveTabPathname(pathname: string): string {
   return best?.path ?? pathname;
 }
 
-function ShellInner({
-  children,
-  user,
-}: {
-  children: React.ReactNode;
-  user: ClientUser | null;
-}) {
+function ShellInner({ children, user }: { children: React.ReactNode; user: ClientUser | null }) {
   const location = useLocation();
   const navigate = useNavigate();
-  const { appProviderProps, sidebarTheme, themeUserProfileItem } =
-    usePersistedProTheme();
+  const { appProviderProps, sidebarTheme, themeUserProfileItem } = usePersistedProTheme();
 
   const pathname = location.pathname;
 
-  const tabPathname = useMemo(
-    () => resolveTabPathname(pathname),
-    [pathname],
-  );
-  const selected =
-    findMenuLeafByPath(MENU, pathname) ??
-    findMenuLeafByPath(MENU, tabPathname);
+  const tabPathname = useMemo(() => resolveTabPathname(pathname), [pathname]);
+  const selected = findMenuLeafByPath(MENU, pathname) ?? findMenuLeafByPath(MENU, tabPathname);
 
   const onNavigate = useCallback(
     (path: string) => {
       navigate(path);
     },
-    [navigate],
+    [navigate]
   );
 
-  const { tabs, activeKey, activateTab, closeTab, reorderTabs, openTab } =
-    useLayoutTabs({
-      routes: TAB_ROUTES,
-      pathname: tabPathname,
-      navigate: onNavigate,
-      homepageKey: "skills",
-    });
+  const { tabs, activeKey, activateTab, closeTab, reorderTabs, openTab } = useLayoutTabs({
+    routes: TAB_ROUTES,
+    pathname: tabPathname,
+    navigate: onNavigate,
+    homepageKey: "skills",
+  });
 
   const layoutTabs = useMemo(
     () => ({
@@ -119,10 +104,9 @@ function ShellInner({
       activeKey,
       onChange: (key: string) => activateTab(key),
       onClose: (key: string) => closeTab(key),
-      onReorder: (fromKey: string, toIndex: number) =>
-        reorderTabs(fromKey, toIndex),
+      onReorder: (fromKey: string, toIndex: number) => reorderTabs(fromKey, toIndex),
     }),
-    [tabs, activeKey, activateTab, closeTab, reorderTabs],
+    [tabs, activeKey, activateTab, closeTab, reorderTabs]
   );
 
   const onLogout = async () => {
@@ -169,11 +153,7 @@ function subscribeEmbedded() {
 }
 
 export function AppShell({ children }: { children: React.ReactNode }) {
-  const embedded = useSyncExternalStore(
-    subscribeEmbedded,
-    isEmbeddedFrame,
-    () => false,
-  );
+  const embedded = useSyncExternalStore(subscribeEmbedded, isEmbeddedFrame, () => false);
   const [user, setUser] = useState<ClientUser | null>(null);
   const onUser = useCallback((u: ClientUser | null) => setUser(u), []);
 

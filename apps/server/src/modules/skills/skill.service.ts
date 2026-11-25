@@ -26,14 +26,10 @@ import {
 import { SkillError } from "../../shared/errors.js";
 import { pageOffset, parsePage } from "../../shared/pagination.js";
 import { friendlyUploadError } from "../../shared/upload-error.js";
-import {
-  PREVIEW_MAX_BYTES,
-  isProbablyText,
-  parseSkillZip,
-} from "./skill.package.js";
+import { PREVIEW_MAX_BYTES, isProbablyText, parseSkillZip } from "./skill.package.js";
 
 function skillSetsOf(
-  links: { skillSet: { id: string; name: string; slug: string } }[],
+  links: { skillSet: { id: string; name: string; slug: string } }[]
 ): SkillSetRef[] {
   return links.map((link) => ({
     id: link.skillSet.id,
@@ -50,7 +46,7 @@ function skillSetSlugsFromList(value: string[] | undefined) {
 export async function listSkills(
   ownerId: string,
   input: { current?: number; pageSize?: number; name?: string },
-  skillSetSlugs: string[] = [],
+  skillSetSlugs: string[] = []
 ): Promise<PageOutput<SkillListItem>> {
   const name = input.name?.trim();
   const slugs = skillSetSlugsFromList(skillSetSlugs);
@@ -115,10 +111,7 @@ export async function listSkills(
   return { list, total };
 }
 
-export async function listSkillIcons(
-  ownerId: string,
-  ids: string[],
-): Promise<IconEntry[]> {
+export async function listSkillIcons(ownerId: string, ids: string[]): Promise<IconEntry[]> {
   const unique = [...new Set(ids.map((id) => id.trim()).filter(Boolean))].slice(0, 100);
   if (unique.length === 0) return [];
   const rows = await prisma.skill.findMany({
@@ -138,11 +131,7 @@ async function ownedSkillSets(ownerId: string, skillSetIds: string[]) {
   return unique;
 }
 
-export async function updateSkill(
-  ownerId: string,
-  id: string,
-  body: Record<string, unknown>,
-) {
+export async function updateSkill(ownerId: string, id: string, body: Record<string, unknown>) {
   const skill = await prisma.skill.findFirst({ where: { id, ownerId } });
   if (!skill) throw new SkillError("技能不存在", 404);
 
@@ -177,8 +166,7 @@ export async function updateSkill(
     data.displayName = displayName;
   }
   if ("summary" in body) {
-    data.summary =
-      typeof body.summary === "string" ? body.summary.trim() || null : null;
+    data.summary = typeof body.summary === "string" ? body.summary.trim() || null : null;
   }
   if ("tags" in body) data.tags = normalizeTags(body.tags);
   if (icon !== undefined) data.icon = icon;
@@ -263,7 +251,7 @@ export async function readSkillFile(ownerId: string, id: string, path: string | 
   if (!file) {
     throw new SkillError(
       `文件不存在: ${skill.slug}@${skill.latestVersion.version}/${requestedPath}`,
-      404,
+      404
     );
   }
 
@@ -305,10 +293,7 @@ function assertPublishableVersion(version: string, latest: string | null, exists
   if (!latest) return;
   const cmp = compareVersions(version, latest);
   if (cmp !== null && cmp < 0) {
-    throw new SkillError(
-      `版本 ${version} 低于最新版本 ${latest}，请升高版本号后重传`,
-      409,
-    );
+    throw new SkillError(`版本 ${version} 低于最新版本 ${latest}，请升高版本号后重传`, 409);
   }
 }
 
@@ -321,7 +306,7 @@ export async function uploadSkillPackage(
     skillId?: string;
     skillSetIds?: string[];
     matchFilename?: boolean;
-  },
+  }
 ): Promise<SkillUploadResult> {
   const filename = input.filename?.trim() || "";
   if (input.matchFilename) {
@@ -341,21 +326,22 @@ export async function uploadSkillPackage(
 
   if (!parsed.version) {
     throw new SkillError(
-      "缺少 version：请使用如 code-review-1.0.0.zip 的文件名，或在 SKILL.md 中指定",
+      "缺少 version：请使用如 code-review-1.0.0.zip 的文件名，或在 SKILL.md 中指定"
     );
   }
 
   if (input.matchFilename) {
     const fromName = parseSkillArchiveFilename(filename);
-    if (!fromName) throw new SkillError(skillArchiveFilenameError(filename) || "压缩包文件名不合法");
+    if (!fromName)
+      throw new SkillError(skillArchiveFilenameError(filename) || "压缩包文件名不合法");
     if (parsed.slug !== fromName.slug) {
       throw new SkillError(
-        `文件名 slug「${fromName.slug}」与 SKILL.md name/slug「${parsed.slug}」不一致`,
+        `文件名 slug「${fromName.slug}」与 SKILL.md name/slug「${parsed.slug}」不一致`
       );
     }
     if (parsed.version !== fromName.version) {
       throw new SkillError(
-        `文件名版本「${fromName.version}」与包内版本「${parsed.version}」不一致`,
+        `文件名版本「${fromName.version}」与包内版本「${parsed.version}」不一致`
       );
     }
   }
@@ -383,7 +369,7 @@ export async function uploadSkillPackage(
   assertPublishableVersion(
     parsed.version,
     skill?.latestVersion?.version ?? null,
-    Boolean(existingVersion),
+    Boolean(existingVersion)
   );
 
   const isUpdate = Boolean(skill);
@@ -490,10 +476,7 @@ export function zipBufferFromBase64(raw: unknown) {
   return decodeZipBase64(raw);
 }
 
-export async function getSkillDetail(
-  ownerId: string,
-  id: string,
-): Promise<SkillDetail> {
+export async function getSkillDetail(ownerId: string, id: string): Promise<SkillDetail> {
   const skill = await prisma.skill.findFirst({
     where: { id, ownerId },
     include: {
@@ -538,7 +521,7 @@ async function ownedSkillVersion(ownerId: string, skillId: string, version?: str
 
 export async function listSkillVersionFiles(
   ownerId: string,
-  skillId: string,
+  skillId: string
 ): Promise<{ version: string; files: SkillVersionFile[] }> {
   const { version: ver } = await ownedSkillVersion(ownerId, skillId);
   const files = await prisma.skillFile.findMany({
@@ -560,7 +543,7 @@ export async function listSkillVersionFiles(
 export async function readSkillVersionFile(
   ownerId: string,
   skillId: string,
-  path: string | null,
+  path: string | null
 ): Promise<SkillFileContent> {
   const filePath = path?.trim();
   if (!filePath) throw new SkillError("缺少 path 参数");
@@ -588,7 +571,7 @@ export async function readSkillVersionFile(
 export async function downloadSkillVersion(
   ownerId: string,
   skillId: string,
-  version?: string | null,
+  version?: string | null
 ) {
   const { skill, version: ver } = await ownedSkillVersion(ownerId, skillId, version);
   const buffer = await getObjectBuffer(ver.storageKey);

@@ -31,7 +31,10 @@ export function registerSkillRoutes(app: FastifyInstance) {
     const skillSetHeader = req.headers["x-skill-set-id"];
     const slugs =
       typeof skillSetHeader === "string"
-        ? skillSetHeader.split(",").map((s) => s.trim()).filter(Boolean)
+        ? skillSetHeader
+            .split(",")
+            .map((s) => s.trim())
+            .filter(Boolean)
         : [];
     const data = await listSkills(
       user.id,
@@ -40,7 +43,7 @@ export function registerSkillRoutes(app: FastifyInstance) {
         pageSize: Number(q.pageSize ?? 20),
         name: q.name,
       },
-      slugs,
+      slugs
     );
     return reply.headers(CORS_HEADERS).send(data);
   });
@@ -79,7 +82,10 @@ export function registerSkillRoutes(app: FastifyInstance) {
             else if (part.fieldname === "skillId") skillId = value.trim();
             else if (part.fieldname === "skillSetIds") {
               skillSetIds.push(
-                ...value.split(",").map((s) => s.trim()).filter(Boolean),
+                ...value
+                  .split(",")
+                  .map((s) => s.trim())
+                  .filter(Boolean)
               );
             }
           }
@@ -120,9 +126,7 @@ export function registerSkillRoutes(app: FastifyInstance) {
     const { id } = paramsOf<{ id: string }>(req);
     const q = queryOf(req);
     try {
-      return reply
-        .headers(CORS_HEADERS)
-        .send(await readSkillFile(user.id, id, q.path ?? null));
+      return reply.headers(CORS_HEADERS).send(await readSkillFile(user.id, id, q.path ?? null));
     } catch (error) {
       return replyWithError(reply, error);
     }
@@ -134,9 +138,7 @@ export function registerSkillRoutes(app: FastifyInstance) {
     const { id } = paramsOf<{ id: string }>(req);
     try {
       const body = (req.body ?? {}) as Record<string, unknown>;
-      return reply
-        .headers(CORS_HEADERS)
-        .send(await updateSkill(user.id, id, body));
+      return reply.headers(CORS_HEADERS).send(await updateSkill(user.id, id, body));
     } catch (error) {
       return replyWithError(reply, error);
     }
@@ -159,9 +161,7 @@ export function registerSkillRoutes(app: FastifyInstance) {
     if (!user) return reply;
     const { id } = paramsOf<{ id: string }>(req);
     try {
-      return reply
-        .headers(CORS_HEADERS)
-        .send(await getSkillDetail(user.id, id));
+      return reply.headers(CORS_HEADERS).send(await getSkillDetail(user.id, id));
     } catch (error) {
       return replyWithError(reply, error);
     }
@@ -172,30 +172,25 @@ export function registerSkillRoutes(app: FastifyInstance) {
     if (!user) return reply;
     const { id } = paramsOf<{ id: string }>(req);
     try {
-      return reply
-        .headers(CORS_HEADERS)
-        .send(await listSkillVersionFiles(user.id, id));
+      return reply.headers(CORS_HEADERS).send(await listSkillVersionFiles(user.id, id));
     } catch (error) {
       return replyWithError(reply, error);
     }
   });
 
-  app.get(
-    "/api/openapi/skills/:id/versions/files/content",
-    async (req, reply) => {
-      const user = await requireOpenApiUser(req, reply);
-      if (!user) return reply;
-      const { id } = paramsOf<{ id: string }>(req);
-      const q = queryOf(req);
-      try {
-        return reply
-          .headers(CORS_HEADERS)
-          .send(await readSkillVersionFile(user.id, id, q.path ?? null));
-      } catch (error) {
-        return replyWithError(reply, error);
-      }
-    },
-  );
+  app.get("/api/openapi/skills/:id/versions/files/content", async (req, reply) => {
+    const user = await requireOpenApiUser(req, reply);
+    if (!user) return reply;
+    const { id } = paramsOf<{ id: string }>(req);
+    const q = queryOf(req);
+    try {
+      return reply
+        .headers(CORS_HEADERS)
+        .send(await readSkillVersionFile(user.id, id, q.path ?? null));
+    } catch (error) {
+      return replyWithError(reply, error);
+    }
+  });
 
   app.get("/api/openapi/skills/:id/versions/download", async (req, reply) => {
     const user = await requireOpenApiUser(req, reply);

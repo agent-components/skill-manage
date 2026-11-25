@@ -18,9 +18,9 @@ export function registerOpenApiRoutes(app: FastifyInstance) {
 
   // ---- 预检 ----
   app.options("/api/openapi/*", async (_req, reply) =>
-    reply.code(204).headers(CORS_HEADERS).send(),
+    reply.code(204).headers(CORS_HEADERS).send()
   );
   app.options("/api/harness/*", async (_req, reply) =>
-    reply.code(204).headers(CORS_HEADERS).send(),
+    reply.code(204).headers(CORS_HEADERS).send()
   );
 }

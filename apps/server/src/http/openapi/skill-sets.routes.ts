@@ -8,13 +8,7 @@ import {
   listSkillSets,
   updateSkillSet,
 } from "../../modules/skill-sets/skill-set.service.js";
-import {
-  CORS_HEADERS,
-  paramsOf,
-  queryOf,
-  replyWithError,
-  requireOpenApiUser,
-} from "./helpers.js";
+import { CORS_HEADERS, paramsOf, queryOf, replyWithError, requireOpenApiUser } from "./helpers.js";
 /** 技能集相关的 REST 兼容接口，供 Harness Admin 调用。 */
 export function registerSkillSetRoutes(app: FastifyInstance) {
   app.get("/api/openapi/skill-sets", async (req, reply) => {
@@ -54,9 +48,7 @@ export function registerSkillSetRoutes(app: FastifyInstance) {
     if (!user) return reply;
     const { id } = paramsOf<{ id: string }>(req);
     try {
-      return reply
-        .headers(CORS_HEADERS)
-        .send(await getSkillSetDetail(user.id, id));
+      return reply.headers(CORS_HEADERS).send(await getSkillSetDetail(user.id, id));
     } catch (error) {
       return replyWithError(reply, error);
     }
@@ -68,9 +60,7 @@ export function registerSkillSetRoutes(app: FastifyInstance) {
     const { id } = paramsOf<{ id: string }>(req);
     try {
       const body = (req.body ?? {}) as Record<string, unknown>;
-      return reply
-        .headers(CORS_HEADERS)
-        .send(await updateSkillSet(user.id, id, body));
+      return reply.headers(CORS_HEADERS).send(await updateSkillSet(user.id, id, body));
     } catch (error) {
       return replyWithError(reply, error);
     }
@@ -94,12 +84,9 @@ export function registerSkillSetRoutes(app: FastifyInstance) {
     const { id } = paramsOf<{ id: string }>(req);
     try {
       const body = (req.body ?? {}) as { add?: unknown; remove?: unknown };
-      return reply
-        .headers(CORS_HEADERS)
-        .send(await changeSkillSetSkills(user.id, id, body));
+      return reply.headers(CORS_HEADERS).send(await changeSkillSetSkills(user.id, id, body));
     } catch (error) {
       return replyWithError(reply, error);
     }
   });
-
 }

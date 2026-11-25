@@ -54,9 +54,7 @@ export async function findUserByToken(token: string) {
 }
 
 /** 从 Authorization: Bearer <token> 提取登录会话 */
-export function extractBearerToken(
-  authorization: string | null | undefined
-): string | null {
+export function extractBearerToken(authorization: string | null | undefined): string | null {
   if (!authorization) return null;
   const match = /^Bearer\s+(.+)$/i.exec(authorization.trim());
   return match?.[1]?.trim() || null;
@@ -102,9 +100,7 @@ export async function loginWithPassword(account: string, password: string) {
 /** 清除当前会话 token（退出登录）。 */
 export async function logoutSession(headers: HeaderSource["headers"]) {
   const raw = headers.authorization ?? headers.Authorization;
-  const token = (Array.isArray(raw) ? raw[0] : raw)
-    ?.replace(/^Bearer\s+/i, "")
-    .trim();
+  const token = (Array.isArray(raw) ? raw[0] : raw)?.replace(/^Bearer\s+/i, "").trim();
   if (!token) return { ok: true };
 
   await prisma.user.updateMany({

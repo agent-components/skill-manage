@@ -61,7 +61,7 @@ function stripCommonRoot(entries: { raw: string; rel: string }[]): void {
 
 export async function parseSkillZip(
   zipBuffer: Buffer,
-  options?: { fallbackVersion?: string; filename?: string },
+  options?: { fallbackVersion?: string; filename?: string }
 ): Promise<ParsedSkillPackage> {
   const fallbackVersion = options?.fallbackVersion;
   const filename = options?.filename;
@@ -111,8 +111,7 @@ export async function parseSkillZip(
   }
 
   const skillMd = files.find(
-    (f) =>
-      f.filePath === "SKILL.md" || f.filePath.toLowerCase() === "skill.md",
+    (f) => f.filePath === "SKILL.md" || f.filePath.toLowerCase() === "skill.md"
   );
   if (!skillMd) {
     throw new Error("技能根目录必须包含 SKILL.md");
@@ -144,7 +143,5 @@ export async function parseSkillZip(
 export function isProbablyText(filePath: string, contentType: string | null) {
   if (contentType?.startsWith("text/")) return true;
   if (contentType === "application/json") return true;
-  return /\.(md|txt|json|ya?ml|ts|tsx|js|jsx|py|sh|css|html|svg|toml|xml|csv)$/i.test(
-    filePath,
-  );
+  return /\.(md|txt|json|ya?ml|ts|tsx|js|jsx|py|sh|css|html|svg|toml|xml|csv)$/i.test(filePath);
 }

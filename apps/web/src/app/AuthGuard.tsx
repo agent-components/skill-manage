@@ -1,21 +1,19 @@
 import { useCallback, useEffect, useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { Spin } from "antd";
-import { HarnessOpenNotice } from "@/components/HarnessOpenNotice";
+import { HarnessOpenNotice } from "@/components/layout/HarnessOpenNotice";
 import {
   clearClientToken,
   exchangeHarnessSso,
   fetchCurrentUser,
   getClientToken,
   type ClientUser,
-} from "@/features/auth/auth-client";
-import { isEmbeddedFrame } from "@/lib/embed";
+} from "@/services/auth";
+import { isEmbeddedFrame } from "@/utils/embed";
 
 function readSsoCode() {
   if (typeof window === "undefined") return "";
-  return (
-    new URLSearchParams(window.location.search).get("harness_sso")?.trim() || ""
-  );
+  return new URLSearchParams(window.location.search).get("harness_sso")?.trim() || "";
 }
 
 function stripSsoCode() {
@@ -72,10 +70,9 @@ export function AuthGuard({
           setBlocked(true);
           return;
         }
-        navigate(
-          `/login?from=${encodeURIComponent(location.pathname || "/skills")}`,
-          { replace: true },
-        );
+        navigate(`/login?from=${encodeURIComponent(location.pathname || "/skills")}`, {
+          replace: true,
+        });
         return;
       }
 
@@ -89,10 +86,9 @@ export function AuthGuard({
             setBlocked(true);
             return;
           }
-          navigate(
-            `/login?from=${encodeURIComponent(location.pathname || "/skills")}`,
-            { replace: true },
-          );
+          navigate(`/login?from=${encodeURIComponent(location.pathname || "/skills")}`, {
+            replace: true,
+          });
           return;
         }
         onUser?.(user);
@@ -106,10 +102,9 @@ export function AuthGuard({
           setBlocked(true);
           return;
         }
-        navigate(
-          `/login?from=${encodeURIComponent(location.pathname || "/skills")}`,
-          { replace: true },
-        );
+        navigate(`/login?from=${encodeURIComponent(location.pathname || "/skills")}`, {
+          replace: true,
+        });
       }
     }
 

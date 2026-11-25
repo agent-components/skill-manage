@@ -19,13 +19,7 @@ export async function buildServer() {
     origin: true,
     credentials: true,
     methods: ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
-    allowedHeaders: [
-      "Authorization",
-      "Content-Type",
-      "Accept",
-      "x-skill-set-id",
-      "trpc-accept",
-    ],
+    allowedHeaders: ["Authorization", "Content-Type", "Accept", "x-skill-set-id", "trpc-accept"],
   });
 
   await app.register(multipart, {

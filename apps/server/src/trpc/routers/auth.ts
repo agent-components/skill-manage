@@ -1,9 +1,6 @@
 import { z } from "zod";
 import { protectedProcedure, publicProcedure, router } from "../trpc.js";
-import {
-  loginWithPassword,
-  logoutSession,
-} from "../../modules/auth/auth.service.js";
+import { loginWithPassword, logoutSession } from "../../modules/auth/auth.service.js";
 import {
   establishHarnessSession,
   exchangeHarnessCode,

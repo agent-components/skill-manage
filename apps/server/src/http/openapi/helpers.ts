@@ -7,16 +7,11 @@ import { isAppError, SkillError } from "../../shared/errors.js";
 export const CORS_HEADERS = {
   "access-control-allow-origin": "*",
   "access-control-allow-methods": "GET, PUT, PATCH, POST, DELETE, OPTIONS",
-  "access-control-allow-headers":
-    "Authorization, Content-Type, Accept, x-skill-set-id",
+  "access-control-allow-headers": "Authorization, Content-Type, Accept, x-skill-set-id",
 };
 
 /** 统一错误响应体。 */
-export function openApiError(
-  reply: FastifyReply,
-  message: string,
-  status = 400
-) {
+export function openApiError(reply: FastifyReply, message: string, status = 400) {
   return reply
     .code(status as 400)
     .headers(CORS_HEADERS)

@@ -32,7 +32,7 @@ export function registerSkillSquareRoutes(app: FastifyInstance) {
           category: q.category,
           sortBy: q.sortBy,
         },
-        user.id,
+        user.id
       );
       return reply.headers(CORS_HEADERS).send(data);
     } catch (error) {
@@ -44,9 +44,7 @@ export function registerSkillSquareRoutes(app: FastifyInstance) {
     const user = await requireOpenApiUser(req, reply);
     if (!user) return reply;
     try {
-      return reply
-        .headers(CORS_HEADERS)
-        .send(await listSquareCategories(user.id));
+      return reply.headers(CORS_HEADERS).send(await listSquareCategories(user.id));
     } catch (error) {
       return replyWithError(reply, error);
     }
@@ -59,11 +57,7 @@ export function registerSkillSquareRoutes(app: FastifyInstance) {
       const body = (req.body ?? {}) as Record<string, unknown>;
       const slug = typeof body.slug === "string" ? body.slug.trim() : "";
       if (!slug) return openApiError(reply, "请选择要导入的技能");
-      const created = await importSquareSkill(
-        user.id,
-        slug,
-        skillSetIdsFrom(body.skillSetIds),
-      );
+      const created = await importSquareSkill(user.id, slug, skillSetIdsFrom(body.skillSetIds));
       return reply.code(201).headers(CORS_HEADERS).send(created);
     } catch (error) {
       return replyWithError(reply, error);
@@ -104,13 +98,7 @@ export function registerSkillSquareRoutes(app: FastifyInstance) {
     try {
       return reply
         .headers(CORS_HEADERS)
-        .send(
-          await readSquareFile(
-            decodeURIComponent(slug),
-            q.path ?? null,
-            user.id,
-          ),
-        );
+        .send(await readSquareFile(decodeURIComponent(slug), q.path ?? null, user.id));
     } catch (error) {
       return replyWithError(reply, error);
     }

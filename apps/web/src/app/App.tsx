@@ -1,13 +1,13 @@
 import { Navigate, Route, Routes } from "react-router-dom";
 import { AppShell } from "@/app/AppShell";
 import { AuthGuard } from "@/app/AuthGuard";
-import { LoginPage } from "@/features/auth/LoginPage";
-import { SkillSetDetailPage } from "@/features/skill-sets/SkillSetDetailPage";
-import { SkillSetsPage } from "@/features/skill-sets/SkillSetsPage";
-import { SkillSquareDetailPage } from "@/features/skill-square/SkillSquareDetailPage";
-import { SkillSquarePage } from "@/features/skill-square/SkillSquarePage";
-import { SkillDetailPage } from "@/features/skills/SkillDetailPage";
-import { SkillsPage } from "@/features/skills/SkillsPage";
+import { LoginPage } from "@/pages/auth/LoginPage";
+import { SkillSetDetailPage } from "@/pages/skill-sets/SkillSetDetailPage";
+import { SkillSetsPage } from "@/pages/skill-sets/SkillSetsPage";
+import { SkillSquareDetailPage } from "@/pages/skill-square/SkillSquareDetailPage";
+import { SkillSquarePage } from "@/pages/skill-square/SkillSquarePage";
+import { SkillDetailPage } from "@/pages/skills/SkillDetailPage";
+import { SkillsPage } from "@/pages/skills/SkillsPage";
 
 export function App() {
   return (
@@ -23,15 +23,9 @@ export function App() {
                 <Route path="/skills" element={<SkillsPage />} />
                 <Route path="/skills/:id" element={<SkillDetailPage />} />
                 <Route path="/skill-sets" element={<SkillSetsPage />} />
-                <Route
-                  path="/skill-sets/:id"
-                  element={<SkillSetDetailPage />}
-                />
+                <Route path="/skill-sets/:id" element={<SkillSetDetailPage />} />
                 <Route path="/skill-square" element={<SkillSquarePage />} />
-                <Route
-                  path="/skill-square/:slug"
-                  element={<SkillSquareDetailPage />}
-                />
+                <Route path="/skill-square/:slug" element={<SkillSquareDetailPage />} />
                 <Route path="*" element={<Navigate to="/skills" replace />} />
               </Routes>
             </AppShell>

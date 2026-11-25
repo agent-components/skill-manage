@@ -10,13 +10,7 @@ const BASE_URL = config.skillHubBaseUrl.replace(/\/$/, "");
 const MAX_ZIP_BYTES = 52 * 1024 * 1024;
 const SLUG_RE = /^[a-z0-9][a-z0-9_-]{0,127}$/;
 const CATEGORY_RE = /^[a-z0-9-]{1,64}$/;
-const SORTS = new Set([
-  "score",
-  "downloads",
-  "updated_at",
-  "stars",
-  "installs",
-]);
+const SORTS = new Set(["score", "downloads", "updated_at", "stars", "installs"]);
 
 export type { SquareSkill };
 
@@ -70,12 +64,7 @@ function requestHeaders(userId: string, accept: string) {
   return headers;
 }
 
-async function skillhubFetch(
-  path: string,
-  userId: string,
-  accept: string,
-  timeoutMs: number
-) {
+async function skillhubFetch(path: string, userId: string, accept: string, timeoutMs: number) {
   try {
     return await fetch(`${BASE_URL}${path}`, {
       headers: requestHeaders(userId, accept),
@@ -90,10 +79,8 @@ async function skillhubFetch(
 function errorMessage(body: unknown, fallback: string) {
   if (!body || typeof body !== "object") return fallback;
   const record = body as { error?: unknown; message?: unknown };
-  if (typeof record.error === "string" && record.error.trim())
-    return record.error;
-  if (typeof record.message === "string" && record.message.trim())
-    return record.message;
+  if (typeof record.error === "string" && record.error.trim()) return record.error;
+  if (typeof record.message === "string" && record.message.trim()) return record.message;
   return fallback;
 }
 
@@ -108,8 +95,7 @@ async function skillhubJson<T>(path: string, userId: string): Promise<T> {
   }
   if (!res.ok) {
     if (res.status === 404) throw new SkillHubError("技能不存在或未公开", 404);
-    if (res.status === 429)
-      throw new SkillHubError("请求过于频繁，请稍后再试", 429);
+    if (res.status === 429) throw new SkillHubError("请求过于频繁，请稍后再试", 429);
     throw new SkillHubError(errorMessage(body, "技能广场暂时不可用"));
   }
   return body as T;
@@ -120,18 +106,14 @@ function assertSlug(slug: string) {
 }
 
 function isAccountId(value: string) {
-  return (
-    /^(?:user|u)_[0-9a-f]{6,}$/i.test(value) ||
-    /^org-[a-z0-9]{6,}$/i.test(value)
-  );
+  return /^(?:user|u)_[0-9a-f]{6,}$/i.test(value) || /^org-[a-z0-9]{6,}$/i.test(value);
 }
 
 function sourceName(raw: {
   publisher?: { name?: string | null } | null;
   namespace?: { displayName?: string | null } | null;
 }) {
-  const name =
-    raw.publisher?.name?.trim() || raw.namespace?.displayName?.trim() || "";
+  const name = raw.publisher?.name?.trim() || raw.namespace?.displayName?.trim() || "";
   if (!name) return null;
   if (isAccountId(name)) return "SkillHub";
   return name;
@@ -149,9 +131,7 @@ function mapSkill(raw: RemoteSkill): SquareSkill | null {
     version: raw.version?.trim() || null,
     icon: raw.iconUrl || null,
     category: raw.category?.trim() || null,
-    tags: (raw.subCategories || [])
-      .map((item) => item.name?.trim() || "")
-      .filter(Boolean),
+    tags: (raw.subCategories || []).map((item) => item.name?.trim() || "").filter(Boolean),
     downloads: raw.downloads ?? 0,
     stars: raw.stars ?? 0,
     updatedAt: raw.updated_at ? new Date(raw.updated_at).toISOString() : null,
@@ -269,17 +249,11 @@ export async function listSquareFiles(slug: string, userId: string) {
   return { version: body.version?.trim() || null, files };
 }
 
-export async function readSquareFile(
-  slug: string,
-  path: string | null,
-  userId: string
-) {
+export async function readSquareFile(slug: string, path: string | null, userId: string) {
   assertSlug(slug);
   const filePath = assertFilePath(path);
   const res = await skillhubFetch(
-    `/api/v1/skills/${encodeURIComponent(slug)}/file?path=${encodeURIComponent(
-      filePath
-    )}`,
+    `/api/v1/skills/${encodeURIComponent(slug)}/file?path=${encodeURIComponent(filePath)}`,
     userId,
     "*/*",
     20_000
@@ -293,13 +267,11 @@ export async function readSquareFile(
       body = null;
     }
     if (res.status === 404) throw new SkillHubError("文件不存在", 404);
-    if (res.status === 429)
-      throw new SkillHubError("请求过于频繁，请稍后再试", 429);
+    if (res.status === 429) throw new SkillHubError("请求过于频繁，请稍后再试", 429);
     throw new SkillHubError(errorMessage(body, "读取文件失败"));
   }
 
-  const type =
-    (res.headers.get("content-type") || "").split(";")[0].trim() || null;
+  const type = (res.headers.get("content-type") || "").split(";")[0].trim() || null;
   const advertised = Number(res.headers.get("content-length") || 0);
   const textLike = isProbablyText(filePath, type);
   const base = {
@@ -339,10 +311,7 @@ export async function listSquareCategories(userId: string) {
     items?: { key?: string; name?: string; active?: boolean; level?: number }[];
   }>("/api/v1/categories", userId);
   const list = (body.items || [])
-    .filter(
-      (item) =>
-        item.active !== false && item.level === 1 && item.key && item.name
-    )
+    .filter((item) => item.active !== false && item.level === 1 && item.key && item.name)
     .filter((item) => CATEGORY_RE.test(item.key || ""))
     .map((item) => ({ key: item.key as string, name: item.name as string }));
   return { list };
@@ -379,16 +348,13 @@ async function iconDataUrl(iconUrl: string) {
   if (!res.ok) return null;
   const bytes = Buffer.from(await res.arrayBuffer());
   if (bytes.length === 0 || bytes.length > 200 * 1024) return null;
-  const headerType = (res.headers.get("content-type") || "")
-    .split(";")[0]
-    .trim()
-    .toLowerCase();
+  const headerType = (res.headers.get("content-type") || "").split(";")[0].trim().toLowerCase();
   const fromHeader =
     headerType === "image/jpg"
       ? "jpeg"
       : headerType.startsWith("image/")
-      ? headerType.slice(6)
-      : "";
+        ? headerType.slice(6)
+        : "";
   const subtype = ["png", "jpeg", "webp", "gif"].includes(fromHeader)
     ? fromHeader
     : imageSubtype(bytes);
@@ -406,15 +372,9 @@ function imageSubtype(bytes: Buffer) {
   ) {
     return "png";
   }
-  if (
-    bytes.length >= 3 &&
-    bytes[0] === 0xff &&
-    bytes[1] === 0xd8 &&
-    bytes[2] === 0xff
-  )
+  if (bytes.length >= 3 && bytes[0] === 0xff && bytes[1] === 0xd8 && bytes[2] === 0xff)
     return "jpeg";
-  if (bytes.length >= 6 && bytes.subarray(0, 3).toString("ascii") === "GIF")
-    return "gif";
+  if (bytes.length >= 6 && bytes.subarray(0, 3).toString("ascii") === "GIF") return "gif";
   if (
     bytes.length >= 12 &&
     bytes.subarray(0, 4).toString("ascii") === "RIFF" &&
@@ -441,15 +401,13 @@ async function downloadZip(slug: string, userId: string) {
       body = null;
     }
     if (res.status === 404) throw new SkillHubError("技能不存在或未公开", 404);
-    if (res.status === 429)
-      throw new SkillHubError("请求过于频繁，请稍后再试", 429);
+    if (res.status === 429) throw new SkillHubError("请求过于频繁，请稍后再试", 429);
     throw new SkillHubError(errorMessage(body, "下载技能失败"));
   }
   const advertised = Number(res.headers.get("content-length") || 0);
   if (advertised > MAX_ZIP_BYTES) throw new SkillHubError("技能包过大", 400);
   const zipBuffer = Buffer.from(await res.arrayBuffer());
-  if (zipBuffer.length > MAX_ZIP_BYTES)
-    throw new SkillHubError("技能包过大", 400);
+  if (zipBuffer.length > MAX_ZIP_BYTES) throw new SkillHubError("技能包过大", 400);
   if (zipBuffer.length < 4 || zipBuffer[0] !== 0x50 || zipBuffer[1] !== 0x4b) {
     throw new SkillHubError("下载的不是技能压缩包", 502);
   }
@@ -457,11 +415,7 @@ async function downloadZip(slug: string, userId: string) {
 }
 
 /** 把公开技能下载后写入当前账号的技能库。 */
-export async function importSquareSkill(
-  ownerId: string,
-  slug: string,
-  skillSetIds: string[]
-) {
+export async function importSquareSkill(ownerId: string, slug: string, skillSetIds: string[]) {
   assertSlug(slug);
   const detail = await skillhubJson<RemoteDetail>(
     `/api/v1/skills/${encodeURIComponent(slug)}`,
