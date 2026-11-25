@@ -1,7 +1,7 @@
 import { useQuery } from "@tanstack/react-query";
 import { createContext, useContext, useMemo, type ReactNode } from "react";
 import { Select, type SelectProps } from "antd";
-import { useTRPC } from "@/services/trpc/provider";
+import { useTRPC } from "@/services/trpc";
 
 export type SkillSetOption = { id: string; name: string; slug: string };
 

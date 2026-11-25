@@ -1,6 +1,5 @@
 import { useCallback, useMemo, useState, useSyncExternalStore } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
-import { SkillMark, SkillSetMark, SkillSquareMark } from "@/components/ui/icons";
 import {
   AppProvider,
   Layout,
@@ -11,10 +10,10 @@ import {
   type LayoutMenuSection,
 } from "listpage-components";
 import { logoutRequest, type ClientUser } from "@/services";
-import { usePersistedProTheme } from "@/hooks/use-persisted-pro-theme";
-import { AuthGuard } from "@/app/AuthGuard";
-import { SkillsLogo } from "@/components/layout/SkillsLogo";
-import { isEmbeddedFrame } from "@/utils/embed";
+import { usePersistedProTheme } from "@/hooks";
+import { SkillMark, SkillSetMark, SkillSquareMark, SkillsLogo } from "@/components/ui";
+import { isEmbeddedFrame } from "@/utils";
+import { AuthGuard } from "@/app";
 import { HARNESS_MENUS } from "@skill-manage/shared";
 import "@/styles/listpage-components.css";
 

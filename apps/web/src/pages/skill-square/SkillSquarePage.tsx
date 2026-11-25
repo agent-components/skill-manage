@@ -3,11 +3,11 @@ import { useNavigate } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
 import { AppstoreOutlined, UnorderedListOutlined } from "@ant-design/icons";
 import { Button, Input, Pagination, Select, Spin } from "antd";
-import { SkillIcon } from "@/components/ui/icons";
-import { SkillSetOptionsProvider } from "@/components/skill-set/SkillSetSelect";
+import { SkillIcon } from "@/components/ui";
+import { SkillSetOptionsProvider } from "@/components/skill-set";
 import { useTRPC } from "@/services/trpc";
 import { ImportSkillFloat } from "@/components/skill-square/ImportSkillFloat";
-import type { SquareSkill } from "@/types/skill-square";
+import type { SquareSkill } from "@/types";
 import "@/styles/skill-ui.css";
 import "@/styles/pack-ui.css";
 

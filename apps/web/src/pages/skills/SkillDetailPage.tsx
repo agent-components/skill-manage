@@ -17,17 +17,13 @@ import dayjs from "dayjs";
 import relativeTime from "dayjs/plugin/relativeTime";
 import "dayjs/locale/zh-cn";
 import { extractVersionFromFilename } from "@skill-manage/shared";
-import { SkillIcon } from "@/components/ui/icons";
-import { MarkdownRenderer } from "@/components/skill/MarkdownRenderer";
-import { ZipUpload } from "@/components/skill/ZipUpload";
-import {
-  buildSkillFileTree,
-  type SkillFileMeta,
-  type SkillTreeNode,
-} from "@/components/skill/files-to-tree";
-import { downloadBase64, fileToBase64 } from "@/utils/file";
+import { SkillIcon } from "@/components/ui";
+import { MarkdownRenderer } from "@/components/skill";
+import { ZipUpload } from "@/components/skill";
+import { buildSkillFileTree, type SkillFileMeta, type SkillTreeNode } from "@/components/skill";
+import { downloadBase64, fileToBase64 } from "@/utils";
 import { useTRPC, useTRPCClient } from "@/services/trpc";
-import { errorMessage } from "@/utils/error";
+import { errorMessage } from "@/utils";
 import "@/styles/skill-ui.css";
 import "@/styles/pack-ui.css";
 

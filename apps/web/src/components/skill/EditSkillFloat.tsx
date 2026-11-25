@@ -1,10 +1,10 @@
 import { useState } from "react";
 import { Form, Input, Modal, Select, message } from "antd";
-import { SkillSetIconInput } from "@/components/ui/icons";
-import { SkillSetSelect } from "@/components/skill-set/SkillSetSelect";
-import { useTRPCClient } from "@/services/trpc/provider";
-import { errorMessage } from "@/utils/error";
-import type { SkillRow } from "@/types/skills";
+import { SkillSetIconInput } from "@/components/ui";
+import { SkillSetSelect } from "@/components/skill-set";
+import { useTRPCClient } from "@/services/trpc";
+import { errorMessage } from "@/utils";
+import type { SkillRow } from "@/types";
 
 export function EditSkillFloat({
   record,

@@ -1,9 +1,9 @@
 import { useEffect, useState } from "react";
 import { Form, Modal, message } from "antd";
-import { SkillSetSelect } from "@/components/skill-set/SkillSetSelect";
-import { useTRPCClient } from "@/services/trpc/provider";
-import { errorMessage } from "@/utils/error";
-import type { SquareSkill } from "@/types/skill-square";
+import { SkillSetSelect } from "@/components/skill-set";
+import { useTRPCClient } from "@/services/trpc";
+import { errorMessage } from "@/utils";
+import type { SquareSkill } from "@/types";
 
 export function ImportSkillFloat({
   record,

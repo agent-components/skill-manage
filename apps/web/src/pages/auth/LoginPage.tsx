@@ -4,10 +4,9 @@ import { Alert, Button, Card, Form, Input, Spin, Typography } from "antd";
 import { LockOutlined, UserOutlined } from "@ant-design/icons";
 import { AppProvider, setupZhCNLocale } from "listpage-components";
 import { exchangeHarnessSso, getClientToken, loginRequest } from "@/services";
-import { usePersistedProTheme } from "@/hooks/use-persisted-pro-theme";
-import { HarnessOpenNotice } from "@/components/layout/HarnessOpenNotice";
-import { isEmbeddedFrame } from "@/utils/embed";
-import { SkillsLogo } from "@/components/layout/SkillsLogo";
+import { usePersistedProTheme } from "@/hooks";
+import { HarnessOpenNotice, SkillsLogo } from "@/components/ui";
+import { isEmbeddedFrame } from "@/utils";
 import "@/styles/listpage-components.css";
 
 setupZhCNLocale();

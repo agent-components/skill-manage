@@ -2,12 +2,12 @@ import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Form, Input, Modal, message } from "antd";
 import { extractVersionFromFilename } from "@skill-manage/shared";
-import { SkillSetSelect } from "@/components/skill-set/SkillSetSelect";
-import { ZipUpload } from "@/components/skill/ZipUpload";
-import { fileToBase64 } from "@/utils/file";
-import { useTRPCClient } from "@/services/trpc/provider";
-import { errorMessage } from "@/utils/error";
-import type { SkillRow } from "@/types/skills";
+import { SkillSetSelect } from "@/components/skill-set";
+import { ZipUpload } from "@/components/skill";
+import { fileToBase64 } from "@/utils";
+import { useTRPCClient } from "@/services/trpc";
+import { errorMessage } from "@/utils";
+import type { SkillRow } from "@/types";
 
 export function UploadSkillFloat({
   visible,

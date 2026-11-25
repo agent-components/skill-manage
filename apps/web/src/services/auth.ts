@@ -1,5 +1,5 @@
 import type { AuthUser } from "@skill-manage/shared";
-import { trpcClient } from "@/services/trpc/client";
+import { trpcClient } from "@/services/trpc";
 import { getClientToken, saveClientToken, clearClientToken } from "@/services/trpc/token";
 
 export type ClientUser = AuthUser;

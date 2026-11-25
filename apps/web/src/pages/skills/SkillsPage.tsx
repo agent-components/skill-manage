@@ -3,13 +3,11 @@ import { useNavigate } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
 import { AppstoreOutlined, UnorderedListOutlined, UploadOutlined } from "@ant-design/icons";
 import { Button, Dropdown, Input, Pagination, Spin } from "antd";
-import { SkillIcon } from "@/components/ui/icons";
-import { SkillSetOptionsProvider, SkillSetSelect } from "@/components/skill-set/SkillSetSelect";
+import { SkillIcon } from "@/components/ui";
+import { SkillSetOptionsProvider, SkillSetSelect } from "@/components/skill-set";
 import { useTRPC } from "@/services/trpc";
-import { DeleteSkillFloat } from "@/components/skill/DeleteSkillFloat";
-import { EditSkillFloat } from "@/components/skill/EditSkillFloat";
-import { UploadSkillFloat } from "@/components/skill/UploadSkillFloat";
-import type { SkillRow } from "@/types/skills";
+import { DeleteSkillFloat, EditSkillFloat, UploadSkillFloat } from "@/components/skill";
+import type { SkillRow } from "@/types";
 import "@/styles/skill-ui.css";
 import "@/styles/pack-ui.css";
 

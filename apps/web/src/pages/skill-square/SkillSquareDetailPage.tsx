@@ -15,17 +15,13 @@ import {
 import dayjs from "dayjs";
 import relativeTime from "dayjs/plugin/relativeTime";
 import "dayjs/locale/zh-cn";
-import { SkillIcon } from "@/components/ui/icons";
-import { SkillSetOptionsProvider } from "@/components/skill-set/SkillSetSelect";
-import { MarkdownRenderer } from "@/components/skill/MarkdownRenderer";
-import {
-  buildSkillFileTree,
-  type SkillFileMeta,
-  type SkillTreeNode,
-} from "@/components/skill/files-to-tree";
+import { SkillIcon } from "@/components/ui";
+import { SkillSetOptionsProvider } from "@/components/skill-set";
+import { MarkdownRenderer } from "@/components/skill";
+import { buildSkillFileTree, type SkillFileMeta, type SkillTreeNode } from "@/components/skill";
 import { useTRPC } from "@/services/trpc";
 import { ImportSkillFloat } from "@/components/skill-square/ImportSkillFloat";
-import type { SquareSkill } from "@/types/skill-square";
+import type { SquareSkill } from "@/types";
 import "@/styles/skill-ui.css";
 import "@/styles/pack-ui.css";
 

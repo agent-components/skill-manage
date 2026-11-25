@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { Spin } from "antd";
-import { HarnessOpenNotice } from "@/components/layout/HarnessOpenNotice";
+import { HarnessOpenNotice } from "@/components/ui";
 import {
   clearClientToken,
   exchangeHarnessSso,
@@ -9,7 +9,7 @@ import {
   getClientToken,
   type ClientUser,
 } from "@/services";
-import { isEmbeddedFrame } from "@/utils/embed";
+import { isEmbeddedFrame } from "@/utils";
 
 function readSsoCode() {
   if (typeof window === "undefined") return "";
