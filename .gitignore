@@ -2,5 +2,9 @@ node_modules
 # Keep environment variables out of version control
 .env
 .next
-/src/generated/prisma
 *.tsbuildinfo
+
+# 构建产物
+dist
+packages/*/dist
+apps/*/dist
