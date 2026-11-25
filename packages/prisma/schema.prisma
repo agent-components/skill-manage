@@ -7,21 +7,16 @@ generator client {
 
 datasource db {
   provider = "postgresql"
-  schemas  = ["skills"]
 }
 
 enum UserRole {
   ADMIN
   USER
-
-  @@schema("skills")
 }
 
 enum UserStatus {
   ACTIVE
   RESIGNED
-
-  @@schema("skills")
 }
 
 model User {
@@ -39,7 +34,6 @@ model User {
   email          String?
 
   @@map("users")
-  @@schema("skills")
 }
 
 model SkillSet {
@@ -58,7 +52,6 @@ model SkillSet {
   @@unique([ownerId, slug])
   @@index([ownerId])
   @@map("skill_sets")
-  @@schema("skills")
 }
 
 model Skill {
@@ -82,7 +75,6 @@ model Skill {
   @@unique([ownerId, slug])
   @@index([ownerId])
   @@map("skills")
-  @@schema("skills")
 }
 
 model SkillSetSkill {
@@ -97,7 +89,6 @@ model SkillSetSkill {
   @@unique([skillSetId, skillId])
   @@index([skillId])
   @@map("skill_set_skills")
-  @@schema("skills")
 }
 
 model SkillVersion {
@@ -120,7 +111,6 @@ model SkillVersion {
   @@unique([skillId, version])
   @@index([skillId])
   @@map("skill_versions")
-  @@schema("skills")
 }
 
 /// MCP 下载短链：凭 token 匿名拉取 zip，到期失效
@@ -138,7 +128,6 @@ model SkillDownloadLink {
   @@index([expiresAt])
   @@index([versionId])
   @@map("skill_download_links")
-  @@schema("skills")
 }
 
 model SkillFile {
@@ -156,5 +145,4 @@ model SkillFile {
   @@unique([versionId, filePath])
   @@index([versionId])
   @@map("skill_files")
-  @@schema("skills")
 }
