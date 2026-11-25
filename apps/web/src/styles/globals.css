@@ -1,3 +1,5 @@
+@import "./tokens.css";
+
 html,
 body {
   margin: 0;
@@ -101,5 +103,5 @@ html[data-embed="1"] .pro-layout-tabs-nav {
 html[data-embed="1"] .app-embed,
 html[data-embed="1"] .pro-layout-content {
   box-sizing: border-box;
-  padding: 16px !important;
+  padding: var(--spacing-lg) !important;
 }
